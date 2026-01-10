@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../data/services/user_service.dart';
 import '../../../routes/app_pages.dart';
 
 class AuthenticationController extends GetxController {
@@ -109,7 +110,18 @@ class AuthenticationController extends GetxController {
   /// Sign in with phone credential
   Future<void> _signInWithCredential(PhoneAuthCredential credential) async {
     try {
-      await _auth.signInWithCredential(credential);
+      final userCredential = await _auth.signInWithCredential(credential);
+      final user = userCredential.user;
+
+      if (user != null) {
+        // Create or get user in Firestore
+        final fullPhoneNumber = '+91${phoneNumber.value}';
+        await UserService.getOrCreateUser(
+          userId: user.uid,
+          phone: fullPhoneNumber,
+        );
+      }
+
       isLoading.value = false;
 
       Get.snackbar(

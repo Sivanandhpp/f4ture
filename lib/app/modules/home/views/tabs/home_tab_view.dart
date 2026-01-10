@@ -94,8 +94,7 @@ class HomeTabView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    // const SizedBox(height: 20),
-
+                    const SizedBox(height: 10),
                     // Banner image
                     AppImage.asset(
                       path: 'assets/images/banner.png',
@@ -108,12 +107,12 @@ class HomeTabView extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(
-          height: 180,
-          child: AppVideo.background(
-            assetPath: 'assets/videos/FutureSummit_heilights.mp4',
-          ),
-        ),
+        // SizedBox(
+        //   height: 180,
+        //   child: AppVideo.background(
+        //     assetPath: 'assets/videos/FutureSummit_heilights.mp4',
+        //   ),
+        // ),
       ],
     );
   }
