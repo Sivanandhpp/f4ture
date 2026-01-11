@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -9,7 +9,7 @@ import '../../core/index.dart';
 
 /// Image picker result containing selected image details
 class ImagePickerResult {
-  final File selectedImage;
+  final XFile selectedImage;
   final String mimeType;
   final int size;
 
@@ -216,8 +216,7 @@ class AppImagePicker {
       );
 
       if (pickedFile != null) {
-        final file = File(pickedFile.path);
-        final size = await file.length();
+        final size = await pickedFile.length();
         final mimeType = lookupMimeType(pickedFile.path) ?? 'image/jpeg';
 
         debugPrint(
@@ -225,7 +224,7 @@ class AppImagePicker {
         );
 
         return ImagePickerResult(
-          selectedImage: file,
+          selectedImage: pickedFile,
           mimeType: mimeType,
           size: size,
         );
@@ -270,10 +269,10 @@ class AppImagePicker {
       final cameraStatus = await Permission.camera.request();
       return cameraStatus == PermissionStatus.granted;
     } else {
-      if (Platform.isAndroid) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
         // For Android 13+ (SDK 33), use photos permission
         // Simplified check, assuming photos permission for newer androids
-        // In real app, check SDK version.
+        // In real app, check SDK version using device_info_plus if needed.
         // For simplicity, requesting storage and photos.
 
         final storage = await Permission.storage.status;
@@ -289,7 +288,7 @@ class AppImagePicker {
         final photosResult = await Permission.photos.request();
         return photosResult.isGranted;
       }
-      // iOS / other
+      // iOS / other / Web (permission_handler handles web generally or returns granted)
       final photos = await Permission.photos.request();
       return photos.isGranted;
     }

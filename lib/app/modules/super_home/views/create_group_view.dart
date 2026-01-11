@@ -43,10 +43,11 @@ class CreateGroupView extends GetView<SuperHomeController> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: const Color(0xFFD4D4D4),
-                            image: controller.selectedGroupIcon.value != null
+                            image:
+                                controller.selectedGroupIconBytes.value != null
                                 ? DecorationImage(
-                                    image: FileImage(
-                                      controller.selectedGroupIcon.value!,
+                                    image: MemoryImage(
+                                      controller.selectedGroupIconBytes.value!,
                                     ),
                                     fit: BoxFit.cover,
                                   )

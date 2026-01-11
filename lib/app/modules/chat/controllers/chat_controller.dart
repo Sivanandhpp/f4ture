@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -240,10 +242,12 @@ class ChatController extends GetxController {
   // --- Attachments Staging ---
 
   final Rx<XFile?> selectedAttachment = Rx<XFile?>(null);
+  final Rx<Uint8List?> selectedAttachmentBytes = Rx<Uint8List?>(null);
   final Rx<MessageType> attachmentType = Rx<MessageType>(MessageType.image);
 
   void cancelAttachment() {
     selectedAttachment.value = null;
+    selectedAttachmentBytes.value = null;
   }
 
   Future<void> sendAttachment() async {
@@ -340,6 +344,7 @@ class ChatController extends GetxController {
 
     if (image != null) {
       selectedAttachment.value = image;
+      selectedAttachmentBytes.value = await image.readAsBytes();
       attachmentType.value = MessageType.image;
     }
   }
@@ -347,6 +352,7 @@ class ChatController extends GetxController {
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
       withData: true, // Needed for XFile on web/mem
+      type: FileType.any,
     );
 
     if (result != null) {
@@ -373,6 +379,7 @@ class ChatController extends GetxController {
       }
 
       selectedAttachment.value = xFile;
+      selectedAttachmentBytes.value = await xFile.readAsBytes();
       attachmentType.value = type;
     }
   }

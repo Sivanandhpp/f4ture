@@ -1,9 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/index.dart';
 import '../../../data/models/user_model.dart';
@@ -18,7 +20,8 @@ class UserProfileController extends GetxController {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
 
-  final Rx<File?> selectedImage = Rx<File?>(null);
+  final Rx<XFile?> selectedImage = Rx<XFile?>(null);
+  final Rx<Uint8List?> selectedImageBytes = Rx<Uint8List?>(null);
   final RxString uploadedImageUrl = ''.obs;
   final RxBool isLoading = false.obs;
   final RxList<String> selectedInterests = <String>[].obs;
@@ -47,6 +50,8 @@ class UserProfileController extends GetxController {
     final result = await AppImagePicker.showImagePickerOptions();
     if (result != null) {
       selectedImage.value = result.selectedImage;
+      selectedImageBytes.value = await result.selectedImage.readAsBytes();
+      // No need to manually dispose XFile, OS handles temp cache.
     }
   }
 
@@ -89,7 +94,11 @@ class UserProfileController extends GetxController {
     try {
       // 1. Upload Image
       final ref = _storage.ref().child('profile_photos/${user.uid}.jpg');
-      await ref.putFile(selectedImage.value!);
+
+      // Use bytes for cross-platform compatibility
+      final bytes = await selectedImage.value!.readAsBytes();
+      await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
+
       final imageUrl = await ref.getDownloadURL();
       uploadedImageUrl.value = imageUrl;
 

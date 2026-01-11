@@ -232,10 +232,25 @@ class _AppVideoState extends State<AppVideo> {
   }
 
   @override
+  void didUpdateWidget(AppVideo oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.source != oldWidget.source) {
+      _disposeControllers();
+      _isInitialized = false;
+      _hasError = false;
+      _initializeVideo();
+    }
+  }
+
+  @override
   void dispose() {
+    _disposeControllers();
+    super.dispose();
+  }
+
+  void _disposeControllers() {
     _videoController.dispose();
     _chewieController?.dispose();
-    super.dispose();
   }
 
   @override

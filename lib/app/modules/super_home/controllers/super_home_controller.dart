@@ -1,10 +1,11 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/index.dart';
 import '../../../data/models/group_model.dart';
@@ -18,7 +19,8 @@ class SuperHomeController extends GetxController {
   final groupNameController = TextEditingController();
   final groupDescriptionController = TextEditingController();
 
-  final Rx<File?> selectedGroupIcon = Rx<File?>(null);
+  final Rx<XFile?> selectedGroupIcon = Rx<XFile?>(null);
+  final Rx<Uint8List?> selectedGroupIconBytes = Rx<Uint8List?>(null);
   final RxBool isLoading = false.obs;
   final RxString selectedType = 'public'.obs; // public, private, committee
 
@@ -76,6 +78,7 @@ class SuperHomeController extends GetxController {
     final result = await AppImagePicker.showImagePickerOptions();
     if (result != null) {
       selectedGroupIcon.value = result.selectedImage;
+      selectedGroupIconBytes.value = await result.selectedImage.readAsBytes();
     }
   }
 
@@ -104,7 +107,11 @@ class SuperHomeController extends GetxController {
 
       final groupId = _firestore.collection('groups').doc().id;
       final ref = _storage.ref().child('group_icons/$groupId.jpg');
-      await ref.putFile(selectedGroupIcon.value!);
+
+      // Use bytes for cross-platform compatibility
+      final bytes = await selectedGroupIcon.value!.readAsBytes();
+      await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
+
       final iconUrl = await ref.getDownloadURL();
 
       final newGroup = GroupModel(

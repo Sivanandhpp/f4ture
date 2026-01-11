@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-// import 'url_launcher/url_launcher.dart'; // Ensure this is available or use another way if not
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/widgets/app_image.dart';
 import '../../../core/widgets/app_video.dart';
@@ -161,11 +161,14 @@ class MessageBubble extends StatelessWidget {
         );
       case MessageType.file:
         return GestureDetector(
-          onTap: () {
-            // Basic URL launch for file
+          onTap: () async {
             if (message.mediaUrl != null) {
-              // launchUrl(Uri.parse(message.mediaUrl!));
-              // Need url_launcher, assuming it's available or user will handle
+              final uri = Uri.parse(message.mediaUrl!);
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              } else {
+                Get.snackbar('Error', 'Could not open file');
+              }
             }
           },
           child: Container(

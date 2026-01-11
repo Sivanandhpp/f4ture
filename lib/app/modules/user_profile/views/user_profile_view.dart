@@ -38,15 +38,15 @@ class UserProfileView extends GetView<UserProfileController> {
                               color: AppColors.primary,
                               width: 2,
                             ),
-                            image: controller.selectedImage.value != null
+                            color: Colors.grey.shade900,
+                            image: controller.selectedImageBytes.value != null
                                 ? DecorationImage(
-                                    image: FileImage(
-                                      controller.selectedImage.value!,
+                                    image: MemoryImage(
+                                      controller.selectedImageBytes.value!,
                                     ),
                                     fit: BoxFit.cover,
                                   )
                                 : null,
-                            color: Colors.grey.shade900,
                           ),
                           child: controller.selectedImage.value == null
                               ? Icon(

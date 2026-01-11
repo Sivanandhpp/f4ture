@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'package:f4ture/app/modules/chat/controllers/chat_controller.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
@@ -118,12 +116,27 @@ class ChatInput extends GetView<ChatController> {
             Flexible(
               child: Container(
                 constraints: const BoxConstraints(maxHeight: 300),
-                child: type == MessageType.image
+                child: (type == MessageType.image || type == MessageType.video)
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: kIsWeb
-                            ? Image.network(file.path, fit: BoxFit.contain)
-                            : Image.file(File(file.path), fit: BoxFit.contain),
+                        child: controller.selectedAttachmentBytes.value != null
+                            ? (type == MessageType.image
+                                  ? Image.memory(
+                                      controller.selectedAttachmentBytes.value!,
+                                      fit: BoxFit.contain,
+                                    )
+                                  : Container(
+                                      // Video placeholder for preview
+                                      color: Colors.black,
+                                      child: const Center(
+                                        child: Icon(
+                                          Icons.play_circle,
+                                          color: Colors.white,
+                                          size: 48,
+                                        ),
+                                      ),
+                                    ))
+                            : Container(),
                       )
                     : Container(
                         padding: const EdgeInsets.all(24),
