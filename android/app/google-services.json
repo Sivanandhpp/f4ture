@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "836340362776",
+    "project_id": "thef4turesummit",
+    "storage_bucket": "thef4turesummit.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:836340362776:android:a0e12338d230faffa0dd6d",
+        "android_client_info": {
+          "package_name": "in.futuresummit.f4ture"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChS1jYZTTmP1wwLa1L-Zej4f8qvJ4zQkQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
