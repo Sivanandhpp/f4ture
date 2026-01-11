@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 
 import '../../../core/index.dart';
 import '../../../data/models/group_model.dart';
+import '../../../data/services/auth_service.dart';
 
 class SuperHomeController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -22,15 +23,47 @@ class SuperHomeController extends GetxController {
   final RxString selectedType = 'public'.obs; // public, private, committee
 
   // Stream of groups
-  Stream<List<GroupModel>> get groupsStream => _firestore
-      .collection('groups')
-      .orderBy('createdAt', descending: true)
-      .snapshots()
-      .map(
-        (snapshot) => snapshot.docs
-            .map((doc) => GroupModel.fromJson(doc.data()))
-            .toList(),
-      );
+  Stream<List<GroupModel>> get groupsStream {
+    final user = AuthService.to.currentUser.value;
+    if (user == null) return Stream.value([]);
+
+    // 1. Admin: Return all groups
+    if (user.role == 'admin') {
+      return _firestore
+          .collection('groups')
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map(
+            (snapshot) => snapshot.docs
+                .map((doc) => GroupModel.fromJson(doc.data()))
+                .toList(),
+          );
+    }
+
+    // 2. Regular User: Return only joined groups
+    return _firestore
+        .collection('users')
+        .doc(user.id)
+        .collection('groups')
+        .snapshots()
+        .asyncMap((snapshot) async {
+          final groupIds = snapshot.docs.map((doc) => doc.id).toList();
+
+          if (groupIds.isEmpty) return <GroupModel>[];
+
+          // Fetch details for each group
+          final groupDocs = await Future.wait(
+            groupIds.map((id) => _firestore.collection('groups').doc(id).get()),
+          );
+
+          return groupDocs
+              .where((doc) => doc.exists && doc.data() != null)
+              .map((doc) => GroupModel.fromJson(doc.data()!))
+              .toList()
+            // Sort manually since we fetched individually
+            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        });
+  }
 
   @override
   void onClose() {

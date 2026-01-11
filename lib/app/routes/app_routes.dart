@@ -7,6 +7,7 @@ abstract class Routes {
   static const AUTHENTICATION = _Paths.AUTHENTICATION;
   static const USER_PROFILE = _Paths.USER_PROFILE;
   static const SUPER_HOME = _Paths.SUPER_HOME;
+  static const CHAT = _Paths.CHAT;
 }
 
 abstract class _Paths {
@@ -15,4 +16,5 @@ abstract class _Paths {
   static const AUTHENTICATION = '/authentication';
   static const USER_PROFILE = '/user-profile';
   static const SUPER_HOME = '/super-home';
+  static const CHAT = '/chat';
 }

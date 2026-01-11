@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../core/index.dart';
 import '../../../data/models/group_model.dart';
+import '../../../routes/app_pages.dart';
 import '../controllers/super_home_controller.dart';
 import 'create_group_view.dart';
 
@@ -12,12 +13,12 @@ class SuperHomeView extends GetView<SuperHomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.background,
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
-            backgroundColor: Colors.black,
-            expandedHeight: 120.0,
+            backgroundColor: AppColors.background,
+            expandedHeight: 80.0,
             floating: false,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
@@ -25,9 +26,9 @@ class SuperHomeView extends GetView<SuperHomeController> {
               title: Text(
                 'F4ture',
                 style: AppFont.heading.copyWith(
-                  fontSize: 32,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -88,8 +89,7 @@ class SuperHomeView extends GetView<SuperHomeController> {
   Widget _buildGroupTile(GroupModel group) {
     return InkWell(
       onTap: () {
-        // TODO: Navigate to group chat
-        Get.snackbar('Coming Soon', 'Chat feature is under development');
+        Get.toNamed(Routes.CHAT, arguments: group);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -115,7 +115,7 @@ class SuperHomeView extends GetView<SuperHomeController> {
                       Text(
                         group.name,
                         style: AppFont.subtitle.copyWith(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
                         maxLines: 1,
