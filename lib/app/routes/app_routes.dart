@@ -8,6 +8,7 @@ abstract class Routes {
   static const USER_PROFILE = _Paths.USER_PROFILE;
   static const SUPER_HOME = _Paths.SUPER_HOME;
   static const CHAT = _Paths.CHAT;
+  static const GROUP_DETAILS = _Paths.GROUP_DETAILS;
 }
 
 abstract class _Paths {
@@ -17,4 +18,5 @@ abstract class _Paths {
   static const USER_PROFILE = '/user-profile';
   static const SUPER_HOME = '/super-home';
   static const CHAT = '/chat';
+  static const GROUP_DETAILS = '/group-details';
 }

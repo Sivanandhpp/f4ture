@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/widgets/app_image.dart';
 import '../../../data/services/auth_service.dart';
+import '../../../routes/app_pages.dart';
 import '../controllers/chat_controller.dart';
 import '../widgets/chat_input.dart';
 import '../widgets/message_bubble.dart';
@@ -19,45 +20,53 @@ class ChatView extends GetView<ChatController> {
           onPressed: () => Get.back(),
         ),
         titleSpacing: 0,
-        title: Row(
-          children: [
-            Hero(
-              tag: controller.group.groupId,
-              child: ClipOval(
-                child: AppImage.network(
-                  url: controller.group.iconUrl,
-                  width: 40,
-                  height: 40,
-                  errorWidget: Container(
+        title: InkWell(
+          onTap: () {
+            Get.toNamed(Routes.GROUP_DETAILS, arguments: controller.group);
+          },
+          child: Row(
+            children: [
+              Hero(
+                tag: controller.group.groupId,
+                child: ClipOval(
+                  child: AppImage.network(
+                    url: controller.group.iconUrl,
                     width: 40,
                     height: 40,
-                    color: Colors.grey.shade300,
-                    child: const Icon(Icons.group, color: Colors.grey),
+                    errorWidget: Container(
+                      width: 40,
+                      height: 40,
+                      color: Colors.grey.shade300,
+                      child: const Icon(Icons.group, color: Colors.grey),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    controller.group.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      controller.group.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    '${controller.group.membersCount} members',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                ],
+                    Text(
+                      '${controller.group.membersCount} members',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           IconButton(
