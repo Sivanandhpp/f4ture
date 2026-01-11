@@ -24,6 +24,8 @@ class SuperHomeController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxString selectedType = 'public'.obs; // public, private, committee
 
+  final RxInt tabIndex = 1.obs; // Default to Chats tab (Index 1)
+
   // Stream of groups
   Stream<List<GroupModel>> get groupsStream {
     final user = AuthService.to.currentUser.value;
@@ -161,5 +163,9 @@ class SuperHomeController extends GetxController {
         backgroundColor: AppColors.error,
       );
     }
+  }
+
+  void changeTab(int index) {
+    tabIndex.value = index;
   }
 }
