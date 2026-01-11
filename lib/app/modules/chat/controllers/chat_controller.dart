@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -238,7 +237,63 @@ class ChatController extends GetxController {
     }
   }
 
-  // --- Attachments ---
+  // --- Attachments Staging ---
+
+  final Rx<XFile?> selectedAttachment = Rx<XFile?>(null);
+  final Rx<MessageType> attachmentType = Rx<MessageType>(MessageType.image);
+
+  void cancelAttachment() {
+    selectedAttachment.value = null;
+  }
+
+  Future<void> sendAttachment() async {
+    if (selectedAttachment.value == null) return;
+
+    isSending.value = true;
+    final file = selectedAttachment.value!;
+    final type = attachmentType.value;
+
+    try {
+      // 1. Upload
+      final bytes = await file.readAsBytes();
+      final ext = file.name.split('.').last;
+      final fileName = 'chat_${type.name}s/${const Uuid().v4()}.$ext';
+      final ref = _storage.ref().child(fileName);
+
+      // Set metadata based on type
+      final contentType = _getContentType(type, ext);
+      await ref.putData(bytes, SettableMetadata(contentType: contentType));
+
+      final url = await ref.getDownloadURL();
+
+      // 2. Send Message
+      await _sendMessage(
+        type: type,
+        mediaUrl: url,
+        mediaName: file.name,
+        mediaSize: await file.length(),
+      );
+
+      // 3. Clear staging
+      cancelAttachment();
+    } catch (e) {
+      Get.snackbar(
+        'Send Failed',
+        e.toString(),
+        backgroundColor: Colors.redAccent,
+      );
+    } finally {
+      isSending.value = false;
+    }
+  }
+
+  String _getContentType(MessageType type, String ext) {
+    if (type == MessageType.image) return 'image/$ext';
+    if (type == MessageType.video) return 'video/$ext';
+    return 'application/octet-stream';
+  }
+
+  // --- Picker Logic ---
 
   Future<void> pickAttachment() async {
     Get.bottomSheet(
@@ -277,7 +332,6 @@ class ChatController extends GetxController {
   }
 
   Future<void> _pickImage(ImageSource source) async {
-    // Reusing AppImagePicker logic but customizing for chat upload
     final picker = ImagePicker();
     final XFile? image = await picker.pickImage(
       source: source,
@@ -285,70 +339,41 @@ class ChatController extends GetxController {
     );
 
     if (image != null) {
-      isSending.value = true;
-      try {
-        // Upload logic
-        final bytes = await image.readAsBytes();
-        final fileName = 'chat_images/${const Uuid().v4()}.jpg';
-        final ref = _storage.ref().child(fileName);
-
-        await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
-        final url = await ref.getDownloadURL();
-
-        await _sendMessage(type: MessageType.image, mediaUrl: url);
-      } catch (e) {
-        Get.snackbar('Upload Failed', e.toString());
-      } finally {
-        isSending.value = false;
-      }
+      selectedAttachment.value = image;
+      attachmentType.value = MessageType.image;
     }
   }
 
   Future<void> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles();
+    final result = await FilePicker.platform.pickFiles(
+      withData: true, // Needed for XFile on web/mem
+    );
 
-    if (result != null && result.files.single.bytes != null) {
-      // Note: On web bytes are available, on mobile we might need path.
-      // FilePicker on mobile with `withData: true` might crash on large files.
-      // Better to check platform.
-
+    if (result != null) {
       final file = result.files.single;
-      isSending.value = true;
 
-      try {
-        final fileName = 'chat_files/${const Uuid().v4()}_${file.name}';
-        final ref = _storage.ref().child(fileName);
-
-        // Handle web vs mobile
-        if (file.bytes != null) {
-          await ref.putData(file.bytes!);
-        } else if (file.path != null) {
-          await ref.putFile(File(file.path!));
-        }
-
-        final url = await ref.getDownloadURL();
-
-        // Determine type (simplified)
-        final mime = lookupMimeType(file.name);
-        MessageType type = MessageType.file;
-        if (mime != null) {
-          if (mime.startsWith('image/'))
-            type = MessageType.image;
-          else if (mime.startsWith('video/'))
-            type = MessageType.video;
-        }
-
-        await _sendMessage(
-          type: type,
-          mediaUrl: url,
-          mediaName: file.name,
-          mediaSize: file.size,
-        );
-      } catch (e) {
-        Get.snackbar('Upload Failed', e.toString());
-      } finally {
-        isSending.value = false;
+      // Convert PlatformFile to XFile
+      XFile xFile;
+      if (file.bytes != null) {
+        xFile = XFile.fromData(file.bytes!, name: file.name);
+      } else if (file.path != null) {
+        xFile = XFile(file.path!, name: file.name);
+      } else {
+        return;
       }
+
+      // Determine Type
+      final mime = lookupMimeType(file.name);
+      MessageType type = MessageType.file;
+      if (mime != null) {
+        if (mime.startsWith('image/'))
+          type = MessageType.image;
+        else if (mime.startsWith('video/'))
+          type = MessageType.video;
+      }
+
+      selectedAttachment.value = xFile;
+      attachmentType.value = type;
     }
   }
 }
