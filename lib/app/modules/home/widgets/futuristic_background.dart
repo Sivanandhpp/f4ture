@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-const Color bgDark = Color(0xFF070B14);
-const Color cyanGlow = Color(0xFF00E5FF);
-const Color purpleGlow = Color(0xFF9C5CFF);
+const Color bgDark = Color(0xFF0D0D0D);
 const Color gridLine = Color(0xFF1A2235);
 
 class FuturisticBackground extends StatelessWidget {

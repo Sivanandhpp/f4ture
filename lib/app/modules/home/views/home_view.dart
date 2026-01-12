@@ -5,6 +5,7 @@ import '../../../core/index.dart';
 import '../../../data/services/auth_service.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/futuristic_background.dart';
+import '../widgets/neon_button.dart';
 import '../widgets/video_background.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -26,14 +27,11 @@ class HomeView extends GetView<HomeController> {
           const Positioned.fill(child: FuturisticBackground()),
           // Video Background (Foreground element underneath header)
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 50),
-              child: const VideoBackground(
-                videoPath: 'assets/videos/highlights.mp4',
-              ),
+            child: const Padding(
+              padding: EdgeInsets.only(top: 50),
+              child: VideoBackground(videoPath: 'assets/videos/highlights.mp4'),
             ),
           ),
-
           // 1. Content
           SafeArea(
             child: Column(
@@ -91,7 +89,6 @@ class HomeView extends GetView<HomeController> {
                               fontSize: 12,
                             ),
                           ),
-
                           Text(
                             'FUTURE',
                             style: AppFont.heading.copyWith(
@@ -128,6 +125,24 @@ class HomeView extends GetView<HomeController> {
                       ),
                     ],
                   ),
+                ),
+                SizedBox(height: 150),
+                // Action Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    NeonButton(
+                      text: 'Get Tickets',
+                      onTap: () {},
+                      glowColor: AppColors.primaryLight, // Cyan
+                    ),
+                    const SizedBox(width: 20),
+                    NeonButton(
+                      text: 'Explore',
+                      onTap: () {},
+                      glowColor: AppColors.info, // Purple
+                    ),
+                  ],
                 ),
 
                 // Rest of the content (Space filler for now)
