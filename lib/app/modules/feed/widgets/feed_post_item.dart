@@ -13,10 +13,15 @@ class FeedPostItem extends StatelessWidget {
 
   FeedPostItem({super.key, required this.post});
 
+  // Custom Dark Colors
+  static const Color kSurface = Color(0xFF1E1E1E);
+  static const Color kTextPrimary = Colors.white;
+  static const Color kTextSecondary = Color(0xFFAAAAAA);
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: kSurface,
       margin: const EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,8 +34,9 @@ class FeedPostItem extends StatelessWidget {
                 CircleAvatar(
                   radius: 16,
                   backgroundImage: NetworkImage(post.authorAvatar),
-                  backgroundColor: Colors.grey[200],
-                  onBackgroundImageError: (_, __) => const Icon(Icons.person),
+                  backgroundColor: Colors.grey[800],
+                  onBackgroundImageError: (_, __) =>
+                      const Icon(Icons.person, color: Colors.white),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -40,6 +46,7 @@ class FeedPostItem extends StatelessWidget {
                       Text(
                         post.authorName,
                         style: const TextStyle(
+                          color: kTextPrimary,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -57,7 +64,7 @@ class FeedPostItem extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.more_vert),
+                  icon: const Icon(Icons.more_vert, color: kTextSecondary),
                   onPressed: () {}, // Report/Menu options
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
@@ -83,7 +90,7 @@ class FeedPostItem extends StatelessWidget {
                   onTap: () => controller.toggleLike(post),
                   child: Icon(
                     post.isLikedByMe ? Icons.favorite : Icons.favorite_border,
-                    color: post.isLikedByMe ? Colors.red : Colors.black,
+                    color: post.isLikedByMe ? Colors.red : kTextPrimary,
                     size: 26,
                   ),
                 ),
@@ -92,12 +99,12 @@ class FeedPostItem extends StatelessWidget {
                   onTap: () => controller.openComments(post),
                   child: const Icon(
                     Icons.chat_bubble_outline_rounded,
-                    color: Colors.black,
+                    color: kTextPrimary,
                     size: 24,
                   ),
                 ),
                 const SizedBox(width: 16),
-                const Icon(Icons.send_rounded, color: Colors.black, size: 24),
+                const Icon(Icons.send_rounded, color: kTextPrimary, size: 24),
                 const Spacer(),
                 if (post.type == PostType.blog)
                   Container(
@@ -106,13 +113,13 @@ class FeedPostItem extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: const Text(
                       "READ",
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
@@ -132,6 +139,7 @@ class FeedPostItem extends StatelessWidget {
                   Text(
                     '${post.likesCount} likes',
                     style: const TextStyle(
+                      color: kTextPrimary,
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                     ),
@@ -141,7 +149,7 @@ class FeedPostItem extends StatelessWidget {
 
                 RichText(
                   text: TextSpan(
-                    style: const TextStyle(color: Colors.black, fontSize: 13),
+                    style: const TextStyle(color: kTextPrimary, fontSize: 13),
                     children: [
                       TextSpan(
                         text: '${post.authorName} ',
@@ -159,7 +167,10 @@ class FeedPostItem extends StatelessWidget {
                       onTap: () => controller.openComments(post),
                       child: Text(
                         'View all ${post.commentsCount} comments',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                        style: const TextStyle(
+                          color: kTextSecondary,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ),
@@ -168,7 +179,7 @@ class FeedPostItem extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 4, bottom: 8),
                   child: Text(
                     timeago.format(post.createdAt),
-                    style: TextStyle(color: Colors.grey[500], fontSize: 11),
+                    style: const TextStyle(color: kTextSecondary, fontSize: 11),
                   ),
                 ),
               ],

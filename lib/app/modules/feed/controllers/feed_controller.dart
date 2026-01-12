@@ -188,6 +188,8 @@ class FeedController extends GetxController {
       CommentSheet(postId: post.postId),
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      isDismissible: true,
+      enableDrag: true,
     );
   }
 

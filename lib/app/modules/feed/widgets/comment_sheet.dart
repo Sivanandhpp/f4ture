@@ -24,6 +24,12 @@ class _CommentSheetState extends State<CommentSheet> {
 
   @override
   Widget build(BuildContext context) {
+    // Custom Dark Colors
+    const Color kSurface = Color(0xFF1E1E1E);
+    const Color kInputBackground = Color(0xFF2C2C2C);
+    const Color kTextPrimary = Colors.white;
+    const Color kTextSecondary = Color(0xFFAAAAAA);
+
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       minChildSize: 0.5,
@@ -31,7 +37,7 @@ class _CommentSheetState extends State<CommentSheet> {
       builder: (_, controller) {
         return Container(
           decoration: const BoxDecoration(
-            color: Colors.white,
+            color: kSurface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
@@ -42,18 +48,34 @@ class _CommentSheetState extends State<CommentSheet> {
                 height: 4,
                 margin: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: Colors.grey[600],
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 10),
-                child: Text(
-                  'Comments',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(
+                    width: 48,
+                  ), // Spacer to balance the close button
+                  const Text(
+                    'Comments',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: kTextPrimary,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: kTextPrimary),
+                    onPressed: () => Get.back(),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
               ),
-              const Divider(height: 1),
+              const SizedBox(height: 10),
+              const Divider(height: 1, color: Colors.white24),
 
               // Comments List
               Expanded(
@@ -66,11 +88,18 @@ class _CommentSheetState extends State<CommentSheet> {
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
+                      );
                     }
                     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                       return const Center(
-                        child: Text('No comments yet. Be the first!'),
+                        child: Text(
+                          'No comments yet. Be the first!',
+                          style: TextStyle(color: kTextSecondary),
+                        ),
                       );
                     }
 
@@ -95,7 +124,7 @@ class _CommentSheetState extends State<CommentSheet> {
                             CircleAvatar(
                               radius: 18,
                               backgroundImage: NetworkImage(comment.userAvatar),
-                              backgroundColor: Colors.grey[200],
+                              backgroundColor: Colors.grey[800],
                               onBackgroundImageError: (_, __) {},
                             ),
                             const SizedBox(width: 12),
@@ -110,20 +139,24 @@ class _CommentSheetState extends State<CommentSheet> {
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 13,
+                                          color: kTextPrimary,
                                         ),
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
                                         timeago.format(comment.createdAt),
-                                        style: TextStyle(
-                                          color: Colors.grey[500],
+                                        style: const TextStyle(
+                                          color: kTextSecondary,
                                           fontSize: 11,
                                         ),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 2),
-                                  Text(comment.text),
+                                  Text(
+                                    comment.text,
+                                    style: const TextStyle(color: kTextPrimary),
+                                  ),
                                 ],
                               ),
                             ),
@@ -143,10 +176,10 @@ class _CommentSheetState extends State<CommentSheet> {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: kSurface,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withOpacity(0.2),
                         offset: const Offset(0, -2),
                         blurRadius: 10,
                       ),
@@ -159,15 +192,25 @@ class _CommentSheetState extends State<CommentSheet> {
                         backgroundImage: NetworkImage(
                           AuthService.to.currentUser.value?.profilePhoto ?? '',
                         ),
-                        backgroundColor: Colors.grey[200],
+                        backgroundColor: Colors.grey[800],
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: TextField(
-                          controller: _commentController,
-                          decoration: const InputDecoration(
-                            hintText: 'Add a comment...',
-                            border: InputBorder.none,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: kInputBackground,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: TextField(
+                            controller: _commentController,
+                            style: const TextStyle(color: kTextPrimary),
+                            cursorColor: AppColors.primary,
+                            decoration: const InputDecoration(
+                              hintText: 'Add a comment...',
+                              hintStyle: TextStyle(color: kTextSecondary),
+                              border: InputBorder.none,
+                            ),
                           ),
                         ),
                       ),
@@ -179,6 +222,7 @@ class _CommentSheetState extends State<CommentSheet> {
                                 height: 16,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
+                                  color: AppColors.primary,
                                 ),
                               )
                             : const Text(

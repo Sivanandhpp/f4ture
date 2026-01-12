@@ -8,15 +8,26 @@ import 'create_post_view.dart'; // Direct import or route
 class FeedView extends GetView<FeedController> {
   const FeedView({super.key});
 
+  // Custom Dark Colors
+  static const Color kBackground = Color(0xFF121212);
+  static const Color kSurface = Color(0xFF1E1E1E);
+  static const Color kTextPrimary = Colors.white;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kBackground,
       appBar: AppBar(
+        backgroundColor: kSurface,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.camera_alt_outlined),
+          icon: const Icon(Icons.camera_alt_outlined, color: kTextPrimary),
           onPressed: controller.captureAndCreatePost,
         ),
-        title: const Text('Feed'),
+        title: const Text(
+          'Feed',
+          style: TextStyle(color: kTextPrimary, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         actions: [
           Padding(
@@ -24,16 +35,20 @@ class FeedView extends GetView<FeedController> {
             child: InkWell(
               onTap: () => Get.to(() => const CreatePostView()),
               customBorder: const CircleBorder(),
-              child: const Icon(Icons.add),
+              child: const Icon(Icons.add, color: kTextPrimary),
             ),
           ),
         ],
       ),
       body: RefreshIndicator(
         onRefresh: controller.refreshFeed,
+        color: AppColors.primary,
+        backgroundColor: kSurface,
         child: Obx(() {
           if (controller.isLoading.value && controller.posts.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
           }
 
           if (controller.posts.isEmpty) {
@@ -66,7 +81,11 @@ class FeedView extends GetView<FeedController> {
                 return controller.isLoadingMore.value
                     ? const Padding(
                         padding: EdgeInsets.all(16.0),
-                        child: Center(child: CircularProgressIndicator()),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
+                        ),
                       )
                     : const SizedBox(height: 80); // Bottom padding for navbar
               }
