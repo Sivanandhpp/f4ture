@@ -49,6 +49,7 @@ class ChatController extends GetxController {
     }
 
     _loadInitialMessages();
+    _resetUnreadCount();
 
     // Pagination listener
     scrollController.addListener(_scrollListener);
@@ -146,6 +147,22 @@ class ChatController extends GetxController {
 
     // Sort to be safe: Descending by date (newest first)
     messages.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  }
+
+  Future<void> _resetUnreadCount() async {
+    final user = AuthService.to.currentUser.value;
+    if (user == null) return;
+
+    try {
+      await _firestore
+          .collection('users')
+          .doc(user.id)
+          .collection('groups')
+          .doc(group.groupId)
+          .update({'unreadCount': 0});
+    } catch (e) {
+      debugPrint("Error resetting unread count: $e");
+    }
   }
 
   // --- Sending Messages ---

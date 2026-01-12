@@ -30,6 +30,17 @@ class TasksTab extends GetView<GlobalTasksController> {
       body: Column(
         children: [
           _buildFilterChips(),
+          Obx(() {
+            if ((controller.isLoadingTasks.value ||
+                    controller.isLoadingIssues.value) &&
+                controller.mixedList.isNotEmpty) {
+              return const LinearProgressIndicator(
+                minHeight: 2,
+                color: AppColors.primary,
+              );
+            }
+            return const SizedBox(height: 0);
+          }),
           Expanded(child: _buildUnifiedList()),
         ],
       ),
@@ -65,6 +76,8 @@ class TasksTab extends GetView<GlobalTasksController> {
           _buildChip('Tasks'),
           const SizedBox(width: 8),
           _buildChip('Issues'),
+          const SizedBox(width: 8),
+          _buildChip('Completed'),
         ],
       ),
     );
@@ -95,7 +108,9 @@ class TasksTab extends GetView<GlobalTasksController> {
 
   Widget _buildUnifiedList() {
     return Obx(() {
-      if (controller.isLoadingTasks.value || controller.isLoadingIssues.value) {
+      if ((controller.isLoadingTasks.value ||
+              controller.isLoadingIssues.value) &&
+          controller.mixedList.isEmpty) {
         return const Center(child: CircularProgressIndicator());
       }
 
@@ -135,6 +150,23 @@ class TasksTab extends GetView<GlobalTasksController> {
     });
   }
 
+  String _formatDateTime(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final checkDate = DateTime(date.year, date.month, date.day);
+
+    final time = DateFormat('hh:mm a').format(date);
+
+    if (checkDate == today) {
+      return 'Today $time';
+    } else if (checkDate == yesterday) {
+      return 'Yesterday $time';
+    } else {
+      return '${DateFormat('MMM d').format(date)} $time';
+    }
+  }
+
   Widget _buildTaskCard(TaskModel task) {
     return Card(
       elevation: 2,
@@ -162,19 +194,9 @@ class TasksTab extends GetView<GlobalTasksController> {
               ],
             ),
             const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    task.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
+            Text(
+              task.title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             if (task.description.isNotEmpty) ...[
@@ -187,20 +209,38 @@ class TasksTab extends GetView<GlobalTasksController> {
               const SizedBox(height: 12),
             ],
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildPriorityBadge(task.priority),
-                Row(
+                const Spacer(),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: 14,
-                      color: Colors.grey[500],
-                    ),
-                    const SizedBox(width: 4),
                     Text(
-                      DateFormat('MMM d').format(task.dueAt),
-                      style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                      'Created: ${_formatDateTime(task.createdAt)}',
+                      style: TextStyle(color: Colors.grey[500], fontSize: 11),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today,
+                          size: 12,
+                          color: task.dueAt.isBefore(DateTime.now())
+                              ? Colors.red
+                              : Colors.grey[500],
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Due: ${_formatDateTime(task.dueAt)}',
+                          style: TextStyle(
+                            color: task.dueAt.isBefore(DateTime.now())
+                                ? Colors.red
+                                : Colors.grey[500],
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -235,23 +275,13 @@ class TasksTab extends GetView<GlobalTasksController> {
                   ),
                 ),
                 const Spacer(),
-                _buildIssueStatusBadge(issue.status),
+                _buildIssueStatusBadge(issue),
               ],
             ),
             const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    issue.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
+            Text(
+              issue.title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             if (issue.description.isNotEmpty) ...[
@@ -268,7 +298,7 @@ class TasksTab extends GetView<GlobalTasksController> {
               children: [
                 _buildSeverityBadge(issue.severity),
                 Text(
-                  'Reported: ${DateFormat('MMM d').format(issue.createdAt)}',
+                  'Reported: ${_formatDateTime(issue.createdAt)}',
                   style: TextStyle(color: Colors.grey[500], fontSize: 12),
                 ),
               ],
@@ -372,7 +402,8 @@ class TasksTab extends GetView<GlobalTasksController> {
     );
   }
 
-  Widget _buildIssueStatusBadge(IssueStatus status) {
+  Widget _buildIssueStatusBadge(IssueModel issue) {
+    final status = issue.status;
     Color color;
     String text;
 
@@ -391,21 +422,39 @@ class TasksTab extends GetView<GlobalTasksController> {
         break;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.5)),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
+    return PopupMenuButton<IssueStatus>(
+      initialValue: status,
+      onSelected: (newStatus) {
+        if (newStatus != status) {
+          controller.updateIssueStatus(issue.id, newStatus);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: color.withOpacity(0.5)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              text,
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.arrow_drop_down, size: 16, color: color),
+          ],
         ),
       ),
+      itemBuilder: (context) => IssueStatus.values.map((s) {
+        return PopupMenuItem(value: s, child: Text(s.name.capitalizeFirst!));
+      }).toList(),
     );
   }
 

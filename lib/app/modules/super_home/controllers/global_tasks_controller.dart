@@ -9,7 +9,7 @@ class GlobalTasksController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();
 
   final RxString selectedFilter = 'All'.obs; // All, Tasks, Issues
-  final RxString selectedSort = 'Priority'.obs; // Priority, Due Date, Newest
+  final RxString selectedSort = 'Newest'.obs; // Priority, Due Date, Newest
 
   final RxList<TaskModel> myTasks = <TaskModel>[].obs;
   final RxList<IssueModel> myIssues = <IssueModel>[].obs;
@@ -81,12 +81,28 @@ class GlobalTasksController extends GetxController {
   void _updateMixedList() {
     List<dynamic> all = [];
 
-    // Filter
-    if (selectedFilter.value == 'All' || selectedFilter.value == 'Tasks') {
-      all.addAll(myTasks);
+    final isCompletedFilter = selectedFilter.value == 'Completed';
+
+    // 1. Filter TASKS
+    if (selectedFilter.value == 'All' ||
+        selectedFilter.value == 'Tasks' ||
+        isCompletedFilter) {
+      final tasks = myTasks.where((t) {
+        final isCompleted = t.status == TaskStatus.completed;
+        return isCompletedFilter ? isCompleted : !isCompleted;
+      }).toList();
+      all.addAll(tasks);
     }
-    if (selectedFilter.value == 'All' || selectedFilter.value == 'Issues') {
-      all.addAll(myIssues);
+
+    // 2. Filter ISSUES
+    if (selectedFilter.value == 'All' ||
+        selectedFilter.value == 'Issues' ||
+        isCompletedFilter) {
+      final issues = myIssues.where((i) {
+        final isResolved = i.status == IssueStatus.resolved;
+        return isCompletedFilter ? isResolved : !isResolved;
+      }).toList();
+      all.addAll(issues);
     }
 
     // Sort
@@ -133,7 +149,6 @@ class GlobalTasksController extends GetxController {
       }
     } else if (item is IssueModel) {
       switch (item.severity) {
-        // Map severity to roughly equivalent priority?
         case IssueSeverity.critical:
           return 4;
         case IssueSeverity.high:
@@ -164,16 +179,46 @@ class GlobalTasksController extends GetxController {
         'updatedAt': FieldValue.serverTimestamp(),
       });
       // Local update
-      final index = mixedList.indexWhere(
-        (i) => i is TaskModel && i.id == taskId,
-      );
+      final index = myTasks.indexWhere((t) => t.id == taskId);
       if (index != -1) {
-        final task = mixedList[index] as TaskModel;
-        mixedList[index] = task.copyWith(status: status);
-        mixedList.refresh();
+        myTasks[index] = myTasks[index].copyWith(status: status);
+        _updateMixedList(); // Re-filter to move to completed if needed
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to update task status');
+    }
+  }
+
+  Future<void> updateIssueStatus(String issueId, IssueStatus status) async {
+    try {
+      await _db.collection('issues').doc(issueId).update({
+        'status': status.name,
+        'resolvedAt': status == IssueStatus.resolved
+            ? FieldValue.serverTimestamp()
+            : null,
+      });
+      // Local update
+      final index = myIssues.indexWhere((i) => i.id == issueId);
+      if (index != -1) {
+        // We need copyWith for IssueModel too. Assuming it exists or I need to add it.
+        // I will check IssueModel. If not exists, I'll update the object manually or add copyWith.
+        // For now, let's assume I need to add copyWith to IssueModel or just fetching again?
+        // Fetching again is safer if I don't want to edit IssueModel right now, but local update is better.
+        // Let's modify IssueModel next step if copyWith is missing.
+        // Checking IssueModel content from previous context... wait, I haven't viewed IssueModel recently.
+        // I'll optimistically use copyWith and fixes it if it fails.
+        // Actually, to avoid errors, I'll fetch data again or try to update list directly if possible.
+        // Better: Fetch just that issue or refetch all (simple but less efficient).
+        // Let's rely on _updateMixedList after updating the local list item.
+        // I'll assume copyWith is available or I will add it.
+
+        // Actually, previous chat logs showed TaskModel copyWith was added. IssueModel probably doesn't have it.
+        // I will add copyWith to IssueModel in the next step.
+        myIssues[index] = myIssues[index].copyWith(status: status);
+        _updateMixedList();
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update issue status');
     }
   }
 }

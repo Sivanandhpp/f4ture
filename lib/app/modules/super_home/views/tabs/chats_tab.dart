@@ -134,13 +134,35 @@ class ChatsTab extends GetView<SuperHomeController> {
                         child: Text(
                           group.lastMessage,
                           style: AppFont.body.copyWith(
-                            color: Colors.grey.shade500,
+                            color: group.unreadCount > 0
+                                ? Colors.black87
+                                : Colors.grey.shade500,
                             fontSize: 15,
+                            fontWeight: group.unreadCount > 0
+                                ? FontWeight.w600
+                                : FontWeight.normal,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      if (group.unreadCount > 0)
+                        Container(
+                          margin: const EdgeInsets.only(left: 8),
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            group.unreadCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ],

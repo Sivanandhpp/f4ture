@@ -64,4 +64,30 @@ class IssueModel {
       resolvedAt: (json['resolvedAt'] as Timestamp?)?.toDate(),
     );
   }
+
+  IssueModel copyWith({
+    String? id,
+    String? title,
+    String? description,
+    String? groupId,
+    List<String>? assignedTo,
+    String? reportedBy,
+    IssueStatus? status,
+    IssueSeverity? severity,
+    DateTime? createdAt,
+    DateTime? resolvedAt,
+  }) {
+    return IssueModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      groupId: groupId ?? this.groupId,
+      assignedTo: assignedTo ?? this.assignedTo,
+      reportedBy: reportedBy ?? this.reportedBy,
+      status: status ?? this.status,
+      severity: severity ?? this.severity,
+      createdAt: createdAt ?? this.createdAt,
+      resolvedAt: resolvedAt ?? this.resolvedAt,
+    );
+  }
 }

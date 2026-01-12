@@ -109,54 +109,93 @@ exports.onTaskWrite = functions.firestore
     const taskData = change.after.exists ? change.after.data() : null;
     const previousData = change.before.exists ? change.before.data() : null;
 
-    // Handle deletion
+    const batch = db.batch();
+
+    // --- HANDLE DELETION ---
     if (!taskData) {
-      // Clean up references if needed (omitted for brevity, usually mostly needed for users)
-      // Ideally delete from groups/... and users/... 
-      // For now focusing on Creation/Update
-      return;
+      console.log(`Task ${taskId} deleted. Cleaning up references.`);
+      if (previousData) {
+        // Remove from group
+        const groupRef = db.doc(`groups/${previousData.groupId}/tasks/${taskId}`);
+        batch.delete(groupRef);
+
+        // Remove from all assignees
+        if (previousData.assignedTo && previousData.assignedTo.length > 0) {
+          previousData.assignedTo.forEach((uid) => {
+            const userRef = db.doc(`users/${uid}/tasks/${taskId}`);
+            batch.delete(userRef);
+          });
+        }
+      }
+      return batch.commit();
     }
 
-    const { groupId, title, status, assignedTo, createdBy } = taskData;
+    // --- HANDLE UPDATE/CREATE ---
+    const { groupId, title, status, assignedTo, priority } = taskData;
+
+    // Prepare lightweight summary for denormalization
     const summary = {
       id: taskId,
       title,
       status,
-      priority: taskData.priority,
+      priority: priority || "medium",
       dueAt: taskData.dueAt,
-      updatedAt: taskData.updatedAt,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      groupId, // Useful context
     };
 
     // 1. Sync to Group
-    await db.doc(`groups/${groupId}/tasks/${taskId}`).set(summary);
+    const groupTaskRef = db.doc(`groups/${groupId}/tasks/${taskId}`);
+    batch.set(groupTaskRef, summary, { merge: true });
 
-    // 2. Sync to Users
-    if (assignedTo && assignedTo.length > 0) {
-      const batch = db.batch();
-      assignedTo.forEach((uid) => {
-        const ref = db.doc(`users/${uid}/tasks/${taskId}`);
-        batch.set(ref, { ...summary, groupId });
-      });
-      await batch.commit();
-    }
+    // 2. Sync to Users (Handle added/removed assignees)
+    const oldAssignees = previousData ? (previousData.assignedTo || []) : [];
+    const newAssignees = assignedTo || [];
+
+    // Identify removed users
+    const removedUsers = oldAssignees.filter(uid => !newAssignees.includes(uid));
+    removedUsers.forEach(uid => {
+      const userRef = db.doc(`users/${uid}/tasks/${taskId}`);
+      batch.delete(userRef);
+    });
+
+    // Identify added/kept users (update all current assignees to ensure fresh data)
+    newAssignees.forEach(uid => {
+      const userRef = db.doc(`users/${uid}/tasks/${taskId}`);
+      batch.set(userRef, summary, { merge: true });
+    });
 
     // 3. Chat System Message
-    // Determine if we should send a message
+    // Post only on Create or Status Change
     let systemMessage = "";
 
     if (!previousData) {
       // Created
-      systemMessage = `📝 New Task Created: "${title}"`;
+      // Format date nicely if possible, but JS date handling in functions can be basic.
+      // We'll rely on client showing details, messsage is just notification.
+      systemMessage = `📝 New Task: "${title}"`;
     } else {
-      // Updated
+      // Status Changed
       if (previousData.status !== status) {
-        systemMessage = `🔄 Task "${title}" marked as ${status.replace('_', ' ').toUpperCase()}`;
+        const readableStatus = status.replace(/_/g, ' ').toUpperCase();
+        systemMessage = `🔄 Task "${title}" is now ${readableStatus}`;
       }
+      // Reassigned? (Optional: could notify if assignee list changes)
     }
 
     if (systemMessage) {
-      await postSystemMessage(groupId, systemMessage);
+      const msgRef = db.collection("groups").doc(groupId).collection("messages").doc();
+      batch.set(msgRef, {
+        senderId: "system",
+        senderName: "System",
+        type: "system",
+        text: systemMessage,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        status: "sent",
+      });
     }
+
+    return batch.commit();
   });
 
 /**
@@ -170,41 +209,132 @@ exports.onIssueWrite = functions.firestore
     const issueData = change.after.exists ? change.after.data() : null;
     const previousData = change.before.exists ? change.before.data() : null;
 
-    if (!issueData) return;
+    const batch = db.batch();
 
+    // --- HANDLE DELETION ---
+    if (!issueData) {
+      console.log(`Issue ${issueId} deleted. Cleaning up references.`);
+      if (previousData) {
+        const groupRef = db.doc(`groups/${previousData.groupId}/issues/${issueId}`);
+        batch.delete(groupRef);
+
+        if (previousData.assignedTo && previousData.assignedTo.length > 0) {
+          previousData.assignedTo.forEach((uid) => {
+            const userRef = db.doc(`users/${uid}/issues/${issueId}`);
+            batch.delete(userRef);
+          });
+        }
+      }
+      return batch.commit();
+    }
+
+    // --- HANDLE UPDATE/CREATE ---
     const { groupId, title, status, severity, assignedTo } = issueData;
+
     const summary = {
       id: issueId,
       title,
       status,
       severity,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      groupId,
     };
 
     // 1. Sync to Group
-    await db.doc(`groups/${groupId}/issues/${issueId}`).set(summary);
+    const groupIssueRef = db.doc(`groups/${groupId}/issues/${issueId}`);
+    batch.set(groupIssueRef, summary, { merge: true });
 
-    // 2. Sync to Users
-    if (assignedTo && assignedTo.length > 0) {
-      const batch = db.batch();
-      assignedTo.forEach((uid) => {
-        const ref = db.doc(`users/${uid}/issues/${issueId}`);
-        batch.set(ref, { ...summary, groupId });
-      });
-      await batch.commit();
-    }
+    // 2. Sync to Users (Admins/Assignees)
+    const oldAssignees = previousData ? (previousData.assignedTo || []) : [];
+    const newAssignees = assignedTo || [];
+
+    const removedUsers = oldAssignees.filter(uid => !newAssignees.includes(uid));
+    removedUsers.forEach(uid => {
+      const userRef = db.doc(`users/${uid}/issues/${issueId}`);
+      batch.delete(userRef);
+    });
+
+    newAssignees.forEach(uid => {
+      const userRef = db.doc(`users/${uid}/issues/${issueId}`);
+      batch.set(userRef, summary, { merge: true });
+    });
 
     // 3. Chat Log
     let systemMessage = "";
     if (!previousData) {
       systemMessage = `🚨 New Issue Reported: "${title}" (${severity})`;
     } else if (previousData.status !== status) {
-      systemMessage = `🔧 Issue "${title}" status updated to ${status.toUpperCase()}`;
+      const readableStatus = status.replace(/_/g, ' ').toUpperCase();
+      systemMessage = `🔧 Issue "${title}" status updated to ${readableStatus}`;
     }
 
     if (systemMessage) {
-      await postSystemMessage(groupId, systemMessage);
+      const msgRef = db.collection("groups").doc(groupId).collection("messages").doc();
+      batch.set(msgRef, {
+        senderId: "system",
+        senderName: "System",
+        type: "system",
+        text: systemMessage,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        status: "sent",
+      });
     }
+
+    return batch.commit();
+  });
+
+/**
+ * Triggers when a new message is added to a group.
+ * 1. Updates group's lastMessage and lastMessageAt.
+ * 2. Increments unreadCount for all members (except sender).
+ */
+exports.onMessageCreate = functions.firestore
+  .document("groups/{groupId}/messages/{messageId}")
+  .onCreate(async (snap, context) => {
+    const { groupId } = context.params;
+    const messageData = snap.data();
+    const { text, type, senderId, createdAt } = messageData;
+
+    let displayMessage = text;
+    if (type === "image") displayMessage = "📷 Image";
+    if (type === "file") displayMessage = "📁 File";
+    if (type === "system") return null; // Don't track unread/last-msg for system? Or maybe yes?
+    // Let's track system messages too for context, but maybe not unread counts?
+    // User requested "unread message bubbles", usually implies user messages. 
+    // But system messages (tasks) are important too. Let's count them for now.
+
+    const batch = db.batch();
+
+    // 1. Update Group details
+    const groupRef = db.collection("groups").doc(groupId);
+    batch.update(groupRef, {
+      lastMessage: displayMessage,
+      lastMessageAt: createdAt || admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // 2. Increment unread count for all members
+    // We need to fetch members. For large groups, this might be slow, but for now strict "members" subcollection.
+    const membersSnap = await groupRef.collection("members").get();
+
+    membersSnap.forEach((doc) => {
+      const userId = doc.id;
+      // Skip sender if it's a user message (system messages have no specific sender user usually, or "system")
+      if (userId !== senderId) {
+        const userGroupRef = db.doc(`users/${userId}/groups/${groupId}`);
+        batch.set(
+          userGroupRef,
+          {
+            unreadCount: admin.firestore.FieldValue.increment(1),
+            lastMessage: displayMessage,
+            lastMessageAt: createdAt || admin.firestore.FieldValue.serverTimestamp(),
+            // Ensure other fields exist if document was missing (set with merge true handles updates)
+          },
+          { merge: true }
+        );
+      }
+    });
+
+    return batch.commit();
   });
 
 /**

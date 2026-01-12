@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:uuid/uuid.dart';
-import '../../../data/models/message_model.dart';
 
 import '../../../data/models/group_model.dart';
 import '../../../data/models/issue_model.dart';
@@ -93,30 +91,6 @@ class GroupIssuesController extends GetxController {
       );
 
       await _firestore.collection('issues').doc(id).set(newIssue.toJson());
-
-      // --- Client-Side System Message Integration ---
-      try {
-        final systemMsgId = const Uuid().v4();
-        await _firestore
-            .collection('groups')
-            .doc(group.groupId)
-            .collection('messages')
-            .doc(systemMsgId)
-            .set({
-              'id': systemMsgId,
-              'senderId': 'system',
-              'senderName': 'System',
-              'senderAvatar': '',
-              'type': MessageType.system.name,
-              'text':
-                  '⚠️ Issue reported: "$title" (${severity.name.toUpperCase()})',
-              'createdAt': FieldValue.serverTimestamp(),
-              'status': 'sent',
-            });
-      } catch (e) {
-        debugPrint('Failed to send system message: $e');
-      }
-      // ----------------------------------------------
 
       Get.back();
       Get.snackbar('Success', 'Issue reported successfully');

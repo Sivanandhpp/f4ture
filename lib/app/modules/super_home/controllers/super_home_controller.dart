@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/index.dart';
 import '../../../data/models/group_model.dart';
 import '../../../data/services/auth_service.dart';
+import 'global_tasks_controller.dart';
 
 class SuperHomeController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -51,19 +52,30 @@ class SuperHomeController extends GetxController {
         .collection('groups')
         .snapshots()
         .asyncMap((snapshot) async {
-          final groupIds = snapshot.docs.map((doc) => doc.id).toList();
+          if (snapshot.docs.isEmpty) return <GroupModel>[];
 
-          if (groupIds.isEmpty) return <GroupModel>[];
+          // Map groupId to unreadCount
+          final userGroupData = {
+            for (var doc in snapshot.docs)
+              doc.id: doc.data()['unreadCount'] as int? ?? 0,
+          };
+
+          final groupIds = snapshot.docs.map((doc) => doc.id).toList();
 
           // Fetch details for each group
           final groupDocs = await Future.wait(
             groupIds.map((id) => _firestore.collection('groups').doc(id).get()),
           );
 
-          return groupDocs
-              .where((doc) => doc.exists && doc.data() != null)
-              .map((doc) => GroupModel.fromJson(doc.data()!))
-              .toList()
+          return groupDocs.where((doc) => doc.exists && doc.data() != null).map(
+              (doc) {
+                final group = GroupModel.fromJson(doc.data()!);
+                // Merge unreadCount from user-specific data
+                return group.copyWith(
+                  unreadCount: userGroupData[group.groupId],
+                );
+              },
+            ).toList()
             // Sort manually since we fetched individually
             ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
         });
@@ -167,5 +179,11 @@ class SuperHomeController extends GetxController {
 
   void changeTab(int index) {
     tabIndex.value = index;
+    // Refresh Tasks if switching to Tasks tab (Index 2)
+    if (index == 2) {
+      if (Get.isRegistered<GlobalTasksController>()) {
+        Get.find<GlobalTasksController>().fetchData();
+      }
+    }
   }
 }
