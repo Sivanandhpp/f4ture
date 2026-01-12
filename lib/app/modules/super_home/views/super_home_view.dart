@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
 import '../controllers/super_home_controller.dart';
 import '../../home/views/home_view.dart';
+import 'tabs/admin_tab.dart';
 import 'tabs/chats_tab.dart';
 import 'tabs/settings_tab.dart';
 import 'tabs/tasks_tab.dart';
@@ -25,6 +26,7 @@ class SuperHomeView extends GetView<SuperHomeController> {
               children: const [
                 HomeView(),
                 ChatsTab(),
+                AdminTab(),
                 TasksTab(),
                 SettingsTab(),
               ],

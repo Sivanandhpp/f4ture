@@ -227,8 +227,8 @@ class SuperHomeController extends GetxController {
 
   void changeTab(int index) {
     tabIndex.value = index;
-    // Refresh Tasks if switching to Tasks tab (Index 2)
-    if (index == 2) {
+    // Refresh Tasks if switching to Tasks tab (Index 3)
+    if (index == 3) {
       if (Get.isRegistered<GlobalTasksController>()) {
         Get.find<GlobalTasksController>().fetchData();
       }

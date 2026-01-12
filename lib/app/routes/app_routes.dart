@@ -10,6 +10,8 @@ abstract class Routes {
   static const CHAT = _Paths.CHAT;
   static const GROUP_DETAILS = _Paths.GROUP_DETAILS;
   static const USER_PROFILE = _Paths.USER_PROFILE;
+  static const CREATE_EVENT = _Paths.CREATE_EVENT;
+  static const MANAGE_USERS = _Paths.MANAGE_USERS;
 }
 
 abstract class _Paths {
@@ -21,4 +23,6 @@ abstract class _Paths {
   static const CHAT = '/chat';
   static const GROUP_DETAILS = '/group-details';
   static const USER_PROFILE = '/user-profile';
+  static const CREATE_EVENT = '/create-event';
+  static const MANAGE_USERS = '/manage-users';
 }

@@ -19,9 +19,11 @@ class TasksTab extends GetView<GlobalTasksController> {
           'My Work',
           style: AppFont.heading.copyWith(
             fontWeight: FontWeight.bold,
-            color: AppColors.primary,
+            color: AppColors.textPrimary,
+            fontSize: 20,
           ),
         ),
+        centerTitle: true,
         backgroundColor: AppColors.background,
         elevation: 0,
         actions: [_buildSortButton(), const SizedBox(width: 8)],

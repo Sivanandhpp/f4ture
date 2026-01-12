@@ -8,8 +8,12 @@ import '../modules/chat/bindings/chat_binding.dart';
 import '../modules/chat/bindings/group_details_binding.dart';
 import '../modules/chat/views/chat_view.dart';
 import '../modules/chat/views/group_details_view.dart';
+import '../modules/create_event/bindings/create_event_binding.dart';
+import '../modules/create_event/views/create_event_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+import '../modules/manage_users/bindings/manage_users_binding.dart';
+import '../modules/manage_users/views/manage_users_view.dart';
 import '../modules/super_home/bindings/super_home_binding.dart';
 import '../modules/super_home/views/super_home_view.dart';
 import '../modules/user_profile/bindings/user_profile_binding.dart';
@@ -57,6 +61,16 @@ class AppPages {
       name: _Paths.USER_PROFILE,
       page: () => const UserProfileView(),
       binding: UserProfileBinding(),
+    ),
+    GetPage(
+      name: _Paths.CREATE_EVENT,
+      page: () => const CreateEventView(),
+      binding: CreateEventBinding(),
+    ),
+    GetPage(
+      name: _Paths.MANAGE_USERS,
+      page: () => const ManageUsersView(),
+      binding: ManageUsersBinding(),
     ),
   ];
 }

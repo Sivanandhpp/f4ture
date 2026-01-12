@@ -45,8 +45,9 @@ class GlassFloatingNavbar extends StatelessWidget {
                 children: [
                   _buildNavItem(0, Icons.home_rounded),
                   _buildNavItem(1, Icons.chat_bubble_rounded),
-                  _buildNavItem(2, Icons.check_circle_rounded),
-                  _buildNavItem(3, Icons.settings_rounded),
+                  _buildNavItem(2, Icons.admin_panel_settings_rounded),
+                  _buildNavItem(3, Icons.check_circle_rounded),
+                  _buildNavItem(4, Icons.settings_rounded),
                   // _buildNavItem(4, Icons.settings_rounded),
                 ],
               ),
