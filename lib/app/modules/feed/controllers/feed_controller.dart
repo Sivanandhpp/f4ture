@@ -94,9 +94,21 @@ class FeedController extends GetxController {
 
         await _checkLikes(newPosts);
 
-        posts.addAll(newPosts);
-      } else {
-        _hasMore = false;
+        // Deduplicate
+        final uniquePosts = newPosts
+            .where((p) => !posts.any((existing) => existing.postId == p.postId))
+            .toList();
+
+        if (uniquePosts.isNotEmpty) {
+          posts.addAll(uniquePosts);
+        }
+
+        // If we fetched docs but they were all duplicates, we might need to fetch more?
+        // For simplicity in this iteration, we accept it.
+        // If snapshot size < limit, we reached end.
+        if (snapshot.docs.length < _limit) {
+          _hasMore = false;
+        }
       }
     } catch (e) {
       debugPrint('Error loading more posts: $e');
