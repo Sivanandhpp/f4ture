@@ -15,7 +15,8 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (message.type == MessageType.info) {
+    if (message.type == MessageType.info ||
+        message.type == MessageType.system) {
       return _buildInfoMessage();
     }
 
@@ -200,6 +201,14 @@ class MessageBubble extends StatelessWidget {
             ),
           ),
         );
+      case MessageType.system:
+        return Container(); // Handled in parent builder logic as specific 'SystemBubble' or handle here if we pass logic.
+      // Better: Handle in the main switch.
+      // Actually, system messages should be centered and distinct.
+      // Since MessageBubble usually assumes left/right alignment based on `isMe`,
+      // we might want to return a Centered Text here directly.
+      // But `MessageBubble` has a lot of wrappers.
+
       default:
         return const SizedBox();
     }

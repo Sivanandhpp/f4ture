@@ -1,12 +1,11 @@
-import 'package:f4ture/app/core/index.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/widgets/app_image.dart';
-import '../../../data/services/auth_service.dart';
-import '../../../routes/app_pages.dart';
-import '../controllers/chat_controller.dart';
-import '../widgets/chat_input.dart';
-import '../widgets/message_bubble.dart';
+import 'package:f4ture/app/core/index.dart';
+import 'package:f4ture/app/modules/chat/controllers/chat_controller.dart';
+import 'package:f4ture/app/modules/chat/widgets/chat_input.dart';
+import 'package:f4ture/app/modules/chat/widgets/message_bubble.dart';
+import 'package:f4ture/app/data/services/auth_service.dart';
+import 'package:f4ture/app/routes/app_pages.dart';
 
 class ChatView extends GetView<ChatController> {
   const ChatView({super.key});
@@ -16,33 +15,23 @@ class ChatView extends GetView<ChatController> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () => Get.back(),
         ),
         titleSpacing: 0,
-        title: InkWell(
-          onTap: () {
-            Get.toNamed(Routes.GROUP_DETAILS, arguments: controller.group);
-          },
+        title: GestureDetector(
+          onTap: () =>
+              Get.toNamed(Routes.GROUP_DETAILS, arguments: controller.group),
           child: Row(
             children: [
               Hero(
                 tag: controller.group.groupId,
-                child: ClipOval(
-                  child: AppImage.network(
-                    url: controller.group.iconUrl,
-                    width: 40,
-                    height: 40,
-                    errorWidget: Container(
-                      width: 40,
-                      height: 40,
-                      color: Colors.grey.shade300,
-                      child: const Icon(Icons.group, color: Colors.grey),
-                    ),
-                  ),
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(controller.group.iconUrl),
+                  radius: 18,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,15 +41,13 @@ class ChatView extends GetView<ChatController> {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       '${controller.group.membersCount} members',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -68,12 +55,12 @@ class ChatView extends GetView<ChatController> {
             ],
           ),
         ),
+        backgroundColor: Colors.white,
+        elevation: 0.5,
         actions: [
           IconButton(
-            onPressed: () {
-              // TODO: Open Group Info / Settings
-            },
-            icon: const Icon(Icons.more_vert),
+            onPressed: () {},
+            icon: const Icon(Icons.more_vert, color: Colors.black),
           ),
         ],
       ),
@@ -89,7 +76,7 @@ class ChatView extends GetView<ChatController> {
               return ListView.builder(
                 controller: controller.scrollController,
                 reverse: true,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.all(16),
                 itemCount:
                     controller.messages.length +
                     (controller.isLoadingMore.value ? 1 : 0),

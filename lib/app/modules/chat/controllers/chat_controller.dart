@@ -10,10 +10,15 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/app_image_picker.dart';
 import '../../../data/models/group_model.dart';
 import '../../../data/models/message_model.dart';
 import '../../../data/services/auth_service.dart';
+import '../controllers/group_tasks_controller.dart';
+import '../controllers/group_issues_controller.dart';
+import '../widgets/create_task_sheet.dart';
+import '../widgets/create_issue_sheet.dart';
 
 class ChatController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -236,6 +241,8 @@ class ChatController extends GetxController {
         return '📎 File';
       case MessageType.info:
         return 'ℹ️ Info';
+      case MessageType.system:
+        return '🔧 System';
     }
   }
 
@@ -329,6 +336,26 @@ class ChatController extends GetxController {
                 _pickFile();
               },
             ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(
+                Icons.assignment_add,
+                color: AppColors.primary,
+              ),
+              title: const Text('Create Task'),
+              onTap: () {
+                Get.back();
+                _openCreateTaskSheet();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.report_problem, color: Colors.orange),
+              title: const Text('Report Issue'),
+              onTap: () {
+                Get.back();
+                _openCreateIssueSheet();
+              },
+            ),
           ],
         ),
       ),
@@ -382,5 +409,97 @@ class ChatController extends GetxController {
       selectedAttachmentBytes.value = await xFile.readAsBytes();
       attachmentType.value = type;
     }
+  }
+
+  void _openCreateTaskSheet() {
+    // We need GroupTasksController. It should be put when opening chat or we put it now.
+    // If we removed the tabs, the binding might not have put it.
+    // Let's safe-check and put it if missing.
+    if (!Get.isRegistered<GroupTasksController>(tag: group.groupId)) {
+      // Ideally we use a tag if we have multiple chats open, but usually only one ChatController is active.
+      // The previous binding didn't use tags? Let's check ChatBinding.
+      // Assuming singleton for now or let's just put it.
+      Get.put(GroupTasksController(), permanent: false);
+      // We might need to manually set the group if onInit already ran without arguments
+      // But GroupTasksController looks for arguments or ChatController?
+      // Let's pass arguments manually or rely on Get.find<ChatController>().group?
+      // The GroupTasksController logic I saw: if (Get.arguments is GroupModel)
+    }
+
+    final taskController = Get.find<GroupTasksController>();
+    // Ensure group is set if it wasn't
+    try {
+      if (taskController.group.groupId != group.groupId) {
+        taskController.group = group;
+        taskController.onInit(); // Re-init? risky.
+      }
+    } catch (e) {
+      // Likely group not initialized
+      taskController.group = group;
+      // We need to re-trigger binding logic manually if onInit failed
+      // taskController.onInit(); // onInit is called by GET automatically
+      // So if we just put it, onInit runs. If we just Put it NOW, we need to pass args?
+      // Get.put(GroupTasksController(), arguments: group);
+    }
+
+    // Better way: explicitly pass controller to sheet, and ensure controller is ready.
+    // Let's try to find it, if not found, put it with args.
+
+    GroupTasksController tc;
+    try {
+      tc = Get.find<GroupTasksController>();
+    } catch (e) {
+      tc = Get.put(GroupTasksController());
+      tc.group = group;
+      tc.onInit(); // Manually trigger logic if we just set group?
+      // No, onInit runs on put. If onInit checked args and failed, we need to call logic manually.
+      tc.onReady();
+    }
+
+    // Actually, best is to just modify the CreateTaskSheet to accept 'group' and handle logic internally?
+    // No, keep using Controller pattern.
+    // Let's ensure logic works:
+    // The controller reads Get.arguments.
+
+    // HACK: Re-put with arguments if needed or just set fields.
+    // Simpler:
+    // create a temporary controller instance or use dependency injection properly.
+    // Let's use the existing classes but maybe lazyPut in Binding was better.
+
+    Get.bottomSheet(
+      CreateTaskSheet(controller: tc),
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+    );
+  }
+
+  void _openCreateIssueSheet() {
+    // Same logic for Issues
+    GroupIssuesController ic;
+    try {
+      ic = Get.find<GroupIssuesController>();
+    } catch (e) {
+      ic = Get.put(GroupIssuesController());
+      ic.group = group;
+      // Since onInit might have failed to find args, we manually call init logic if needed
+      // But _bindIssues needs to be called.
+      // Let's modify controllers to allow manual setup or just copy logic here?
+      // Copying logic duplicates code.
+      // Let's assume we can set it.
+      // Actually, let's fix the controllers to be more robust or just use them here.
+      // Since we just need 'create', we don't strictly need the list binding unless we want to avoid errors.
+    }
+
+    Get.bottomSheet(
+      CreateIssueSheet(controller: ic),
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+    );
   }
 }

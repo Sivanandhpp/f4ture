@@ -95,3 +95,128 @@ async function recalculateUserRole(userId) {
 
   await db.collection("users").doc(userId).update({ role: newRole });
 }
+
+/**
+ * Triggers when a task is created or updated.
+ * 1. Syncs reference to groups/{groupId}/tasks/{taskId}
+ * 2. Syncs reference to users/{userId}/tasks/{taskId} for all assignees
+ * 3. Posts a system message to the group chat
+ */
+exports.onTaskWrite = functions.firestore
+  .document("tasks/{taskId}")
+  .onWrite(async (change, context) => {
+    const taskId = context.params.taskId;
+    const taskData = change.after.exists ? change.after.data() : null;
+    const previousData = change.before.exists ? change.before.data() : null;
+
+    // Handle deletion
+    if (!taskData) {
+      // Clean up references if needed (omitted for brevity, usually mostly needed for users)
+      // Ideally delete from groups/... and users/... 
+      // For now focusing on Creation/Update
+      return;
+    }
+
+    const { groupId, title, status, assignedTo, createdBy } = taskData;
+    const summary = {
+      id: taskId,
+      title,
+      status,
+      priority: taskData.priority,
+      dueAt: taskData.dueAt,
+      updatedAt: taskData.updatedAt,
+    };
+
+    // 1. Sync to Group
+    await db.doc(`groups/${groupId}/tasks/${taskId}`).set(summary);
+
+    // 2. Sync to Users
+    if (assignedTo && assignedTo.length > 0) {
+      const batch = db.batch();
+      assignedTo.forEach((uid) => {
+        const ref = db.doc(`users/${uid}/tasks/${taskId}`);
+        batch.set(ref, { ...summary, groupId });
+      });
+      await batch.commit();
+    }
+
+    // 3. Chat System Message
+    // Determine if we should send a message
+    let systemMessage = "";
+
+    if (!previousData) {
+      // Created
+      systemMessage = `📝 New Task Created: "${title}"`;
+    } else {
+      // Updated
+      if (previousData.status !== status) {
+        systemMessage = `🔄 Task "${title}" marked as ${status.replace('_', ' ').toUpperCase()}`;
+      }
+    }
+
+    if (systemMessage) {
+      await postSystemMessage(groupId, systemMessage);
+    }
+  });
+
+/**
+ * Triggers when an issue is created or updated.
+ * Syncs references and posts chat logs.
+ */
+exports.onIssueWrite = functions.firestore
+  .document("issues/{issueId}")
+  .onWrite(async (change, context) => {
+    const issueId = context.params.issueId;
+    const issueData = change.after.exists ? change.after.data() : null;
+    const previousData = change.before.exists ? change.before.data() : null;
+
+    if (!issueData) return;
+
+    const { groupId, title, status, severity, assignedTo } = issueData;
+    const summary = {
+      id: issueId,
+      title,
+      status,
+      severity,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    // 1. Sync to Group
+    await db.doc(`groups/${groupId}/issues/${issueId}`).set(summary);
+
+    // 2. Sync to Users
+    if (assignedTo && assignedTo.length > 0) {
+      const batch = db.batch();
+      assignedTo.forEach((uid) => {
+        const ref = db.doc(`users/${uid}/issues/${issueId}`);
+        batch.set(ref, { ...summary, groupId });
+      });
+      await batch.commit();
+    }
+
+    // 3. Chat Log
+    let systemMessage = "";
+    if (!previousData) {
+      systemMessage = `🚨 New Issue Reported: "${title}" (${severity})`;
+    } else if (previousData.status !== status) {
+      systemMessage = `🔧 Issue "${title}" status updated to ${status.toUpperCase()}`;
+    }
+
+    if (systemMessage) {
+      await postSystemMessage(groupId, systemMessage);
+    }
+  });
+
+/**
+ * Helper to post a system message to a group chat.
+ */
+async function postSystemMessage(groupId, text) {
+  await db.collection("groups").doc(groupId).collection("messages").add({
+    senderId: "system",
+    senderName: "System",
+    type: "system",
+    text: text,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    status: "sent",
+  });
+}
