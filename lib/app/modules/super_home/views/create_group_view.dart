@@ -26,183 +26,180 @@ class CreateGroupView extends GetView<SuperHomeController> {
           onPressed: () => Get.back(),
         ),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: AppPadding.allLg,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Group Icon Picker
-              Center(
-                child: Obx(
-                  () => GestureDetector(
-                    onTap: controller.pickGroupIcon,
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: const Color(0xFFD4D4D4),
-                            image:
-                                controller.selectedGroupIconBytes.value != null
-                                ? DecorationImage(
-                                    image: MemoryImage(
-                                      controller.selectedGroupIconBytes.value!,
-                                    ),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                            border: Border.all(color: const Color(0xFF7B7B7B)),
-                          ),
-                          child: controller.selectedGroupIcon.value == null
-                              ? const Icon(
-                                  Icons.camera_alt,
-                                  size: 40,
-                                  color: AppColors.textSecondary,
+      body: SingleChildScrollView(
+        padding: AppPadding.allLg,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Group Icon Picker
+            Center(
+              child: Obx(
+                () => GestureDetector(
+                  onTap: controller.pickGroupIcon,
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0xFFD4D4D4),
+                          image: controller.selectedGroupIconBytes.value != null
+                              ? DecorationImage(
+                                  image: MemoryImage(
+                                    controller.selectedGroupIconBytes.value!,
+                                  ),
+                                  fit: BoxFit.cover,
                                 )
                               : null,
+                          border: Border.all(color: const Color(0xFF7B7B7B)),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              AppSpacing.verticalXl,
-
-              // Group Name
-              TextField(
-                controller: controller.groupNameController,
-                style: const TextStyle(color: AppColors.textPrimary),
-                decoration: InputDecoration(
-                  labelText: 'Group Name',
-                  labelStyle: TextStyle(color: AppColors.textSecondary),
-                  filled: true,
-
-                  border: OutlineInputBorder(
-                    borderRadius: AppRadius.radiusMd,
-                    borderSide: BorderSide.none,
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.group,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ),
-              AppSpacing.verticalMd,
-
-              // Description
-              TextField(
-                controller: controller.groupDescriptionController,
-                style: const TextStyle(color: AppColors.textPrimary),
-                decoration: InputDecoration(
-                  labelText: 'Description',
-                  labelStyle: TextStyle(color: AppColors.textSecondary),
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: AppRadius.radiusMd,
-                    borderSide: BorderSide.none,
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.info_outline,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                maxLines: 3,
-              ),
-              AppSpacing.verticalMd,
-
-              // Group Type Selection
-              Text(
-                'Group Type',
-                style: AppFont.body.copyWith(color: AppColors.textSecondary),
-              ),
-              AppSpacing.verticalSm,
-              Obx(
-                () => Row(
-                  children: [
-                    _buildTypeChip('Public', 'public'),
-                    AppSpacing.horizontalSm,
-                    _buildTypeChip('Private', 'private'),
-                    AppSpacing.horizontalSm,
-                    _buildTypeChip('Committee', 'committee'),
-                  ],
-                ),
-              ),
-              // Members Selection
-              Text(
-                'Members',
-                style: AppFont.body.copyWith(color: AppColors.textSecondary),
-              ),
-              AppSpacing.verticalSm,
-              Obx(
-                () => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (controller.selectedMembers.isNotEmpty)
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: controller.selectedMembers.map((member) {
-                          return Chip(
-                            label: Text(member.name),
-                            deleteIcon: const Icon(Icons.close, size: 18),
-                            onDeleted: () => controller.removeMember(member),
-                            backgroundColor: AppColors.card,
-                            side: BorderSide(color: Colors.grey.shade300),
-                          );
-                        }).toList(),
+                        child: controller.selectedGroupIcon.value == null
+                            ? const Icon(
+                                Icons.camera_alt,
+                                size: 40,
+                                color: AppColors.textSecondary,
+                              )
+                            : null,
                       ),
-                    if (controller.selectedMembers.isNotEmpty)
-                      AppSpacing.verticalSm,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            AppSpacing.verticalXl,
 
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        Get.bottomSheet(
-                          UserSelector(
-                            alreadySelectedIds: controller.selectedMembers
-                                .map((m) => m.id)
-                                .toList(),
-                            onSelectionChanged: (selected) {
-                              controller.updateSelectedMembers(selected);
-                            },
-                          ),
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
+            // Group Name
+            TextField(
+              controller: controller.groupNameController,
+              style: const TextStyle(color: AppColors.textPrimary),
+              decoration: InputDecoration(
+                labelText: 'Group Name',
+                labelStyle: TextStyle(color: AppColors.textSecondary),
+                filled: true,
+
+                border: OutlineInputBorder(
+                  borderRadius: AppRadius.radiusMd,
+                  borderSide: BorderSide.none,
+                ),
+                prefixIcon: const Icon(
+                  Icons.group,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+            AppSpacing.verticalMd,
+
+            // Description
+            TextField(
+              controller: controller.groupDescriptionController,
+              style: const TextStyle(color: AppColors.textPrimary),
+              decoration: InputDecoration(
+                labelText: 'Description',
+                labelStyle: TextStyle(color: AppColors.textSecondary),
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: AppRadius.radiusMd,
+                  borderSide: BorderSide.none,
+                ),
+                prefixIcon: const Icon(
+                  Icons.info_outline,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              maxLines: 3,
+            ),
+            AppSpacing.verticalMd,
+
+            // Group Type Selection
+            Text(
+              'Group Type',
+              style: AppFont.body.copyWith(color: AppColors.textSecondary),
+            ),
+            AppSpacing.verticalSm,
+            Obx(
+              () => Row(
+                children: [
+                  _buildTypeChip('Public', 'public'),
+                  AppSpacing.horizontalSm,
+                  _buildTypeChip('Private', 'private'),
+                  AppSpacing.horizontalSm,
+                  _buildTypeChip('Committee', 'committee'),
+                ],
+              ),
+            ),
+            // Members Selection
+            Text(
+              'Members',
+              style: AppFont.body.copyWith(color: AppColors.textSecondary),
+            ),
+            AppSpacing.verticalSm,
+            Obx(
+              () => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (controller.selectedMembers.isNotEmpty)
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: controller.selectedMembers.map((member) {
+                        return Chip(
+                          label: Text(member.name),
+                          deleteIcon: const Icon(Icons.close, size: 18),
+                          onDeleted: () => controller.removeMember(member),
+                          backgroundColor: AppColors.card,
+                          side: BorderSide(color: Colors.grey.shade300),
                         );
-                      },
-                      icon: const Icon(Icons.person_add),
-                      label: Text(
-                        controller.selectedMembers.isEmpty
-                            ? 'Add Members (Required)'
-                            : 'Add More Members',
+                      }).toList(),
+                    ),
+                  if (controller.selectedMembers.isNotEmpty)
+                    AppSpacing.verticalSm,
+
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      Get.bottomSheet(
+                        UserSelector(
+                          alreadySelectedIds: controller.selectedMembers
+                              .map((m) => m.id)
+                              .toList(),
+                          onSelectionChanged: (selected) {
+                            controller.updateSelectedMembers(selected);
+                          },
+                        ),
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                      );
+                    },
+                    icon: const Icon(Icons.person_add),
+                    label: Text(
+                      controller.selectedMembers.isEmpty
+                          ? 'Add Members (Required)'
+                          : 'Add More Members',
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
                       ),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              AppSpacing.verticalXl,
+            ),
+            AppSpacing.verticalXl,
 
-              // Create Button
-              Obx(
-                () => AppButton(
-                  text: 'Create Group',
-                  onPressed: controller.createGroup,
-                  isLoading: controller.isLoading.value,
-                ),
+            // Create Button
+            Obx(
+              () => AppButton(
+                text: 'Create Group',
+                onPressed: controller.createGroup,
+                isLoading: controller.isLoading.value,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

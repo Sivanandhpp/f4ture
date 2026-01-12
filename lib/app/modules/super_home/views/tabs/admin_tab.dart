@@ -44,26 +44,17 @@ class AdminTab extends StatelessWidget {
             subtitle: 'Start a new community or committee',
             icon: Icons.group_add,
             color: Colors.blue,
-            onTap: () {
-              Get.bottomSheet(
-                CreateGroupView(),
-                isScrollControlled: true,
-                backgroundColor: Colors.white,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-              );
-            },
+            onTap: () => Get.to(() => const CreateGroupView()),
           ),
           const SizedBox(height: 16),
           // Placeholder for future admin features
           _buildActionCard(
             context,
             title: 'Manage Users',
-            subtitle: 'View and manage platform users (Coming Soon)',
+            subtitle: 'View and manage platform users',
             icon: Icons.manage_accounts,
             color: Colors.grey,
-            onTap: () {},
+            onTap: () => Get.toNamed(Routes.MANAGE_USERS),
           ),
         ],
       ),
