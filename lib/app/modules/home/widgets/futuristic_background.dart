@@ -27,16 +27,21 @@ class GridPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = gridLine.withOpacity(0.25)
+      ..style = PaintingStyle.stroke
       ..strokeWidth = 0.6;
 
-    const double gridSize = 40;
+    // Responsive square size (12 squares per width)
+    final double squareSize = size.width / 12;
 
-    for (double x = 0; x < size.width; x += gridSize) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
+    // Calculate centering offsets
+    final double offsetX = (size.width % squareSize) / 2;
+    final double offsetY = (size.height % squareSize) / 2;
 
-    for (double y = 0; y < size.height; y += gridSize) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    for (double x = offsetX; x < size.width; x += squareSize) {
+      for (double y = offsetY; y < size.height; y += squareSize) {
+        // Draw actual square rectangle
+        canvas.drawRect(Rect.fromLTWH(x, y, squareSize, squareSize), paint);
+      }
     }
   }
 

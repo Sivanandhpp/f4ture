@@ -24,6 +24,15 @@ class HomeView extends GetView<HomeController> {
         children: [
           // 0. Base Background
           const Positioned.fill(child: FuturisticBackground()),
+          // Video Background (Foreground element underneath header)
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 50),
+              child: const VideoBackground(
+                videoPath: 'assets/videos/highlights.mp4',
+              ),
+            ),
+          ),
 
           // 1. Content
           SafeArea(
@@ -119,11 +128,6 @@ class HomeView extends GetView<HomeController> {
                       ),
                     ],
                   ),
-                ),
-
-                // Video Background (Foreground element underneath header)
-                const VideoBackground(
-                  videoPath: 'assets/videos/highlights.mp4',
                 ),
 
                 // Rest of the content (Space filler for now)
