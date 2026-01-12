@@ -158,7 +158,7 @@ class TasksTab extends GetView<GlobalTasksController> {
                   ),
                 ),
                 const Spacer(),
-                _buildTaskStatusBadge(task.status),
+                _buildTaskStatusBadge(task.status, task.id),
               ],
             ),
             const SizedBox(height: 8),
@@ -279,7 +279,7 @@ class TasksTab extends GetView<GlobalTasksController> {
     );
   }
 
-  Widget _buildTaskStatusBadge(TaskStatus status) {
+  Widget _buildTaskStatusBadge(TaskStatus status, String taskId) {
     Color color;
     String text;
 
@@ -298,21 +298,42 @@ class TasksTab extends GetView<GlobalTasksController> {
         break;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.5)),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
+    return PopupMenuButton<TaskStatus>(
+      initialValue: status,
+      onSelected: (newStatus) {
+        if (newStatus != status) {
+          controller.updateTaskStatus(taskId, newStatus);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: color.withOpacity(0.5)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              text,
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.arrow_drop_down, size: 16, color: color),
+          ],
         ),
       ),
+      itemBuilder: (context) => TaskStatus.values.map((s) {
+        return PopupMenuItem(
+          value: s,
+          child: Text(s.name.replaceAll('_', ' ').capitalizeFirst!),
+        );
+      }).toList(),
     );
   }
 

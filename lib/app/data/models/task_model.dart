@@ -68,4 +68,32 @@ class TaskModel {
       updatedAt: (json['updatedAt'] as Timestamp).toDate(),
     );
   }
+
+  TaskModel copyWith({
+    String? id,
+    String? title,
+    String? description,
+    String? groupId,
+    List<String>? assignedTo,
+    String? createdBy,
+    TaskStatus? status,
+    TaskPriority? priority,
+    DateTime? dueAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return TaskModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      groupId: groupId ?? this.groupId,
+      assignedTo: assignedTo ?? this.assignedTo,
+      createdBy: createdBy ?? this.createdBy,
+      status: status ?? this.status,
+      priority: priority ?? this.priority,
+      dueAt: dueAt ?? this.dueAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }

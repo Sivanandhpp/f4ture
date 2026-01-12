@@ -156,4 +156,24 @@ class GlobalTasksController extends GetxController {
     selectedSort.value = sort;
     _updateMixedList();
   }
+
+  Future<void> updateTaskStatus(String taskId, TaskStatus status) async {
+    try {
+      await _db.collection('tasks').doc(taskId).update({
+        'status': status.name,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      // Local update
+      final index = mixedList.indexWhere(
+        (i) => i is TaskModel && i.id == taskId,
+      );
+      if (index != -1) {
+        final task = mixedList[index] as TaskModel;
+        mixedList[index] = task.copyWith(status: status);
+        mixedList.refresh();
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to update task status');
+    }
+  }
 }

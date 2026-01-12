@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
+import '../../../data/models/message_model.dart';
 
 import '../../../data/models/group_model.dart';
 import '../../../data/models/task_model.dart';
@@ -109,6 +112,31 @@ class GroupTasksController extends GetxController {
       );
 
       await _firestore.collection('tasks').doc(id).set(newTask.toJson());
+
+      // --- Client-Side System Message Integration ---
+      try {
+        final systemMsgId = const Uuid().v4();
+        await _firestore
+            .collection('groups')
+            .doc(group.groupId)
+            .collection('messages')
+            .doc(systemMsgId)
+            .set({
+              'id': systemMsgId,
+              'senderId': 'system',
+              'senderName': 'System',
+              'senderAvatar': '',
+              'type': MessageType.system.name,
+              'text':
+                  '📋 New Task: "$title" (Due: ${DateFormat('MMM d').format(dueAt)})',
+              'createdAt': FieldValue.serverTimestamp(),
+              'status': 'sent',
+            });
+      } catch (e) {
+        debugPrint('Failed to send system message: $e');
+      }
+      // ----------------------------------------------
+
       Get.back(); // Close sheet
       Get.snackbar('Success', 'Task created successfully');
     } catch (e) {

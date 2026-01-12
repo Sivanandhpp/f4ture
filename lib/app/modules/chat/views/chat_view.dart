@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:f4ture/app/core/index.dart';
 import 'package:f4ture/app/modules/chat/controllers/chat_controller.dart';
 import 'package:f4ture/app/modules/chat/widgets/chat_input.dart';
 import 'package:f4ture/app/modules/chat/widgets/message_bubble.dart';

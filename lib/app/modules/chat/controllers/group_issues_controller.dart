@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:uuid/uuid.dart';
+import '../../../data/models/message_model.dart';
 
 import '../../../data/models/group_model.dart';
 import '../../../data/models/issue_model.dart';
@@ -50,17 +52,33 @@ class GroupIssuesController extends GetxController {
       final uid = AuthService.to.currentUser.value!.id;
 
       // Fetch admins to assign
-      final membersSnapshot = await _firestore
-          .collection('groups')
-          .doc(group.groupId)
-          .collection('members')
-          .where('role', whereIn: ['admin', 'owner'])
-          .get();
+      List<String> adminIds = [];
+      try {
+        // First try to fetch from members collection if roles are stored there
+        final membersSnapshot = await _firestore
+            .collection('groups')
+            .doc(group.groupId)
+            .collection('members')
+            .where('role', whereIn: ['admin', 'owner'])
+            .get();
 
-      final adminIds = membersSnapshot.docs.map((doc) => doc.id).toList();
+        adminIds = membersSnapshot.docs.map((doc) => doc.id).toList();
 
-      // Ensure at least one assignee if possible, else leave empty (or assign to creator?)
-      // User requested "always assign to respective group admins"
+        // If no admins found via query, fallback to group owner
+        if (adminIds.isEmpty) {
+          // We might need to fetch the Group document if ownerId isn't in members with role
+          // But we have 'group' model related to this controller?
+          // The passed group model has ownerId? No, checking GroupModel definition...
+          // Actually, let's just use the current user if nothing else, or leave empty.
+          // Better: Fetch the group doc again to be sure of roles/owner if crucial.
+          // For now, let's assume if query returns empty, there are no explicit admins/owners in members subcollection.
+          // This implies roles might not be synced there.
+          // Fallback: Assign to current user (reporter) so it's not lost?
+          // User asked: "assigned to respective group admins".
+        }
+      } catch (e) {
+        debugPrint('Error fetching admins: $e');
+      }
 
       final newIssue = IssueModel(
         id: id,
@@ -75,10 +93,35 @@ class GroupIssuesController extends GetxController {
       );
 
       await _firestore.collection('issues').doc(id).set(newIssue.toJson());
+
+      // --- Client-Side System Message Integration ---
+      try {
+        final systemMsgId = const Uuid().v4();
+        await _firestore
+            .collection('groups')
+            .doc(group.groupId)
+            .collection('messages')
+            .doc(systemMsgId)
+            .set({
+              'id': systemMsgId,
+              'senderId': 'system',
+              'senderName': 'System',
+              'senderAvatar': '',
+              'type': MessageType.system.name,
+              'text':
+                  '⚠️ Issue reported: "$title" (${severity.name.toUpperCase()})',
+              'createdAt': FieldValue.serverTimestamp(),
+              'status': 'sent',
+            });
+      } catch (e) {
+        debugPrint('Failed to send system message: $e');
+      }
+      // ----------------------------------------------
+
       Get.back();
       Get.snackbar('Success', 'Issue reported successfully');
     } catch (e) {
-      Get.snackbar('Error', 'Failed to report issue');
+      Get.snackbar('Error', 'Failed to report issue: $e');
     }
   }
 

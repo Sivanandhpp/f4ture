@@ -11,7 +11,6 @@ import 'package:mime/mime.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/app_image_picker.dart';
 import '../../../data/models/group_model.dart';
 import '../../../data/models/message_model.dart';
 import '../../../data/services/auth_service.dart';
