@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../controllers/super_home_controller.dart';
+import '../../home/views/home_view.dart';
 import 'tabs/chats_tab.dart';
-import 'tabs/feed_tab.dart';
 import 'tabs/settings_tab.dart';
 import 'tabs/tasks_tab.dart';
 
@@ -18,7 +18,7 @@ class SuperHomeView extends GetView<SuperHomeController> {
       body: Obx(
         () => IndexedStack(
           index: controller.tabIndex.value,
-          children: const [FeedTab(), ChatsTab(), TasksTab(), SettingsTab()],
+          children: const [HomeView(), ChatsTab(), TasksTab(), SettingsTab()],
         ),
       ),
       bottomNavigationBar: Obx(

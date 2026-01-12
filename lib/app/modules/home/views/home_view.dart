@@ -1,23 +1,137 @@
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
 
+import '../../../core/index.dart';
+import '../../../data/services/auth_service.dart';
 import '../controllers/home_controller.dart';
+import '../widgets/futuristic_background.dart';
+import '../widgets/video_background.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
+
   @override
   Widget build(BuildContext context) {
+    // Note: HomeView extends GetView<HomeController>, but we are using AuthService here directly.
+    // If we want to use logic, we should put it in HomeController.
+    // For now, this stateless-like UI using AuthService is fine.
+
+    final user = AuthService.to.currentUser.value;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('HomeView'),
-        centerTitle: true,
-      ),
-      body: const Center(
-        child: Text(
-          'HomeView is working',
-          style: TextStyle(fontSize: 20),
-        ),
+      // backgroundColor: Colors.black, // Removed in favor of FuturisticBackground
+      body: Stack(
+        children: [
+          // 0. Base Background
+          const Positioned.fill(child: FuturisticBackground()),
+
+          // 1. Content
+          SafeArea(
+            child: Column(
+              children: [
+                // Custom App Bar
+                Padding(
+                  padding: const EdgeInsets.only(left: 24, right: 24, top: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Profile Picture
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColors.primary.withOpacity(0.5),
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withOpacity(0.3),
+                              blurRadius: 10,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: CircleAvatar(
+                          radius: 24,
+                          backgroundImage: user?.profilePhoto != null
+                              ? NetworkImage(user!.profilePhoto!)
+                              : null,
+                          backgroundColor: Colors.grey.shade900,
+                          child: user?.profilePhoto == null
+                              ? Text(
+                                  user?.name != null && user!.name.isNotEmpty
+                                      ? user.name[0].toUpperCase()
+                                      : 'U',
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : null,
+                        ),
+                      ),
+
+                      // Center Text
+                      Column(
+                        children: [
+                          Text(
+                            'Welcome to',
+                            style: AppFont.caption.copyWith(
+                              color: Colors.white70,
+                              letterSpacing: 1.5,
+                              fontSize: 12,
+                            ),
+                          ),
+
+                          Text(
+                            'FUTURE',
+                            style: AppFont.heading.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 24,
+                              letterSpacing: 2,
+                              shadows: [
+                                Shadow(
+                                  color: AppColors.primary.withOpacity(0.8),
+                                  blurRadius: 15,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // Notification Icon
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.1),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.1),
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.notifications_none_rounded,
+                          color: AppColors.primary, // Yellow/Primary tint
+                          size: 24,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Video Background (Foreground element underneath header)
+                const VideoBackground(
+                  videoPath: 'assets/videos/highlights.mp4',
+                ),
+
+                // Rest of the content (Space filler for now)
+                const Spacer(),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
