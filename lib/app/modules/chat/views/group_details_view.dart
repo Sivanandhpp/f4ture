@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/app_image.dart';
+import '../../super_home/widgets/user_selector.dart';
 import '../controllers/group_details_controller.dart';
 
 class GroupDetailsView extends GetView<GroupDetailsController> {
@@ -157,8 +158,21 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
           // Add Member Button
           InkWell(
             onTap: () {
-              // Placeholder for Add Member flow
-              Get.snackbar('Upcoming', 'Add Member feature coming soon');
+              // Open UserSelector
+              Get.bottomSheet(
+                UserSelector(
+                  alreadySelectedIds: controller.members
+                      .map((m) => m.user.id)
+                      .toList(),
+                  onSelectionChanged: (selected) {
+                    if (selected.isNotEmpty) {
+                      controller.addMembers(selected);
+                    }
+                  },
+                ),
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+              );
             },
             child: const Padding(
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),

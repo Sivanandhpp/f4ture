@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/index.dart';
+import '../../../data/services/auth_service.dart';
+import '../../super_home/widgets/user_selector.dart';
 import '../controllers/super_home_controller.dart';
 
 class CreateGroupView extends GetView<SuperHomeController> {
@@ -128,6 +130,67 @@ class CreateGroupView extends GetView<SuperHomeController> {
                   ],
                 ),
               ),
+              // Members Selection
+              Text(
+                'Members',
+                style: AppFont.body.copyWith(color: AppColors.textSecondary),
+              ),
+              AppSpacing.verticalSm,
+              Obx(
+                () => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (controller.selectedMembers.isNotEmpty)
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: controller.selectedMembers.map((member) {
+                          return Chip(
+                            label: Text(member.name),
+                            deleteIcon: const Icon(Icons.close, size: 18),
+                            onDeleted: () => controller.removeMember(member),
+                            backgroundColor: AppColors.card,
+                            side: BorderSide(color: Colors.grey.shade300),
+                          );
+                        }).toList(),
+                      ),
+                    if (controller.selectedMembers.isNotEmpty)
+                      AppSpacing.verticalSm,
+
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        Get.bottomSheet(
+                          UserSelector(
+                            alreadySelectedIds: controller.selectedMembers
+                                .map((m) => m.id)
+                                .toList(),
+                            onSelectionChanged: (selected) {
+                              controller.updateSelectedMembers(selected);
+                            },
+                          ),
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                        );
+                      },
+                      icon: const Icon(Icons.person_add),
+                      label: Text(
+                        controller.selectedMembers.isEmpty
+                            ? 'Add Members (Required)'
+                            : 'Add More Members',
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               AppSpacing.verticalXl,
 
               // Create Button
@@ -146,6 +209,17 @@ class CreateGroupView extends GetView<SuperHomeController> {
   }
 
   Widget _buildTypeChip(String label, String value) {
+    // Restrict 'committee' to admin, lead, core
+    if (value == 'committee') {
+      final user = AuthService.to.currentUser.value;
+      if (user != null) {
+        final role = user.role.toLowerCase();
+        if (role != 'admin' && role != 'lead' && role != 'core') {
+          return const SizedBox.shrink(); // Hide option
+        }
+      }
+    }
+
     final isSelected = controller.selectedType.value == value;
     return ChoiceChip(
       label: Text(label),

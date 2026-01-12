@@ -21,7 +21,7 @@ class MessageBubble extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.only(top: 4, bottom: 4),
       child: Column(
         crossAxisAlignment: isMe
             ? CrossAxisAlignment.end

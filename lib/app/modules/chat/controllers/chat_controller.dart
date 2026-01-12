@@ -352,26 +352,28 @@ class ChatController extends GetxController {
                 _pickFile();
               },
             ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(
-                Icons.assignment_add,
-                color: AppColors.primary,
+            if (group.type == 'committee') ...[
+              const Divider(),
+              ListTile(
+                leading: const Icon(
+                  Icons.assignment_add,
+                  color: AppColors.primary,
+                ),
+                title: const Text('Create Task'),
+                onTap: () {
+                  Get.back();
+                  _openCreateTaskSheet();
+                },
               ),
-              title: const Text('Create Task'),
-              onTap: () {
-                Get.back();
-                _openCreateTaskSheet();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.report_problem, color: Colors.orange),
-              title: const Text('Report Issue'),
-              onTap: () {
-                Get.back();
-                _openCreateIssueSheet();
-              },
-            ),
+              ListTile(
+                leading: const Icon(Icons.report_problem, color: Colors.orange),
+                title: const Text('Report Issue'),
+                onTap: () {
+                  Get.back();
+                  _openCreateIssueSheet();
+                },
+              ),
+            ],
           ],
         ),
       ),

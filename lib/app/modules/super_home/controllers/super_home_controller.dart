@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../core/index.dart';
 import '../../../data/models/group_model.dart';
+import '../../../data/models/user_model.dart';
 import '../../../data/services/auth_service.dart';
 import 'global_tasks_controller.dart';
 
@@ -24,6 +25,16 @@ class SuperHomeController extends GetxController {
   final Rx<Uint8List?> selectedGroupIconBytes = Rx<Uint8List?>(null);
   final RxBool isLoading = false.obs;
   final RxString selectedType = 'public'.obs; // public, private, committee
+
+  final RxList<UserModel> selectedMembers = <UserModel>[].obs;
+
+  void updateSelectedMembers(List<UserModel> members) {
+    selectedMembers.value = members;
+  }
+
+  void removeMember(UserModel member) {
+    selectedMembers.remove(member);
+  }
 
   final RxInt tabIndex = 1.obs; // Default to Chats tab (Index 1)
 
@@ -114,19 +125,31 @@ class SuperHomeController extends GetxController {
       return;
     }
 
+    if (selectedMembers.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please select at least one member',
+        backgroundColor: AppColors.error,
+      );
+      return;
+    }
+
     try {
       isLoading.value = true;
       final user = _auth.currentUser;
       if (user == null) throw Exception('User not authenticated');
 
       final groupId = _firestore.collection('groups').doc().id;
-      final ref = _storage.ref().child('group_icons/$groupId.jpg');
+      final iconsRef = _storage.ref().child('group_icons/$groupId.jpg');
 
       // Use bytes for cross-platform compatibility
       final bytes = await selectedGroupIcon.value!.readAsBytes();
-      await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
+      await iconsRef.putData(
+        bytes,
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
 
-      final iconUrl = await ref.getDownloadURL();
+      final iconUrl = await iconsRef.getDownloadURL();
 
       final newGroup = GroupModel(
         groupId: groupId,
@@ -137,23 +160,47 @@ class SuperHomeController extends GetxController {
         createdAt: DateTime.now(),
         lastMessage: 'Group created',
         lastMessageAt: DateTime.now(),
-        membersCount: 1, // Creator
+        membersCount: selectedMembers.length + 1, // Creator + Selected
         type: selectedType.value,
       );
 
-      await _firestore.collection('groups').doc(groupId).set(newGroup.toJson());
+      final batch = _firestore.batch();
 
-      // Add creator to members subcollection
-      await _firestore
+      // 1. Create Group Doc
+      batch.set(
+        _firestore.collection('groups').doc(groupId),
+        newGroup.toJson(),
+      );
+
+      // 2. Add Creator to Members
+      final creatorRef = _firestore
           .collection('groups')
           .doc(groupId)
           .collection('members')
-          .doc(user.uid)
-          .set({
-            'uid': user.uid,
-            'role': 'admin',
-            'joinedAt': FieldValue.serverTimestamp(),
-          });
+          .doc(user.uid);
+
+      batch.set(creatorRef, {
+        'uid': user.uid,
+        'role': 'admin',
+        'joinedAt': FieldValue.serverTimestamp(),
+      });
+
+      // 3. Add Selected Members
+      for (var member in selectedMembers) {
+        final memberRef = _firestore
+            .collection('groups')
+            .doc(groupId)
+            .collection('members')
+            .doc(member.id);
+
+        batch.set(memberRef, {
+          'uid': member.id,
+          'role': 'attendee', // Default role
+          'joinedAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      await batch.commit();
 
       isLoading.value = false;
       Get.back(); // Close CreateGroupView
@@ -167,6 +214,7 @@ class SuperHomeController extends GetxController {
       groupNameController.clear();
       groupDescriptionController.clear();
       selectedGroupIcon.value = null;
+      selectedMembers.clear();
     } catch (e) {
       isLoading.value = false;
       Get.snackbar(

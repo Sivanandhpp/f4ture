@@ -134,6 +134,37 @@ class GroupDetailsController extends GetxController {
     }
   }
 
+  Future<void> addMembers(List<UserModel> newMembers) async {
+    try {
+      final batch = _firestore.batch();
+
+      for (var member in newMembers) {
+        // Double check not already member
+        if (members.any((m) => m.user.id == member.id)) continue;
+
+        final memberRef = _firestore
+            .collection('groups')
+            .doc(group.groupId)
+            .collection('members')
+            .doc(member.id);
+
+        batch.set(memberRef, {
+          'uid': member.id,
+          'role': 'attendee', // Default role for added members
+          'joinedAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      await batch.commit();
+
+      // Refresh list
+      await _fetchMembers();
+      Get.snackbar('Success', '${newMembers.length} members added');
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to add members: $e');
+    }
+  }
+
   Future<void> makeAdmin(String userId) async {
     try {
       await _firestore
