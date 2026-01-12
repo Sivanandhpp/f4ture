@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/attendee/bindings/attendee_binding.dart';
+import '../modules/attendee/views/attendee_view.dart';
 import '../modules/authentication/bindings/authentication_binding.dart';
 import '../modules/authentication/bindings/user_details_binding.dart';
 import '../modules/authentication/views/authentication_view.dart';
@@ -10,6 +12,8 @@ import '../modules/chat/views/chat_view.dart';
 import '../modules/chat/views/group_details_view.dart';
 import '../modules/create_event/bindings/create_event_binding.dart';
 import '../modules/create_event/views/create_event_view.dart';
+import '../modules/feed/bindings/feed_binding.dart';
+import '../modules/feed/views/feed_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/manage_users/bindings/manage_users_binding.dart';
@@ -71,6 +75,16 @@ class AppPages {
       name: _Paths.MANAGE_USERS,
       page: () => const ManageUsersView(),
       binding: ManageUsersBinding(),
+    ),
+    GetPage(
+      name: _Paths.ATTENDEE,
+      page: () => const AttendeeView(),
+      binding: AttendeeBinding(),
+    ),
+    GetPage(
+      name: _Paths.FEED,
+      page: () => const FeedView(),
+      binding: FeedBinding(),
     ),
   ];
 }

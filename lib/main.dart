@@ -10,6 +10,7 @@ import 'firebase_options.dart';
 import 'package:get_storage/get_storage.dart';
 import 'app/data/services/auth_service.dart';
 import 'app/data/services/notification_service.dart';
+import 'app/data/services/local_chat_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +19,7 @@ void main() async {
   await Get.putAsync(
     () => NotificationService().init().then((_) => NotificationService()),
   ); // Register NotificationService
+  Get.put(LocalChatService());
   final authService = Get.put(AuthService());
 
   runApp(

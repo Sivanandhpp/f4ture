@@ -11,6 +11,7 @@ import 'package:mime/mime.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../data/services/local_chat_service.dart';
 import '../../../data/models/group_model.dart';
 import '../../../data/models/message_model.dart';
 import '../../../data/services/auth_service.dart';
@@ -70,10 +71,14 @@ class ChatController extends GetxController {
 
     // Pagination listener
     scrollController.addListener(_scrollListener);
+
+    // Mark as read immediately
+    LocalChatService.to.markAsRead(group.groupId);
   }
 
   @override
   void onClose() {
+    LocalChatService.to.markAsRead(group.groupId); // Mark read on exit
     messageController.dispose();
     scrollController.dispose();
     super.onClose();

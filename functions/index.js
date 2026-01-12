@@ -209,10 +209,9 @@ exports.onMessageCreate = functions.firestore
       const userId = doc.id;
 
       if (userId !== senderId) {
-        // Increment Unread
+        // Update User's Group View (Last message only)
         const userGroupRef = db.doc(`users/${userId}/groups/${groupId}`);
         batch.set(userGroupRef, {
-          unreadCount: admin.firestore.FieldValue.increment(1),
           lastMessage: displayMessage,
           lastMessageAt: createdAt || admin.firestore.FieldValue.serverTimestamp(),
         }, { merge: true });

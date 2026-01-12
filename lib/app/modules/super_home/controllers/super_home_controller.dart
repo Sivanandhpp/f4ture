@@ -11,6 +11,7 @@ import '../../../core/index.dart';
 import '../../../data/models/group_model.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/services/auth_service.dart';
+import '../../../data/services/local_chat_service.dart';
 import 'global_tasks_controller.dart';
 
 class SuperHomeController extends GetxController {
@@ -47,7 +48,7 @@ class SuperHomeController extends GetxController {
     if (user.role == 'admin') {
       return _firestore
           .collection('groups')
-          .orderBy('createdAt', descending: true)
+          .orderBy('lastMessageAt', descending: true)
           .snapshots()
           .map(
             (snapshot) => snapshot.docs
@@ -65,30 +66,67 @@ class SuperHomeController extends GetxController {
         .asyncMap((snapshot) async {
           if (snapshot.docs.isEmpty) return <GroupModel>[];
 
-          // Map groupId to unreadCount
-          final userGroupData = {
+          // Fetch last read times and calculate unread counts
+          // Since we can't do complex joins or async maps efficiently on a stream of lists effectively without multiple reads,
+          // we do what we did before: fetch individually.
+          // Optimization: fetch counts only if necessary.
+
+          // Map groupId to joinedAt to use as fallback for lastRead
+          final groupJoinDates = {
             for (var doc in snapshot.docs)
-              doc.id: doc.data()['unreadCount'] as int? ?? 0,
+              doc.id:
+                  (doc.data()['joinedAt'] as Timestamp?)?.toDate() ??
+                  DateTime.now(),
           };
 
           final groupIds = snapshot.docs.map((doc) => doc.id).toList();
 
-          // Fetch details for each group
-          final groupDocs = await Future.wait(
-            groupIds.map((id) => _firestore.collection('groups').doc(id).get()),
+          final groupsWithCounts = await Future.wait(
+            groupIds.map((id) async {
+              final groupDoc = await _firestore
+                  .collection('groups')
+                  .doc(id)
+                  .get();
+              if (!groupDoc.exists) return null;
+
+              final group = GroupModel.fromJson(groupDoc.data()!);
+
+              // Local Unread Logic
+              // If we have no local record, assume we've read up to the point we joined
+              // (or if we rejoined, the new join date).
+              final lastRead =
+                  LocalChatService.to.getLastRead(id) ?? groupJoinDates[id]!;
+              int unread = 0;
+
+              // Only query if there might be unread messages
+              if (group.lastMessageAt.isAfter(lastRead)) {
+                try {
+                  final countQuery = await _firestore
+                      .collection('groups')
+                      .doc(id)
+                      .collection('messages')
+                      .where(
+                        'createdAt',
+                        isGreaterThan: Timestamp.fromDate(lastRead),
+                      )
+                      .count()
+                      .get();
+                  unread = countQuery.count ?? 0;
+                } catch (e) {
+                  debugPrint('Error counting unread for $id: $e');
+                }
+              }
+
+              return group.copyWith(unreadCount: unread);
+            }),
           );
 
-          return groupDocs.where((doc) => doc.exists && doc.data() != null).map(
-              (doc) {
-                final group = GroupModel.fromJson(doc.data()!);
-                // Merge unreadCount from user-specific data
-                return group.copyWith(
-                  unreadCount: userGroupData[group.groupId],
-                );
-              },
-            ).toList()
-            // Sort manually since we fetched individually
-            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return groupsWithCounts
+              .where((g) => g != null)
+              .cast<GroupModel>()
+              .toList()
+            // Sort manually by lastMessageAt descending
+            ..sort((a, b) => b.lastMessageAt.compareTo(a.lastMessageAt));
         });
   }
 
