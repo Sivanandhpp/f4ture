@@ -9,11 +9,15 @@ import 'firebase_options.dart';
 
 import 'package:get_storage/get_storage.dart';
 import 'app/data/services/auth_service.dart';
+import 'app/data/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await GetStorage.init();
+  await Get.putAsync(
+    () => NotificationService().init().then((_) => NotificationService()),
+  ); // Register NotificationService
   final authService = Get.put(AuthService());
 
   runApp(

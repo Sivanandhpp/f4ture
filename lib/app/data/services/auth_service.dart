@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import '../../data/services/notification_service.dart';
 
 import '../../routes/app_pages.dart';
 import '../models/user_model.dart';
@@ -29,6 +30,10 @@ class AuthService extends GetxService {
         currentUser.value = UserModel.fromJson(userData);
         // Sync with server in background
         syncUser();
+        // Init Notifications
+        if (Get.isRegistered<NotificationService>()) {
+          Get.find<NotificationService>().init();
+        }
       }
     } catch (e) {
       print('Error loading user: $e');

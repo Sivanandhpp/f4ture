@@ -9,6 +9,7 @@ class UserModel {
   final String? qrCode;
   final String status;
   final List<String> interests;
+  final String? fcmToken;
 
   UserModel({
     required this.id,
@@ -21,6 +22,7 @@ class UserModel {
     this.qrCode,
     required this.status,
     required this.interests,
+    this.fcmToken,
   });
 
   Map<String, dynamic> toJson() {
@@ -35,6 +37,7 @@ class UserModel {
       'QR_code': qrCode,
       'status': status,
       'interests': interests,
+      'fcmToken': fcmToken,
     };
   }
 
@@ -54,6 +57,7 @@ class UserModel {
               ?.map((e) => e as String)
               .toList() ??
           [],
+      fcmToken: json['fcmToken'] as String?,
     );
   }
 }
