@@ -5,18 +5,20 @@ abstract class Routes {
   Routes._();
   static const HOME = _Paths.HOME;
   static const AUTHENTICATION = _Paths.AUTHENTICATION;
-  static const USER_PROFILE = _Paths.USER_PROFILE;
+  static const USER_DETAILS = _Paths.USER_DETAILS;
   static const SUPER_HOME = _Paths.SUPER_HOME;
   static const CHAT = _Paths.CHAT;
   static const GROUP_DETAILS = _Paths.GROUP_DETAILS;
+  static const USER_PROFILE = _Paths.USER_PROFILE;
 }
 
 abstract class _Paths {
   _Paths._();
   static const HOME = '/home';
   static const AUTHENTICATION = '/authentication';
-  static const USER_PROFILE = '/user-profile';
+  static const USER_DETAILS = '/user-details';
   static const SUPER_HOME = '/super-home';
   static const CHAT = '/chat';
   static const GROUP_DETAILS = '/group-details';
+  static const USER_PROFILE = '/user-profile';
 }

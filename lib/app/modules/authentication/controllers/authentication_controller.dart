@@ -134,8 +134,8 @@ class AuthenticationController extends GetxController {
             Get.offAllNamed(Routes.SUPER_HOME);
           }
         } else {
-          print('DEBUG: Navigating to USER_PROFILE');
-          Get.offAllNamed(Routes.USER_PROFILE);
+          print('DEBUG: Navigating to USER_DETAILS');
+          Get.offAllNamed(Routes.USER_DETAILS);
         }
       } catch (e, stack) {
         print('DEBUG: Error in _onAuthSuccess: $e');

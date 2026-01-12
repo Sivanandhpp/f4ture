@@ -1,10 +1,11 @@
-import 'package:f4ture/app/modules/chat/bindings/group_details_binding.dart';
 import 'package:get/get.dart';
 
 import '../modules/authentication/bindings/authentication_binding.dart';
+import '../modules/authentication/bindings/user_details_binding.dart';
 import '../modules/authentication/views/authentication_view.dart';
+import '../modules/authentication/views/user_details_view.dart';
 import '../modules/chat/bindings/chat_binding.dart';
-import '../modules/chat/controllers/group_details_controller.dart';
+import '../modules/chat/bindings/group_details_binding.dart';
 import '../modules/chat/views/chat_view.dart';
 import '../modules/chat/views/group_details_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -33,9 +34,9 @@ class AppPages {
       binding: AuthenticationBinding(),
     ),
     GetPage(
-      name: _Paths.USER_PROFILE,
-      page: () => const UserProfileView(),
-      binding: UserProfileBinding(),
+      name: _Paths.USER_DETAILS,
+      page: () => const UserDetailsView(),
+      binding: UserDetailsBinding(),
     ),
     GetPage(
       name: _Paths.SUPER_HOME,
@@ -51,6 +52,11 @@ class AppPages {
       name: _Paths.GROUP_DETAILS,
       page: () => const GroupDetailsView(),
       binding: GroupDetailsBinding(),
+    ),
+    GetPage(
+      name: _Paths.USER_PROFILE,
+      page: () => const UserProfileView(),
+      binding: UserProfileBinding(),
     ),
   ];
 }

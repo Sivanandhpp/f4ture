@@ -1,8 +1,10 @@
+import 'package:f4ture/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/index.dart';
 import '../../../data/services/auth_service.dart';
+import '../../super_home/controllers/super_home_controller.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/futuristic_background.dart';
 import '../widgets/neon_button.dart';
@@ -43,38 +45,48 @@ class HomeView extends GetView<HomeController> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Profile Picture
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColors.primary.withOpacity(0.5),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primary.withOpacity(0.3),
-                              blurRadius: 10,
-                              spreadRadius: 2,
+                      GestureDetector(
+                        onTap: () {
+                          // Navigate to User Profile Tab (Index 3)
+                          try {
+                            Get.toNamed(Routes.USER_PROFILE);
+                          } catch (e) {
+                            debugPrint('SuperHomeController not found: $e');
+                          }
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.primary.withOpacity(0.5),
+                              width: 2,
                             ),
-                          ],
-                        ),
-                        child: CircleAvatar(
-                          radius: 24,
-                          backgroundImage: user?.profilePhoto != null
-                              ? NetworkImage(user!.profilePhoto!)
-                              : null,
-                          backgroundColor: Colors.grey.shade900,
-                          child: user?.profilePhoto == null
-                              ? Text(
-                                  user?.name != null && user!.name.isNotEmpty
-                                      ? user.name[0].toUpperCase()
-                                      : 'U',
-                                  style: const TextStyle(
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                              : null,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withOpacity(0.3),
+                                blurRadius: 10,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            radius: 24,
+                            backgroundImage: user?.profilePhoto != null
+                                ? NetworkImage(user!.profilePhoto!)
+                                : null,
+                            backgroundColor: Colors.grey.shade900,
+                            child: user?.profilePhoto == null
+                                ? Text(
+                                    user?.name != null && user!.name.isNotEmpty
+                                        ? user.name[0].toUpperCase()
+                                        : 'U',
+                                    style: const TextStyle(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                : null,
+                          ),
                         ),
                       ),
 

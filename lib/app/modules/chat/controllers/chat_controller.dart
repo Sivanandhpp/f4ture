@@ -44,7 +44,24 @@ class ChatController extends GetxController {
     if (Get.arguments is GroupModel) {
       group = Get.arguments as GroupModel;
     } else {
-      Get.back(); // Error safety
+      // Safety: Prevent crash if args missing, but schedule back navigation
+      // to avoid "setState during build" error.
+      group = GroupModel(
+        groupId: 'error',
+        name: 'Error',
+        iconUrl: '',
+        description: '',
+        createdBy: '',
+        createdAt: DateTime.now(),
+        lastMessage: '',
+        lastMessageAt: DateTime.now(),
+        membersCount: 0,
+        type: 'public',
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Get.back();
+        Get.snackbar('Error', 'Invalid chat arguments');
+      });
       return;
     }
 
@@ -68,7 +85,11 @@ class ChatController extends GetxController {
             scrollController.position.maxScrollExtent * 0.9 &&
         !isLoadingMore.value &&
         _hasMore) {
-      _loadMoreMessages();
+      // Defer state update to next frame to avoid "setState during build"
+      // if listener is triggered during initial layout.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadMoreMessages();
+      });
     }
   }
 
