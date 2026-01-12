@@ -49,7 +49,12 @@ lib/
 *   Firebase project configured.
 
 ### Running the App
-1.  **Get Dependencies**:
+1.  **Clone the Repository**:
+    ```bash
+    git clone https://github.com/sivanandhpp/f4ture.git
+    cd f4ture
+    ```
+2.  **Get Dependencies**:
     ```bash
     flutter pub get
     ```
