@@ -20,6 +20,21 @@ class FeedController extends GetxController {
   DocumentSnapshot? _lastDocument;
   static const int _limit = 10;
 
+  // Search
+  final RxString searchQuery = ''.obs;
+
+  List<PostModel> get filteredPosts {
+    if (searchQuery.value.isEmpty) {
+      return posts;
+    }
+    final query = searchQuery.value.toLowerCase().trim();
+    return posts.where((post) {
+      final matchesAuthor = post.authorName.toLowerCase().contains(query);
+      final matchesText = post.text.toLowerCase().contains(query);
+      return matchesAuthor || matchesText;
+    }).toList();
+  }
+
   final ScrollController scrollController = ScrollController();
 
   @override
