@@ -3,7 +3,13 @@ import 'package:video_player/video_player.dart';
 
 class VideoBackground extends StatefulWidget {
   final String videoPath;
-  const VideoBackground({super.key, required this.videoPath});
+  final bool shouldPlay;
+
+  const VideoBackground({
+    super.key,
+    required this.videoPath,
+    this.shouldPlay = true,
+  });
 
   @override
   State<VideoBackground> createState() => _VideoBackgroundState();
@@ -20,11 +26,31 @@ class _VideoBackgroundState extends State<VideoBackground> {
       ..initialize().then((_) {
         _controller.setLooping(true);
         _controller.setVolume(0.0); // Mute
-        _controller.play();
-        setState(() {
-          _isInitialized = true;
-        });
+
+        if (widget.shouldPlay) {
+          _controller.play();
+        }
+
+        if (mounted) {
+          setState(() {
+            _isInitialized = true;
+          });
+        }
       });
+  }
+
+  @override
+  void didUpdateWidget(VideoBackground oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_isInitialized) return;
+
+    if (widget.shouldPlay != oldWidget.shouldPlay) {
+      if (widget.shouldPlay) {
+        _controller.play();
+      } else {
+        _controller.pause();
+      }
+    }
   }
 
   @override

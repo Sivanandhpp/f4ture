@@ -14,151 +14,195 @@ class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
 
   @override
+  @override
   Widget build(BuildContext context) {
     // Note: HomeView extends GetView<HomeController>, but we are using AuthService here directly.
-    // If we want to use logic, we should put it in HomeController.
-    // For now, this stateless-like UI using AuthService is fine.
 
     final user = AuthService.to.currentUser.value;
 
     return Scaffold(
-      // backgroundColor: Colors.black, // Removed in favor of FuturisticBackground
       body: Stack(
         children: [
-          // 0. Base Background
+          // 0. Base Background (Fixed)
           const Positioned.fill(child: FuturisticBackground()),
-          // Video Background (Foreground element underneath header)
-          SafeArea(
-            child: const Padding(
-              padding: EdgeInsets.only(top: 50),
-              child: VideoBackground(videoPath: 'assets/videos/highlights.mp4'),
-            ),
-          ),
-          // 1. Content
-          SafeArea(
-            child: Column(
-              children: [
-                // Custom App Bar
-                Padding(
-                  padding: const EdgeInsets.only(left: 24, right: 24, top: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Profile Picture
-                      GestureDetector(
-                        onTap: () {
-                          // Navigate to User Profile Tab (Index 3)
-                          try {
-                            Get.toNamed(Routes.USER_PROFILE);
-                          } catch (e) {
-                            debugPrint('SuperHomeController not found: $e');
-                          }
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.primary.withOpacity(0.5),
-                              width: 2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primary.withOpacity(0.3),
-                                blurRadius: 10,
-                                spreadRadius: 2,
-                              ),
-                            ],
-                          ),
-                          child: CircleAvatar(
-                            radius: 24,
-                            backgroundImage: user?.profilePhoto != null
-                                ? NetworkImage(user!.profilePhoto!)
-                                : null,
-                            backgroundColor: Colors.grey.shade900,
-                            child: user?.profilePhoto == null
-                                ? Text(
-                                    user?.name != null && user!.name.isNotEmpty
-                                        ? user.name[0].toUpperCase()
-                                        : 'U',
-                                    style: const TextStyle(
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  )
-                                : null,
-                          ),
-                        ),
-                      ),
 
-                      // Center Text
-                      Column(
-                        children: [
-                          Text(
-                            'Welcome to',
-                            style: AppFont.caption.copyWith(
-                              color: Colors.white70,
-                              letterSpacing: 1.5,
-                              fontSize: 12,
+          // Scrollable Content
+          SingleChildScrollView(
+            controller: controller.scrollController,
+            physics: const BouncingScrollPhysics(),
+            child: Stack(
+              children: [
+                // Video Background (Scrolls with content)
+                SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 50),
+                    child: Obx(
+                      () => VideoBackground(
+                        videoPath: 'assets/videos/highlights.mp4',
+                        shouldPlay: controller.isVideoVisible.value,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Foreground Content
+                SafeArea(
+                  child: Column(
+                    children: [
+                      // Custom App Bar
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 24,
+                          right: 24,
+                          top: 20,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Profile Picture
+                            GestureDetector(
+                              onTap: () {
+                                try {
+                                  Get.toNamed(Routes.USER_PROFILE);
+                                } catch (e) {
+                                  debugPrint(
+                                    'SuperHomeController not found: $e',
+                                  );
+                                }
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: AppColors.primary.withOpacity(0.5),
+                                    width: 2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.primary.withOpacity(0.3),
+                                      blurRadius: 10,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                                child: CircleAvatar(
+                                  radius: 24,
+                                  backgroundImage: user?.profilePhoto != null
+                                      ? NetworkImage(user!.profilePhoto!)
+                                      : null,
+                                  backgroundColor: Colors.grey.shade900,
+                                  child: user?.profilePhoto == null
+                                      ? Text(
+                                          user?.name != null &&
+                                                  user!.name.isNotEmpty
+                                              ? user.name[0].toUpperCase()
+                                              : 'U',
+                                          style: const TextStyle(
+                                            color: AppColors.primary,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                              ),
                             ),
-                          ),
-                          Text(
-                            'FUTURE',
-                            style: AppFont.heading.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                              letterSpacing: 2,
-                              shadows: [
-                                Shadow(
-                                  color: AppColors.primary.withOpacity(0.8),
-                                  blurRadius: 15,
+
+                            // Center Text
+                            Column(
+                              children: [
+                                Text(
+                                  'Welcome to',
+                                  style: AppFont.caption.copyWith(
+                                    color: Colors.white70,
+                                    letterSpacing: 1.5,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  'FUTURE',
+                                  style: AppFont.heading.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 24,
+                                    letterSpacing: 2,
+                                    shadows: [
+                                      Shadow(
+                                        color: AppColors.primary.withOpacity(
+                                          0.8,
+                                        ),
+                                        blurRadius: 15,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
+
+                            // Notification Icon
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.1),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.1),
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.notifications_none_rounded,
+                                color: AppColors.primary, // Yellow/Primary tint
+                                size: 24,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 150),
+
+                      // Action Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          NeonButton(
+                            text: 'Get Tickets',
+                            onTap: () {},
+                            glowColor: AppColors.primaryLight, // Cyan
+                          ),
+                          const SizedBox(width: 20),
+                          NeonButton(
+                            text: 'Explore',
+                            onTap: () {},
+                            glowColor: AppColors.info, // Purple
                           ),
                         ],
                       ),
 
-                      // Notification Icon
+                      // Placeholder for scrollable content
+                      // Replacing Spacer with Fixed Height to enable scrolling demonstration
+                      const SizedBox(height: 600),
+
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: Colors.white.withOpacity(0.1),
                           ),
                         ),
-                        child: const Icon(
-                          Icons.notifications_none_rounded,
-                          color: AppColors.primary, // Yellow/Primary tint
-                          size: 24,
+                        child: const Text(
+                          "Coming Soon\nMore interactive features...",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white54),
                         ),
                       ),
+
+                      const SizedBox(height: 100), // Extra bottom padding
                     ],
                   ),
                 ),
-                SizedBox(height: 150),
-                // Action Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    NeonButton(
-                      text: 'Get Tickets',
-                      onTap: () {},
-                      glowColor: AppColors.primaryLight, // Cyan
-                    ),
-                    const SizedBox(width: 20),
-                    NeonButton(
-                      text: 'Explore',
-                      onTap: () {},
-                      glowColor: AppColors.info, // Purple
-                    ),
-                  ],
-                ),
-
-                // Rest of the content (Space filler for now)
-                const Spacer(),
               ],
             ),
           ),

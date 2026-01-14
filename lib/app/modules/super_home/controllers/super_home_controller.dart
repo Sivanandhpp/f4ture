@@ -12,6 +12,7 @@ import '../../../data/models/group_model.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../data/services/local_chat_service.dart';
+import '../../../routes/app_pages.dart';
 import 'global_tasks_controller.dart';
 
 class SuperHomeController extends GetxController {
@@ -128,6 +129,99 @@ class SuperHomeController extends GetxController {
             // Sort manually by lastMessageAt descending
             ..sort((a, b) => b.lastMessageAt.compareTo(a.lastMessageAt));
         });
+  }
+
+  final RxList<String> myGroupIds = <String>[].obs;
+  final RxList<GroupModel> publicGroups = <GroupModel>[].obs;
+  final RxBool isPublicGroupsLoading = true.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _bindMyGroups();
+    _bindPublicGroups();
+  }
+
+  void _bindMyGroups() {
+    final user = AuthService.to.currentUser.value;
+    if (user != null) {
+      myGroupIds.bindStream(
+        _firestore
+            .collection('users')
+            .doc(user.id)
+            .collection('groups')
+            .snapshots()
+            .map((snapshot) => snapshot.docs.map((doc) => doc.id).toList()),
+      );
+    }
+  }
+
+  void _bindPublicGroups() {
+    publicGroups.bindStream(
+      _firestore
+          .collection('groups')
+          .where('type', isEqualTo: 'public')
+          .snapshots()
+          .map((snapshot) {
+            // Side effect: stop loading when data arrives
+            isPublicGroupsLoading.value = false;
+            return snapshot.docs
+                .map((doc) => GroupModel.fromJson(doc.data()))
+                .toList();
+          }),
+    );
+  }
+
+  Future<void> joinGroup(GroupModel group) async {
+    try {
+      final user = AuthService.to.currentUser.value;
+      if (user == null) return;
+
+      final batch = _firestore.batch();
+
+      // 1. Add user to group's members subcollection
+      final memberRef = _firestore
+          .collection('groups')
+          .doc(group.groupId)
+          .collection('members')
+          .doc(user.id);
+
+      batch.set(memberRef, {
+        'uid': user.id,
+        'role': 'attendee',
+        'joinedAt': FieldValue.serverTimestamp(),
+      });
+
+      // 2. Add group to user's groups subcollection (redundancy for efficient querying)
+      final userGroupRef = _firestore
+          .collection('users')
+          .doc(user.id)
+          .collection('groups')
+          .doc(group.groupId);
+
+      batch.set(userGroupRef, {
+        'groupId': group.groupId,
+        'joinedAt': FieldValue.serverTimestamp(),
+      });
+
+      await batch.commit();
+
+      Get.snackbar(
+        'Welcome',
+        'You have joined ${group.name}',
+        backgroundColor: AppColors.success,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      // Open the chat immediately
+      Get.toNamed(Routes.CHAT, arguments: group);
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to join group: $e',
+        backgroundColor: AppColors.error,
+      );
+    }
   }
 
   @override

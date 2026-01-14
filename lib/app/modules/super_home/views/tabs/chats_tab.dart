@@ -12,73 +12,214 @@ class ChatsTab extends GetView<SuperHomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return NestedScrollView(
-      headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        SliverAppBar(
-          backgroundColor: AppColors.appbarbg, // Dark background
-          expandedHeight: 80.0,
-          floating: false,
-          pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
-            titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-            title: Text(
-              'Chats',
-              style: AppFont.heading.copyWith(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.scaffolditems, // White title
+    return DefaultTabController(
+      length: 2,
+      child: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          SliverAppBar(
+            backgroundColor: AppColors.appbarbg, // Dark background
+            expandedHeight: 120.0, // Increased for TabBar
+            floating: false,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsets.only(
+                left: 16,
+                bottom: 60,
+              ), // Adjust title position
+              title: Text(
+                'Communities',
+                style: AppFont.heading.copyWith(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.scaffolditems, // White title
+                ),
               ),
             ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(48),
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(25),
+                  border: Border.all(color: Colors.white.withOpacity(0.1)),
+                ),
+                child: TabBar(
+                  indicator: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25),
+                    color: AppColors.primary.withOpacity(
+                      0.2,
+                    ), // Neon glow effect
+                    border: Border.all(
+                      color: AppColors.primary.withOpacity(0.5),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withOpacity(0.2),
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  labelColor: AppColors.primary,
+                  unselectedLabelColor: Colors.grey,
+                  labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  tabs: const [
+                    Tab(text: 'My Communities'),
+                    Tab(text: 'Join Communities'),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(
+                  Icons.add_circle_outline,
+                  color: AppColors.primary,
+                  size: 28,
+                ),
+                onPressed: () => Get.to(() => const CreateGroupView()),
+              ),
+              const SizedBox(width: 16),
+            ],
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.add_circle_outline,
-                color: AppColors.primary,
-                size: 28,
-              ),
-              onPressed: () => Get.to(() => const CreateGroupView()),
-            ),
-            const SizedBox(width: 16),
+        ],
+        body: TabBarView(
+          children: [
+            // Tab 1: My Communities (Existing Logic)
+            _buildMyCommunities(),
+
+            // Tab 2: Join Communities (New Logic)
+            _buildJoinCommunities(),
           ],
         ),
-      ],
-      body: StreamBuilder<List<GroupModel>>(
-        stream: controller.groupsStream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      ),
+    );
+  }
 
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+  Widget _buildMyCommunities() {
+    return StreamBuilder<List<GroupModel>>(
+      stream: controller.groupsStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          final groups = snapshot.data ?? [];
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
 
-          if (groups.isEmpty) {
-            return Center(
-              child: Text(
-                'No groups yet',
-                style: TextStyle(color: Colors.grey.shade500),
-              ),
-            );
-          }
+        final groups = snapshot.data ?? [];
 
-          return ListView.separated(
-            padding: EdgeInsets.zero,
-            itemCount: groups.length,
-            separatorBuilder: (context, index) => Divider(
-              color: Colors.grey.shade800, // Visible on dark
-              height: 1,
-              indent: 82, // Align with text
+        if (groups.isEmpty) {
+          return Center(
+            child: Text(
+              'No communities joined yet',
+              style: TextStyle(color: Colors.grey.shade500),
             ),
-            itemBuilder: (context, index) {
-              final group = groups[index];
-              return _buildGroupTile(group);
-            },
           );
+        }
+
+        return ListView.separated(
+          padding: EdgeInsets.zero,
+          itemCount: groups.length,
+          separatorBuilder: (context, index) =>
+              Divider(color: Colors.grey.shade800, height: 1, indent: 82),
+          itemBuilder: (context, index) {
+            final group = groups[index];
+            return _buildGroupTile(group);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildJoinCommunities() {
+    return Obx(() {
+      if (controller.isPublicGroupsLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      final publicGroups = controller.publicGroups;
+      final myGroups = controller.myGroupIds;
+
+      // Filter groups: Show only those NOT in myGroups
+      final joinableGroups = publicGroups
+          .where((g) => !myGroups.contains(g.groupId))
+          .toList();
+
+      if (joinableGroups.isEmpty) {
+        return Center(
+          child: Text(
+            'No new communities to join',
+            style: TextStyle(color: Colors.grey.shade500),
+          ),
+        );
+      }
+
+      return ListView.separated(
+        padding: const EdgeInsets.only(top: 10),
+        itemCount: joinableGroups.length,
+        separatorBuilder: (context, index) =>
+            Divider(color: Colors.grey.shade800, height: 1, indent: 82),
+        itemBuilder: (context, index) {
+          final group = joinableGroups[index];
+          return _buildJoinableGroupTile(group);
         },
+      );
+    });
+  }
+
+  Widget _buildJoinableGroupTile(GroupModel group) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          // Group Icon
+          CircleAvatar(
+            radius: 30,
+            backgroundColor: Colors.grey.shade800,
+            backgroundImage: NetworkImage(group.iconUrl),
+            onBackgroundImageError: (_, __) => const Icon(Icons.group),
+          ),
+          const SizedBox(width: 16),
+
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  group.name,
+                  style: AppFont.subtitle.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '${group.membersCount} members',
+                  style: AppFont.caption.copyWith(color: Colors.grey.shade500),
+                ),
+              ],
+            ),
+          ),
+
+          // Join Button
+          ElevatedButton(
+            onPressed: () => controller.joinGroup(group),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary.withOpacity(0.1),
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              shadowColor: AppColors.primary.withOpacity(0.3),
+              elevation: 5,
+            ),
+            child: const Text('JOIN'),
+          ),
+        ],
       ),
     );
   }
