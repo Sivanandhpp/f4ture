@@ -1,3 +1,4 @@
+import 'package:f4ture/app/core/index.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../feed/views/feed_view.dart';
@@ -15,7 +16,7 @@ class AttendeeView extends GetView<AttendeeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor:
-          Colors.black, // Dark background for contrast with glass navbar
+          AppColors.scaffoldbg, // Dark background for contrast with glass navbar
       body: Stack(
         children: [
           // 1. Main Content

@@ -308,41 +308,71 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                                   }
                                 });
                               },
-                              child: Stack(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 24,
-                                    backgroundImage: user.profilePhoto != null
-                                        ? NetworkImage(user.profilePhoto!)
-                                        : null,
-                                    backgroundColor: Colors.grey[800],
-                                    child: user.profilePhoto == null
-                                        ? Text(
-                                            user.name[0],
-                                            style: const TextStyle(
-                                              color: Colors.white,
+                              child: Container(
+                                width: 60, // Fixed width for alignment
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Stack(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 24,
+                                          backgroundImage:
+                                              user.profilePhoto != null
+                                              ? NetworkImage(user.profilePhoto!)
+                                              : null,
+                                          backgroundColor: Colors.grey[800],
+                                          child: user.profilePhoto == null
+                                              ? Text(
+                                                  user.name[0],
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                )
+                                              : null,
+                                        ),
+                                        if (isSelected)
+                                          Positioned(
+                                            right: 0,
+                                            bottom: 0,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(2),
+                                              decoration: const BoxDecoration(
+                                                color: Colors.white,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Icon(
+                                                Icons.check_circle,
+                                                color: AppColors.primary,
+                                                size: 16,
+                                              ),
                                             ),
-                                          )
-                                        : null,
-                                  ),
-                                  if (isSelected)
-                                    Positioned(
-                                      right: 0,
-                                      bottom: 0,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.check_circle,
-                                          color: AppColors.primary,
-                                          size: 16,
-                                        ),
-                                      ),
+                                          ),
+                                      ],
                                     ),
-                                ],
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      user.name.split(
+                                        ' ',
+                                      )[0], // First name only
+                                      style: TextStyle(
+                                        color: isSelected
+                                            ? AppColors.primary
+                                            : Colors.grey[400],
+                                        fontSize: 12,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           },

@@ -17,7 +17,7 @@ class ChatsTab extends GetView<SuperHomeController> {
       child: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
-            backgroundColor: AppColors.appbarbg, // Dark background
+            backgroundColor: AppColors.scaffoldbg, // Dark background
             expandedHeight: 120.0, // Increased for TabBar
             floating: false,
             pinned: true,
@@ -63,7 +63,7 @@ class ChatsTab extends GetView<SuperHomeController> {
                       ),
                     ],
                   ),
-                  labelColor: AppColors.primary,
+                  labelColor: AppColors.appbaritems,
                   unselectedLabelColor: Colors.grey,
                   labelStyle: const TextStyle(fontWeight: FontWeight.bold),
                   tabs: const [
@@ -145,34 +145,41 @@ class ChatsTab extends GetView<SuperHomeController> {
       final publicGroups = controller.publicGroups;
       final myGroups = controller.myGroupIds;
 
-      // Filter groups: Show only those NOT in myGroups
-      final joinableGroups = publicGroups
-          .where((g) => !myGroups.contains(g.groupId))
-          .toList();
-
-      if (joinableGroups.isEmpty) {
+      if (publicGroups.isEmpty) {
         return Center(
           child: Text(
-            'No new communities to join',
+            'No communities found',
             style: TextStyle(color: Colors.grey.shade500),
           ),
         );
       }
 
+      // Sort groups: Not joined first, then Joined.
+      final sortedGroups = List<GroupModel>.from(publicGroups)
+        ..sort((a, b) {
+          final aJoined = myGroups.contains(a.groupId);
+          final bJoined = myGroups.contains(b.groupId);
+          if (aJoined == bJoined) return 0;
+          return aJoined
+              ? 1
+              : -1; // bJoined (false) comes before aJoined (true)
+        });
+
       return ListView.separated(
         padding: const EdgeInsets.only(top: 10),
-        itemCount: joinableGroups.length,
+        itemCount: sortedGroups.length,
         separatorBuilder: (context, index) =>
             Divider(color: Colors.grey.shade800, height: 1, indent: 82),
         itemBuilder: (context, index) {
-          final group = joinableGroups[index];
-          return _buildJoinableGroupTile(group);
+          final group = sortedGroups[index];
+          final isJoined = myGroups.contains(group.groupId);
+          return _buildJoinableGroupTile(group, isJoined);
         },
       );
     });
   }
 
-  Widget _buildJoinableGroupTile(GroupModel group) {
+  Widget _buildJoinableGroupTile(GroupModel group, bool isJoined) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -206,21 +213,45 @@ class ChatsTab extends GetView<SuperHomeController> {
             ),
           ),
 
-          // Join Button
-          ElevatedButton(
-            onPressed: () => controller.joinGroup(group),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary.withOpacity(0.1),
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
-              shape: RoundedRectangleBorder(
+          // Join Button / Joined Status
+          if (isJoined)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                border: Border.all(color: Colors.green.shade700),
                 borderRadius: BorderRadius.circular(20),
               ),
-              shadowColor: AppColors.primary.withOpacity(0.3),
-              elevation: 5,
+              child: Row(
+                children: [
+                  Icon(Icons.check, size: 16, color: Colors.green.shade400),
+                  const SizedBox(width: 4),
+                  Text(
+                    'JOINED',
+                    style: TextStyle(
+                      color: Colors.green.shade400,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            ElevatedButton(
+              onPressed: () => controller.joinGroup(group),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary.withOpacity(0.1),
+                foregroundColor: AppColors.primary,
+                side: const BorderSide(color: AppColors.primary),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                shadowColor: AppColors.primary.withOpacity(0.3),
+                elevation: 5,
+              ),
+              child: const Text('JOIN'),
             ),
-            child: const Text('JOIN'),
-          ),
         ],
       ),
     );

@@ -34,7 +34,7 @@ class AppColors {
   static const Color divider = Color(0xFFC6C6C8);
 
   // Chat / Dark Theme
-  static const Color scaffoldbg = Color(0xFF121212);
+  static const Color scaffoldbg = Color(0xFF1E1E1E);
   static const Color appbarbg = Color(0xFF111111);
   static const Color appbaritems = Colors.white;
   static const Color scaffolditems = Colors.white;

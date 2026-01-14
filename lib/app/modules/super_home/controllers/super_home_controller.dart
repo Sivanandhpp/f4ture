@@ -168,6 +168,11 @@ class SuperHomeController extends GetxController {
             return snapshot.docs
                 .map((doc) => GroupModel.fromJson(doc.data()))
                 .toList();
+          })
+          .handleError((error) {
+            debugPrint('Error fetching public groups: $error');
+            isPublicGroupsLoading.value = false;
+            return []; // Return empty list on error
           }),
     );
   }
