@@ -24,7 +24,7 @@ class ChatsTab extends GetView<SuperHomeController> {
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(
                 left: 16,
-                bottom: 60,
+                bottom: 64,
               ), // Adjust title position
               title: Text(
                 'Communities',
@@ -45,6 +45,8 @@ class ChatsTab extends GetView<SuperHomeController> {
                   border: Border.all(color: Colors.white.withOpacity(0.1)),
                 ),
                 child: TabBar(
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
                   indicator: BoxDecoration(
                     borderRadius: BorderRadius.circular(25),
                     color: AppColors.primary.withOpacity(
