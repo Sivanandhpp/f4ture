@@ -95,8 +95,9 @@ class FeedController extends GetxController {
         await _checkLikes(newPosts);
 
         // Deduplicate
+        final existingIds = posts.map((p) => p.postId).toSet();
         final uniquePosts = newPosts
-            .where((p) => !posts.any((existing) => existing.postId == p.postId))
+            .where((p) => !existingIds.contains(p.postId))
             .toList();
 
         if (uniquePosts.isNotEmpty) {

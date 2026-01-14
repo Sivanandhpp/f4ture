@@ -39,7 +39,9 @@ class MessageBubble extends StatelessWidget {
                   constraints: BoxConstraints(maxWidth: Get.width * 0.75),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: isMe ? Get.theme.primaryColor : Colors.grey.shade200,
+                    color: isMe
+                        ? Get.theme.primaryColor
+                        : const Color(0xFF2C2C2C), // Dark grey
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(16),
                       topRight: const Radius.circular(16),
@@ -60,7 +62,9 @@ class MessageBubble extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade700,
+                            color: Colors
+                                .grey
+                                .shade400, // Light grey for dark mode
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -104,7 +108,7 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context) {
-    final textColor = isMe ? Colors.white : Colors.black87;
+    const textColor = Colors.white; // Always white in dark mode
 
     switch (message.type) {
       case MessageType.text:
@@ -183,7 +187,7 @@ class MessageBubble extends StatelessWidget {
               children: [
                 Icon(
                   Icons.insert_drive_file,
-                  color: isMe ? Colors.white : Colors.black54,
+                  color: isMe ? Colors.white : Colors.white70,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -265,12 +269,12 @@ class MessageBubble extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.grey.shade300,
+            color: const Color(0xFF2C2C2C), // Dark Info bubble
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
             message.text ?? '',
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade800),
+            style: const TextStyle(fontSize: 12, color: Colors.white70),
           ),
         ),
       ),

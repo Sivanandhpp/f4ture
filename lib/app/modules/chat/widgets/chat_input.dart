@@ -21,10 +21,10 @@ class ChatInput extends GetView<ChatController> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF1E1E1E), // kSurface
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(0.3), // Dark shadow
             offset: const Offset(0, -2),
             blurRadius: 5,
           ),
@@ -42,15 +42,17 @@ class ChatInput extends GetView<ChatController> {
               child: Container(
                 constraints: const BoxConstraints(maxHeight: 100),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
+                  color: const Color(0xFF2C2C2C), // Dark grey input
                   borderRadius: BorderRadius.circular(24),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: TextField(
                   controller: controller.messageController,
                   maxLines: null,
+                  style: const TextStyle(color: Colors.white), // White text
                   decoration: const InputDecoration(
                     hintText: 'Type a message...',
+                    hintStyle: TextStyle(color: Colors.grey),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(vertical: 10),
                   ),

@@ -29,7 +29,7 @@ void main() async {
       getPages: AppPages.routes,
       debugShowCheckedModeBanner: false,
       theme: ThemeData().copyWith(
-        scaffoldBackgroundColor: AppColors.background,
+        scaffoldBackgroundColor: AppColors.scaffoldbg,
         primaryColor: AppColors.primary,
         colorScheme: const ColorScheme.light(
           primary: AppColors.primary,

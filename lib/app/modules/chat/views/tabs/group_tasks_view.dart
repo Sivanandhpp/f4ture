@@ -17,7 +17,7 @@ class GroupTasksView extends GetView<GroupTasksController> {
     // For now, assuming it's injected.
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.scaffoldbg,
       body: Obx(() {
         if (controller.tasks.isEmpty) {
           return Center(
@@ -27,7 +27,7 @@ class GroupTasksView extends GetView<GroupTasksController> {
                 Icon(
                   Icons.assignment_outlined,
                   size: 64,
-                  color: Colors.grey.shade400,
+                  color: Colors.grey.shade700,
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -76,7 +76,7 @@ class GroupTasksView extends GetView<GroupTasksController> {
     Get.bottomSheet(
       CreateTaskSheet(controller: controller),
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.appbarbg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -90,11 +90,11 @@ class GroupTasksView extends GetView<GroupTasksController> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.appbarbg, // Dark Card
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -126,18 +126,18 @@ class GroupTasksView extends GetView<GroupTasksController> {
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     decoration: isDone ? TextDecoration.lineThrough : null,
-                    color: isDone ? Colors.grey : Colors.black,
+                    color: isDone ? Colors.grey : Colors.white,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   task.description,
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 16),
-                const Divider(height: 1),
+                const Divider(height: 1, color: Colors.grey),
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -155,7 +155,7 @@ class GroupTasksView extends GetView<GroupTasksController> {
                         fontSize: 12,
                         color: task.dueAt.isBefore(DateTime.now()) && !isDone
                             ? Colors.red
-                            : Colors.grey.shade600,
+                            : Colors.grey.shade500,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -176,18 +176,18 @@ class GroupTasksView extends GetView<GroupTasksController> {
 
     switch (task.status) {
       case TaskStatus.pending:
-        bg = Colors.orange.withOpacity(0.1);
-        text = Colors.orange.shade800;
+        bg = Colors.orange.withOpacity(0.2);
+        text = Colors.orange.shade300;
         label = 'Pending';
         break;
       case TaskStatus.inProgress:
-        bg = Colors.blue.withOpacity(0.1);
-        text = Colors.blue.shade800;
+        bg = Colors.blue.withOpacity(0.2);
+        text = Colors.blue.shade300;
         label = 'In Progress';
         break;
       case TaskStatus.completed:
-        bg = Colors.green.withOpacity(0.1);
-        text = Colors.green.shade800;
+        bg = Colors.green.withOpacity(0.2);
+        text = Colors.green.shade300;
         label = 'Completed';
         break;
     }
@@ -218,7 +218,7 @@ class GroupTasksView extends GetView<GroupTasksController> {
       Container(
         padding: const EdgeInsets.all(16),
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: AppColors.appbarbg,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -227,14 +227,21 @@ class GroupTasksView extends GetView<GroupTasksController> {
           children: [
             const Text(
               'Update Status',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             if (task.status != TaskStatus.pending)
               ListTile(
                 leading: const Icon(Icons.access_time, color: Colors.orange),
-                title: const Text('Mark as Pending'),
+                title: const Text(
+                  'Mark as Pending',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () {
                   Get.back();
                   controller.updateStatus(task.id, TaskStatus.pending);
@@ -243,7 +250,10 @@ class GroupTasksView extends GetView<GroupTasksController> {
             if (task.status != TaskStatus.inProgress)
               ListTile(
                 leading: const Icon(Icons.sync, color: Colors.blue),
-                title: const Text('Mark as In Progress'),
+                title: const Text(
+                  'Mark as In Progress',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () {
                   Get.back();
                   controller.updateStatus(task.id, TaskStatus.inProgress);
@@ -252,7 +262,10 @@ class GroupTasksView extends GetView<GroupTasksController> {
             if (task.status != TaskStatus.completed)
               ListTile(
                 leading: const Icon(Icons.check_circle, color: Colors.green),
-                title: const Text('Mark as Completed'),
+                title: const Text(
+                  'Mark as Completed',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () {
                   Get.back();
                   controller.updateStatus(task.id, TaskStatus.completed);
@@ -295,11 +308,14 @@ class GroupTasksView extends GetView<GroupTasksController> {
                 backgroundImage: assignees[i].profilePhoto != null
                     ? NetworkImage(assignees[i].profilePhoto!)
                     : null,
-                backgroundColor: Colors.grey.shade300,
+                backgroundColor: Colors.grey.shade700,
                 child: assignees[i].profilePhoto == null
                     ? Text(
                         assignees[i].name[0],
-                        style: const TextStyle(fontSize: 10),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.white,
+                        ),
                       )
                     : null,
               ),
@@ -309,10 +325,10 @@ class GroupTasksView extends GetView<GroupTasksController> {
               widthFactor: 0.7,
               child: CircleAvatar(
                 radius: 12,
-                backgroundColor: Colors.grey.shade200,
+                backgroundColor: Colors.grey.shade600,
                 child: Text(
                   '+${assignees.length - 3}',
-                  style: const TextStyle(fontSize: 9, color: Colors.black),
+                  style: const TextStyle(fontSize: 9, color: Colors.white),
                 ),
               ),
             ),

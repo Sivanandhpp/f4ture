@@ -10,22 +10,22 @@ class SettingsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent, // Inherit background from SuperHome
+      backgroundColor: AppColors.scaffoldbg, // Dark background
       appBar: AppBar(
         title: const Text(
           'Settings',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: AppColors.primary,
+            color: Colors.white,
             letterSpacing: 1.2,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.appbarbg,
         elevation: 0,
         centerTitle: true,
       ),
       body: Container(
-        color: AppColors.background,
+        color: AppColors.scaffoldbg,
         child: ListView(
           padding: const EdgeInsets.all(24.0),
           children: [
@@ -94,8 +94,8 @@ class SettingsTab extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.grey,
+        style: TextStyle(
+          color: Colors.grey[500],
           fontWeight: FontWeight.bold,
           fontSize: 12,
           letterSpacing: 1.2,
@@ -113,11 +113,11 @@ class SettingsTab extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.appbarbg, // Dark Surface
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -132,11 +132,15 @@ class SettingsTab extends StatelessWidget {
             color: AppColors.primary.withOpacity(0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: AppColors.primary),
+          child: Icon(icon, color: AppColors.primaryLight),
         ),
         title: Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: AppColors.scaffolditems,
+          ),
         ),
         subtitle: Text(
           subtitle,

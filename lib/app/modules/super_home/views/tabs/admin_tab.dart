@@ -12,17 +12,17 @@ class AdminTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.scaffoldbg,
       appBar: AppBar(
         title: Text(
           'Admin Console',
           style: AppFont.heading.copyWith(
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: Colors.white,
             fontSize: 20,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.appbarbg,
         elevation: 0,
         centerTitle: true,
       ),
@@ -74,11 +74,11 @@ class AdminTab extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.appbarbg, // Dark Surface
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withOpacity(0.3),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),
@@ -104,13 +104,13 @@ class AdminTab extends StatelessWidget {
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
-                      color: Colors.black87,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[400]),
                   ),
                 ],
               ),

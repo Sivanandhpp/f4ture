@@ -23,7 +23,7 @@ class GlassFloatingNavbar extends StatelessWidget {
           child: Container(
             // height: 70, // Fixed height for navbar
             decoration: BoxDecoration(
-              color: AppColors.primaryDark.withOpacity(0.2), // Dark translucent
+              color: AppColors.scaffoldbg.withOpacity(0.2), // Dark translucent
               borderRadius: BorderRadius.circular(50),
               border: Border.all(
                 color: Colors.white.withOpacity(0.1),

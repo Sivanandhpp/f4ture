@@ -19,16 +19,16 @@ class TasksTab extends GetView<GlobalTasksController> {
           'My Work',
           style: AppFont.heading.copyWith(
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: Colors.white,
             fontSize: 20,
           ),
         ),
         centerTitle: true,
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.appbarbg, // Dark AppBar
         elevation: 0,
         actions: [_buildSortButton(), const SizedBox(width: 8)],
       ),
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.scaffoldbg, // Dark Scaffold
       body: Column(
         children: [
           _buildFilterChips(),
@@ -53,15 +53,25 @@ class TasksTab extends GetView<GlobalTasksController> {
     return PopupMenuButton<String>(
       icon: const Icon(Icons.sort, color: AppColors.primary),
       onSelected: controller.changeSort,
+      color: AppColors.appbarbg, // Dark menu
       itemBuilder: (context) => [
         const PopupMenuItem(
           value: 'Priority',
-          child: Text('Priority (High to Low)'),
+          child: Text(
+            'Priority (High to Low)',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
-        const PopupMenuItem(value: 'Newest', child: Text('Newest First')),
+        const PopupMenuItem(
+          value: 'Newest',
+          child: Text('Newest First', style: TextStyle(color: Colors.white)),
+        ),
         const PopupMenuItem(
           value: 'Due Date',
-          child: Text('Due Date (Sooner First)'),
+          child: Text(
+            'Due Date (Sooner First)',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
       ],
     );
@@ -92,15 +102,15 @@ class TasksTab extends GetView<GlobalTasksController> {
         label: Text(label),
         selected: isSelected,
         onSelected: (_) => controller.changeFilter(label),
-        backgroundColor: Colors.white,
-        selectedColor: AppColors.primary.withOpacity(0.1),
+        backgroundColor: AppColors.appbarbg, // Dark chip
+        selectedColor: AppColors.primary.withOpacity(0.2),
         labelStyle: TextStyle(
-          color: isSelected ? AppColors.primary : Colors.grey[700],
+          color: isSelected ? AppColors.primary : Colors.grey[400],
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
         shape: StadiumBorder(
           side: BorderSide(
-            color: isSelected ? AppColors.primary : Colors.grey[300]!,
+            color: isSelected ? AppColors.primary : Colors.grey[800]!,
           ),
         ),
         checkmarkColor: AppColors.primary,
@@ -124,7 +134,7 @@ class TasksTab extends GetView<GlobalTasksController> {
               Icon(
                 Icons.check_circle_outline,
                 size: 64,
-                color: Colors.grey[400],
+                color: Colors.grey[700],
               ),
               const SizedBox(height: 16),
               Text(
@@ -173,6 +183,7 @@ class TasksTab extends GetView<GlobalTasksController> {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 12),
+      color: AppColors.appbarbg, // Dark Card
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -186,7 +197,7 @@ class TasksTab extends GetView<GlobalTasksController> {
                 Text(
                   'TASK',
                   style: TextStyle(
-                    color: Colors.blue[700],
+                    color: Colors.blue[300], // Brighter blue for dark mode
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                   ),
@@ -198,7 +209,11 @@ class TasksTab extends GetView<GlobalTasksController> {
             const SizedBox(height: 8),
             Text(
               task.title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
             const SizedBox(height: 8),
             if (task.description.isNotEmpty) ...[
@@ -206,7 +221,7 @@ class TasksTab extends GetView<GlobalTasksController> {
                 task.description,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: Colors.grey[600]),
+                style: TextStyle(color: Colors.grey[400]),
               ),
               const SizedBox(height: 12),
             ],
@@ -258,6 +273,7 @@ class TasksTab extends GetView<GlobalTasksController> {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 12),
+      color: AppColors.appbarbg, // Dark Card
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -271,7 +287,7 @@ class TasksTab extends GetView<GlobalTasksController> {
                 Text(
                   'ISSUE',
                   style: TextStyle(
-                    color: Colors.red[700],
+                    color: Colors.red[300], // Brighter red
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                   ),
@@ -283,7 +299,11 @@ class TasksTab extends GetView<GlobalTasksController> {
             const SizedBox(height: 8),
             Text(
               issue.title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
             const SizedBox(height: 8),
             if (issue.description.isNotEmpty) ...[
@@ -291,7 +311,7 @@ class TasksTab extends GetView<GlobalTasksController> {
                 issue.description,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: Colors.grey[600]),
+                style: TextStyle(color: Colors.grey[400]),
               ),
               const SizedBox(height: 12),
             ],

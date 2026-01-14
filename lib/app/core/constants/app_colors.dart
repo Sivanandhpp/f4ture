@@ -32,4 +32,10 @@ class AppColors {
   // Border & Divider
   static const Color border = Color(0xFFE5E5EA);
   static const Color divider = Color(0xFFC6C6C8);
+
+  // Chat / Dark Theme
+  static const Color scaffoldbg = Color(0xFF121212);
+  static const Color appbarbg = Color(0xFF111111);
+  static const Color appbaritems = Colors.white;
+  static const Color scaffolditems = Colors.white;
 }

@@ -13,7 +13,7 @@ class GroupIssuesView extends GetView<GroupIssuesController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.scaffoldbg,
       body: Obx(() {
         if (controller.issues.isEmpty) {
           return Center(
@@ -23,7 +23,7 @@ class GroupIssuesView extends GetView<GroupIssuesController> {
                 Icon(
                   Icons.report_problem_outlined,
                   size: 64,
-                  color: Colors.grey.shade400,
+                  color: Colors.grey.shade700,
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -72,7 +72,7 @@ class GroupIssuesView extends GetView<GroupIssuesController> {
     Get.bottomSheet(
       CreateIssueSheet(controller: controller),
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.appbarbg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -86,11 +86,11 @@ class GroupIssuesView extends GetView<GroupIssuesController> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.appbarbg, // Dark Card
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(0.3),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -130,18 +130,18 @@ class GroupIssuesView extends GetView<GroupIssuesController> {
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     decoration: isResolved ? TextDecoration.lineThrough : null,
-                    color: isResolved ? Colors.grey : Colors.black,
+                    color: isResolved ? Colors.grey : Colors.white,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   issue.description,
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 16),
-                const Divider(height: 1),
+                const Divider(height: 1, color: Colors.grey),
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -160,7 +160,7 @@ class GroupIssuesView extends GetView<GroupIssuesController> {
                         'Unassigned',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade400,
+                          color: Colors.grey.shade600,
                           fontStyle: FontStyle.italic,
                         ),
                       ),
@@ -181,18 +181,18 @@ class GroupIssuesView extends GetView<GroupIssuesController> {
 
     switch (issue.status) {
       case IssueStatus.open:
-        bg = Colors.red.withOpacity(0.1);
-        text = Colors.red.shade800;
+        bg = Colors.red.withOpacity(0.2); // Increased opacity for dark mode
+        text = Colors.red.shade300; // Lighter text
         label = 'Open';
         break;
       case IssueStatus.working:
-        bg = Colors.blue.withOpacity(0.1);
-        text = Colors.blue.shade800;
+        bg = Colors.blue.withOpacity(0.2);
+        text = Colors.blue.shade300;
         label = 'Working';
         break;
       case IssueStatus.resolved:
-        bg = Colors.green.withOpacity(0.1);
-        text = Colors.green.shade800;
+        bg = Colors.green.withOpacity(0.2);
+        text = Colors.green.shade300;
         label = 'Resolved';
         break;
     }
@@ -223,7 +223,7 @@ class GroupIssuesView extends GetView<GroupIssuesController> {
       Container(
         padding: const EdgeInsets.all(16),
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: AppColors.appbarbg,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -232,14 +232,21 @@ class GroupIssuesView extends GetView<GroupIssuesController> {
           children: [
             const Text(
               'Update Status',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             if (issue.status != IssueStatus.open)
               ListTile(
                 leading: const Icon(Icons.error_outline, color: Colors.red),
-                title: const Text('Mark as Open'),
+                title: const Text(
+                  'Mark as Open',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () {
                   Get.back();
                   controller.updateStatus(issue.id, IssueStatus.open);
@@ -248,7 +255,10 @@ class GroupIssuesView extends GetView<GroupIssuesController> {
             if (issue.status != IssueStatus.working)
               ListTile(
                 leading: const Icon(Icons.sync, color: Colors.blue),
-                title: const Text('Mark as Working'),
+                title: const Text(
+                  'Mark as Working',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () {
                   Get.back();
                   controller.updateStatus(issue.id, IssueStatus.working);
@@ -257,7 +267,10 @@ class GroupIssuesView extends GetView<GroupIssuesController> {
             if (issue.status != IssueStatus.resolved)
               ListTile(
                 leading: const Icon(Icons.check_circle, color: Colors.green),
-                title: const Text('Mark as Resolved'),
+                title: const Text(
+                  'Mark as Resolved',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () {
                   Get.back();
                   controller.updateStatus(issue.id, IssueStatus.resolved);

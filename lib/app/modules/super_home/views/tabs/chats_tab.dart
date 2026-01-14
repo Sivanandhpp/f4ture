@@ -15,7 +15,7 @@ class ChatsTab extends GetView<SuperHomeController> {
     return NestedScrollView(
       headerSliverBuilder: (context, innerBoxIsScrolled) => [
         SliverAppBar(
-          backgroundColor: AppColors.background,
+          backgroundColor: AppColors.appbarbg, // Dark background
           expandedHeight: 80.0,
           floating: false,
           pinned: true,
@@ -26,7 +26,7 @@ class ChatsTab extends GetView<SuperHomeController> {
               style: AppFont.heading.copyWith(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+                color: AppColors.scaffolditems, // White title
               ),
             ),
           ),
@@ -60,7 +60,7 @@ class ChatsTab extends GetView<SuperHomeController> {
             return Center(
               child: Text(
                 'No groups yet',
-                style: TextStyle(color: Colors.grey.shade600),
+                style: TextStyle(color: Colors.grey.shade500),
               ),
             );
           }
@@ -69,7 +69,7 @@ class ChatsTab extends GetView<SuperHomeController> {
             padding: EdgeInsets.zero,
             itemCount: groups.length,
             separatorBuilder: (context, index) => Divider(
-              color: Colors.grey.shade900,
+              color: Colors.grey.shade800, // Visible on dark
               height: 1,
               indent: 82, // Align with text
             ),
@@ -95,7 +95,7 @@ class ChatsTab extends GetView<SuperHomeController> {
             // Group Icon
             CircleAvatar(
               radius: 30,
-              backgroundColor: Colors.grey.shade900,
+              backgroundColor: Colors.grey.shade800,
               backgroundImage: NetworkImage(group.iconUrl),
               onBackgroundImageError: (_, __) => const Icon(Icons.group),
             ),
@@ -112,7 +112,7 @@ class ChatsTab extends GetView<SuperHomeController> {
                       Text(
                         group.name,
                         style: AppFont.subtitle.copyWith(
-                          color: Colors.black,
+                          color: Colors.white, // White Name
                           fontWeight: FontWeight.bold,
                         ),
                         maxLines: 1,
@@ -121,7 +121,7 @@ class ChatsTab extends GetView<SuperHomeController> {
                       Text(
                         _formatTime(group.lastMessageAt),
                         style: AppFont.caption.copyWith(
-                          color: Colors.grey.shade600,
+                          color: Colors.grey.shade500,
                         ),
                       ),
                     ],
@@ -135,7 +135,7 @@ class ChatsTab extends GetView<SuperHomeController> {
                           group.lastMessage,
                           style: AppFont.body.copyWith(
                             color: group.unreadCount > 0
-                                ? Colors.black87
+                                ? Colors.white
                                 : Colors.grey.shade500,
                             fontSize: 15,
                             fontWeight: group.unreadCount > 0

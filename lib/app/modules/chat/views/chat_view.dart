@@ -5,6 +5,7 @@ import 'package:f4ture/app/modules/chat/widgets/chat_input.dart';
 import 'package:f4ture/app/modules/chat/widgets/message_bubble.dart';
 import 'package:f4ture/app/data/services/auth_service.dart';
 import 'package:f4ture/app/routes/app_pages.dart';
+import 'package:f4ture/app/core/constants/app_colors.dart';
 
 class ChatView extends GetView<ChatController> {
   const ChatView({super.key});
@@ -12,9 +13,10 @@ class ChatView extends GetView<ChatController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.scaffoldbg,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios, color: AppColors.appbaritems),
           onPressed: () => Get.back(),
         ),
         titleSpacing: 0,
@@ -40,7 +42,7 @@ class ChatView extends GetView<ChatController> {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: AppColors.appbaritems,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -54,12 +56,12 @@ class ChatView extends GetView<ChatController> {
             ],
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.appbarbg,
         elevation: 0.5,
         actions: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.more_vert, color: Colors.black),
+            icon: const Icon(Icons.more_vert, color: AppColors.appbaritems),
           ),
         ],
       ),

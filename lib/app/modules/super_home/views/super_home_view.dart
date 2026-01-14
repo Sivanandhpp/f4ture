@@ -16,7 +16,7 @@ class SuperHomeView extends GetView<SuperHomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.scaffoldbg,
       body: Stack(
         children: [
           // 1. Main Page Content

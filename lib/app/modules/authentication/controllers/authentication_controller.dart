@@ -127,8 +127,8 @@ class AuthenticationController extends GetxController {
           print('DEBUG: User role: $role');
 
           if (role == 'attendee') {
-            print('DEBUG: Navigating to HOME');
-            Get.offAllNamed(Routes.HOME);
+            print('DEBUG: Navigating to ATTENDEE');
+            Get.offAllNamed(Routes.ATTENDEE);
           } else {
             print('DEBUG: Navigating to SUPER_HOME');
             Get.offAllNamed(Routes.SUPER_HOME);

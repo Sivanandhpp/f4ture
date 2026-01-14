@@ -17,14 +17,17 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
     // Better to have it in binding if route is named.
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F7), // iOS grouped background style
+      backgroundColor: AppColors.scaffoldbg, // Dark background
       appBar: AppBar(
-        title: const Text('Group Info', style: TextStyle(color: Colors.black)),
+        title: const Text(
+          'Group Info',
+          style: TextStyle(color: AppColors.appbaritems),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.appbarbg,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.primary),
+          icon: const Icon(Icons.arrow_back_ios, color: AppColors.appbaritems),
           onPressed: () => Get.back(),
         ),
       ),
@@ -48,7 +51,7 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
 
   Widget _buildHeader() {
     return Container(
-      color: Colors.white,
+      color: AppColors.appbarbg, // Dark surface
       padding: const EdgeInsets.symmetric(vertical: 20),
       margin: const EdgeInsets.only(bottom: 20),
       child: Column(
@@ -59,14 +62,14 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
             height: 100,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(color: Colors.grey.shade800),
             ),
             child: ClipOval(
               child: AppImage.network(
                 url: controller.group.iconUrl,
                 fit: BoxFit.cover,
                 errorWidget: Container(
-                  color: Colors.grey.shade300,
+                  color: Colors.grey.shade800,
                   child: const Icon(Icons.groups, size: 50, color: Colors.grey),
                 ),
               ),
@@ -79,7 +82,7 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 4),
@@ -100,7 +103,7 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
     final creatorName = controller.creator.value?.name ?? 'Unknown';
 
     return Container(
-      color: Colors.white,
+      color: AppColors.appbarbg, // Dark surface
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.only(bottom: 20),
       child: Column(
@@ -117,14 +120,18 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
           const SizedBox(height: 8),
           Text(
             controller.group.description,
-            style: const TextStyle(fontSize: 16, height: 1.4),
+            style: const TextStyle(
+              fontSize: 16,
+              height: 1.4,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: 16),
-          const Divider(),
+          Divider(color: Colors.grey.shade800),
           const SizedBox(height: 8),
           Text(
             'Created on $createdDate by $creatorName',
-            style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
           ),
         ],
       ),
@@ -133,7 +140,7 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
 
   Widget _buildMembersSection() {
     return Container(
-      color: Colors.white,
+      color: AppColors.appbarbg, // Dark surface
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -147,7 +154,7 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade600,
+                    color: Colors.grey.shade500,
                   ),
                 ),
                 const Icon(Icons.search, color: AppColors.primary),
@@ -192,14 +199,15 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
               ),
             ),
           ),
-          const Divider(indent: 70, height: 1),
+          Divider(indent: 70, height: 1, color: Colors.grey.shade800),
 
           // Member List
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: controller.members.length,
-            separatorBuilder: (c, i) => const Divider(indent: 70, height: 1),
+            separatorBuilder: (c, i) =>
+                Divider(indent: 70, height: 1, color: Colors.grey.shade800),
             itemBuilder: (context, index) {
               final member = controller.members[index];
               return _buildMemberTile(member);
@@ -235,7 +243,7 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
                 errorWidget: Container(
                   width: 40,
                   height: 40,
-                  color: Colors.grey.shade300,
+                  color: Colors.grey.shade800,
                   child: const Icon(Icons.person, color: Colors.grey),
                 ),
               ),
@@ -253,6 +261,7 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
+                            color: Colors.white,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -302,12 +311,15 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
       // Options for existing admin
       Get.bottomSheet(
         Container(
-          color: Colors.white,
+          color: AppColors.appbarbg, // Dark surface
           child: Wrap(
             children: [
               ListTile(
                 leading: const Icon(Icons.remove_moderator, color: Colors.blue),
-                title: const Text('Dismiss as Admin'),
+                title: const Text(
+                  'Dismiss as Admin',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () {
                   Get.back();
                   controller.removeAdmin(member.user.id);
@@ -315,7 +327,10 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
               ),
               ListTile(
                 leading: const Icon(Icons.person_remove, color: Colors.red),
-                title: Text('Remove ${member.user.name}'),
+                title: Text(
+                  'Remove ${member.user.name}',
+                  style: const TextStyle(color: Colors.white),
+                ),
                 onTap: () {
                   Get.back();
                   controller.removeMember(member.user.id);
@@ -336,12 +351,15 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
       // Options for regular member
       Get.bottomSheet(
         Container(
-          color: Colors.white,
+          color: AppColors.appbarbg, // Dark surface
           child: Wrap(
             children: [
               ListTile(
                 leading: const Icon(Icons.security, color: Colors.blue),
-                title: const Text('Make Group Admin'),
+                title: const Text(
+                  'Make Group Admin',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onTap: () {
                   Get.back();
                   controller.makeAdmin(member.user.id);
@@ -349,7 +367,10 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
               ),
               ListTile(
                 leading: const Icon(Icons.person_remove, color: Colors.red),
-                title: Text('Remove ${member.user.name}'),
+                title: Text(
+                  'Remove ${member.user.name}',
+                  style: const TextStyle(color: Colors.white),
+                ),
                 onTap: () {
                   Get.back();
                   controller.removeMember(member.user.id);
@@ -372,7 +393,7 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
   Widget _buildExitButton() {
     return Container(
       margin: const EdgeInsets.only(top: 20),
-      color: Colors.white,
+      color: AppColors.appbarbg, // Dark surface
       child: ListTile(
         leading: const Icon(Icons.exit_to_app, color: Colors.red),
         title: const Text(
@@ -391,6 +412,9 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
             },
             textCancel: 'Cancel',
             buttonColor: Colors.red,
+            backgroundColor: AppColors.appbarbg,
+            titleStyle: const TextStyle(color: Colors.white),
+            middleTextStyle: const TextStyle(color: Colors.white),
           );
         },
       ),

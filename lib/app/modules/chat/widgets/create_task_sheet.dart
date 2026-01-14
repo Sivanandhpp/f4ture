@@ -52,6 +52,10 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
     return Container(
       padding: const EdgeInsets.all(24),
       constraints: BoxConstraints(maxHeight: Get.height * 0.85),
+      decoration: const BoxDecoration(
+        color: AppColors.appbarbg, // Dark background
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -61,11 +65,15 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
             children: [
               const Text(
                 'New Task',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
               IconButton(
                 onPressed: () => Get.back(),
-                icon: const Icon(Icons.close),
+                icon: const Icon(Icons.close, color: Colors.white),
               ),
             ],
           ),
@@ -78,8 +86,18 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                   // Title
                   TextField(
                     controller: _titleController,
+                    style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       labelText: 'Title',
+                      labelStyle: TextStyle(color: Colors.grey[400]),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[700]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.primary),
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -91,8 +109,18 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                   TextField(
                     controller: _descController,
                     maxLines: 3,
+                    style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       labelText: 'Description',
+                      labelStyle: TextStyle(color: Colors.grey[400]),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[700]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.primary),
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -103,7 +131,10 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                   // Priority
                   const Text(
                     'Priority',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -114,14 +145,22 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                         label: Text(p.name.toUpperCase()),
                         selected: isSelected,
                         onSelected: (val) => setState(() => _priority = p),
+                        backgroundColor: AppColors.scaffoldbg,
                         selectedColor: AppColors.primary.withOpacity(0.2),
                         labelStyle: TextStyle(
                           color: isSelected
                               ? AppColors.primary
-                              : Colors.grey.shade700,
+                              : Colors.grey.shade400,
                           fontWeight: isSelected
                               ? FontWeight.bold
                               : FontWeight.normal,
+                        ),
+                        shape: StadiumBorder(
+                          side: BorderSide(
+                            color: isSelected
+                                ? AppColors.primary
+                                : Colors.grey[800]!,
+                          ),
                         ),
                       );
                     }).toList(),
@@ -133,7 +172,10 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                     contentPadding: EdgeInsets.zero,
                     title: const Text(
                       'Due Date',
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
                     ),
                     trailing: TextButton.icon(
                       onPressed: () async {
@@ -144,11 +186,39 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                             const Duration(days: 365),
                           ),
                           currentDate: _dueAt,
+                          builder: (context, child) {
+                            return Theme(
+                              data: ThemeData.dark().copyWith(
+                                colorScheme: const ColorScheme.dark(
+                                  primary: AppColors.primary,
+                                  onPrimary: Colors.white,
+                                  surface: AppColors.appbarbg,
+                                  onSurface: Colors.white,
+                                ),
+                                dialogBackgroundColor: AppColors.appbarbg,
+                              ),
+                              child: child!,
+                            );
+                          },
                         );
                         if (date != null) {
+                          if (!context.mounted) return;
                           final time = await showTimePicker(
                             context: context,
                             initialTime: TimeOfDay.fromDateTime(_dueAt),
+                            builder: (context, child) {
+                              return Theme(
+                                data: ThemeData.dark().copyWith(
+                                  colorScheme: const ColorScheme.dark(
+                                    primary: AppColors.primary,
+                                    onPrimary: Colors.white,
+                                    surface: AppColors.appbarbg,
+                                    onSurface: Colors.white,
+                                  ),
+                                ),
+                                child: child!,
+                              );
+                            },
                           );
                           if (time != null) {
                             setState(() {
@@ -161,10 +231,6 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                               );
                             });
                           } else {
-                            // If cancelled time, keep date but default time or keep old time?
-                            // Let's just update date with current time components or 23:59?
-                            // Simpler: Just update date part, keep time part of _dueAt?
-                            // No, let's just use the selected date and default 12:00 or now.
                             setState(() {
                               _dueAt = DateTime(
                                 date.year,
@@ -177,13 +243,17 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                           }
                         }
                       },
-                      icon: const Icon(Icons.calendar_month),
+                      icon: const Icon(
+                        Icons.calendar_month,
+                        color: AppColors.primary,
+                      ),
                       label: Text(
                         DateFormat('MMM d, yyyy h:mm a').format(_dueAt),
+                        style: const TextStyle(color: AppColors.primary),
                       ),
                     ),
                   ),
-                  const Divider(),
+                  const Divider(color: Colors.grey),
 
                   // Assignees
                   Row(
@@ -191,7 +261,10 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                     children: [
                       const Text(
                         'Assign To',
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
                       ),
                       TextButton(
                         onPressed: () {
@@ -204,6 +277,7 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                           _assignToEveryone
                               ? 'Custom Select'
                               : 'Assign Everyone',
+                          style: const TextStyle(color: AppColors.primary),
                         ),
                       ),
                     ],
@@ -241,8 +315,14 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
                                     backgroundImage: user.profilePhoto != null
                                         ? NetworkImage(user.profilePhoto!)
                                         : null,
+                                    backgroundColor: Colors.grey[800],
                                     child: user.profilePhoto == null
-                                        ? Text(user.name[0])
+                                        ? Text(
+                                            user.name[0],
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          )
                                         : null,
                                   ),
                                   if (isSelected)

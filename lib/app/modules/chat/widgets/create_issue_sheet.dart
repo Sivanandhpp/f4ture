@@ -38,6 +38,10 @@ class _CreateIssueSheetState extends State<CreateIssueSheet> {
     return Container(
       padding: const EdgeInsets.all(24),
       constraints: BoxConstraints(maxHeight: Get.height * 0.85),
+      decoration: const BoxDecoration(
+        color: AppColors.appbarbg, // Dark background
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -47,11 +51,15 @@ class _CreateIssueSheetState extends State<CreateIssueSheet> {
             children: [
               const Text(
                 'Report Issue',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
               IconButton(
                 onPressed: () => Get.back(),
-                icon: const Icon(Icons.close),
+                icon: const Icon(Icons.close, color: Colors.white),
               ),
             ],
           ),
@@ -64,8 +72,18 @@ class _CreateIssueSheetState extends State<CreateIssueSheet> {
                   // Title
                   TextField(
                     controller: _titleController,
+                    style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       labelText: 'Issue Title',
+                      labelStyle: TextStyle(color: Colors.grey[400]),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[700]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.primary),
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -77,8 +95,18 @@ class _CreateIssueSheetState extends State<CreateIssueSheet> {
                   TextField(
                     controller: _descController,
                     maxLines: 3,
+                    style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       labelText: 'Description',
+                      labelStyle: TextStyle(color: Colors.grey[400]),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[700]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppColors.primary),
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -89,7 +117,10 @@ class _CreateIssueSheetState extends State<CreateIssueSheet> {
                   // Severity
                   const Text(
                     'Severity',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -116,12 +147,18 @@ class _CreateIssueSheetState extends State<CreateIssueSheet> {
                         label: Text(s.name.toUpperCase()),
                         selected: isSelected,
                         onSelected: (val) => setState(() => _severity = s),
+                        backgroundColor: AppColors.scaffoldbg,
                         selectedColor: color.withOpacity(0.2),
                         labelStyle: TextStyle(
-                          color: isSelected ? color : Colors.grey.shade700,
+                          color: isSelected ? color : Colors.grey.shade400,
                           fontWeight: isSelected
                               ? FontWeight.bold
                               : FontWeight.normal,
+                        ),
+                        shape: StadiumBorder(
+                          side: BorderSide(
+                            color: isSelected ? color : Colors.grey[800]!,
+                          ),
                         ),
                       );
                     }).toList(),
