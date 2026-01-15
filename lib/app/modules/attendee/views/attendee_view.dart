@@ -7,7 +7,7 @@ import '../controllers/attendee_controller.dart';
 import '../widgets/attendee_glass_navbar.dart';
 import '../../super_home/views/tabs/chats_tab.dart';
 import '../../event_map/views/event_map_view.dart';
-import 'tabs/event_schedule_tab.dart';
+import '../../event_schedule/views/event_schedule_view.dart';
 
 class AttendeeView extends GetView<AttendeeController> {
   const AttendeeView({super.key});
@@ -28,7 +28,7 @@ class AttendeeView extends GetView<AttendeeController> {
                 FeedView(),
                 ChatsTab(),
                 const EventMapView(),
-                EventScheduleTab(),
+                const EventScheduleView(),
               ],
             ),
           ),
