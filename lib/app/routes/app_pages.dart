@@ -14,6 +14,8 @@ import '../modules/create_event/bindings/create_event_binding.dart';
 import '../modules/create_event/bindings/manage_events_binding.dart';
 import '../modules/create_event/views/create_event_view.dart';
 import '../modules/create_event/views/manage_events_view.dart';
+import '../modules/event_map/bindings/event_map_binding.dart';
+import '../modules/event_map/views/event_map_view.dart';
 import '../modules/event_schedule/bindings/event_schedule_binding.dart';
 import '../modules/event_schedule/views/event_schedule_view.dart';
 import '../modules/feed/bindings/feed_binding.dart';
@@ -99,6 +101,11 @@ class AppPages {
       name: _Paths.EVENT_SCHEDULE,
       page: () => const EventScheduleView(),
       binding: EventScheduleBinding(),
+    ),
+    GetPage(
+      name: _Paths.EVENT_MAP,
+      page: () => const EventMapView(),
+      binding: EventMapBinding(),
     ),
   ];
 }

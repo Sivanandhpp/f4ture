@@ -6,7 +6,7 @@ import '../../home/views/home_view.dart';
 import '../controllers/attendee_controller.dart';
 import '../widgets/attendee_glass_navbar.dart';
 import '../../super_home/views/tabs/chats_tab.dart';
-import 'tabs/event_map_tab.dart';
+import '../../event_map/views/event_map_view.dart';
 import 'tabs/event_schedule_tab.dart';
 
 class AttendeeView extends GetView<AttendeeController> {
@@ -15,8 +15,8 @@ class AttendeeView extends GetView<AttendeeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          AppColors.scaffoldbg, // Dark background for contrast with glass navbar
+      backgroundColor: AppColors
+          .scaffoldbg, // Dark background for contrast with glass navbar
       body: Stack(
         children: [
           // 1. Main Content
@@ -27,7 +27,7 @@ class AttendeeView extends GetView<AttendeeController> {
                 HomeView(),
                 FeedView(),
                 ChatsTab(),
-                EventMapTab(),
+                const EventMapView(),
                 EventScheduleTab(),
               ],
             ),
