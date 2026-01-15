@@ -31,11 +31,11 @@ class AdminTab extends StatelessWidget {
         children: [
           _buildActionCard(
             context,
-            title: 'Create Event',
-            subtitle: 'Host a new concert, workshop, or meetup',
-            icon: Icons.event,
+            title: 'Manage Events',
+            subtitle: 'View, Edit, or Create new events',
+            icon: Icons.event_note,
             color: Colors.purple,
-            onTap: () => Get.toNamed(Routes.CREATE_EVENT),
+            onTap: () => Get.toNamed(Routes.MANAGE_EVENTS),
           ),
           const SizedBox(height: 16),
           _buildActionCard(

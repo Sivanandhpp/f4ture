@@ -11,7 +11,11 @@ import '../modules/chat/bindings/group_details_binding.dart';
 import '../modules/chat/views/chat_view.dart';
 import '../modules/chat/views/group_details_view.dart';
 import '../modules/create_event/bindings/create_event_binding.dart';
+import '../modules/create_event/bindings/manage_events_binding.dart';
 import '../modules/create_event/views/create_event_view.dart';
+import '../modules/create_event/views/manage_events_view.dart';
+import '../modules/event_schedule/bindings/event_schedule_binding.dart';
+import '../modules/event_schedule/views/event_schedule_view.dart';
 import '../modules/feed/bindings/feed_binding.dart';
 import '../modules/feed/views/feed_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -72,6 +76,11 @@ class AppPages {
       binding: CreateEventBinding(),
     ),
     GetPage(
+      name: _Paths.MANAGE_EVENTS,
+      page: () => const ManageEventsView(),
+      binding: ManageEventsBinding(),
+    ),
+    GetPage(
       name: _Paths.MANAGE_USERS,
       page: () => const ManageUsersView(),
       binding: ManageUsersBinding(),
@@ -85,6 +94,11 @@ class AppPages {
       name: _Paths.FEED,
       page: () => const FeedView(),
       binding: FeedBinding(),
+    ),
+    GetPage(
+      name: _Paths.EVENT_SCHEDULE,
+      page: () => const EventScheduleView(),
+      binding: EventScheduleBinding(),
     ),
   ];
 }

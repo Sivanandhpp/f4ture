@@ -12,17 +12,17 @@ class CreateGroupView extends GetView<SuperHomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.scaffoldbg,
       appBar: AppBar(
         title: const Text(
           'Create Group',
-          style: TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.appbarbg,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Get.back(),
         ),
       ),
@@ -43,7 +43,7 @@ class CreateGroupView extends GetView<SuperHomeController> {
                         height: 100,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: const Color(0xFFD4D4D4),
+                          color: AppColors.appbarbg,
                           image: controller.selectedGroupIconBytes.value != null
                               ? DecorationImage(
                                   image: MemoryImage(
@@ -52,13 +52,13 @@ class CreateGroupView extends GetView<SuperHomeController> {
                                   fit: BoxFit.cover,
                                 )
                               : null,
-                          border: Border.all(color: const Color(0xFF7B7B7B)),
+                          border: Border.all(color: Colors.grey.shade700),
                         ),
                         child: controller.selectedGroupIcon.value == null
                             ? const Icon(
                                 Icons.camera_alt,
                                 size: 40,
-                                color: AppColors.textSecondary,
+                                color: Colors.grey,
                               )
                             : null,
                       ),
@@ -72,20 +72,21 @@ class CreateGroupView extends GetView<SuperHomeController> {
             // Group Name
             TextField(
               controller: controller.groupNameController,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Group Name',
-                labelStyle: TextStyle(color: AppColors.textSecondary),
+                labelStyle: TextStyle(color: Colors.grey.shade400),
                 filled: true,
-
-                border: OutlineInputBorder(
+                fillColor: AppColors.appbarbg,
+                enabledBorder: OutlineInputBorder(
                   borderRadius: AppRadius.radiusMd,
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(color: Colors.grey.shade800),
                 ),
-                prefixIcon: const Icon(
-                  Icons.group,
-                  color: AppColors.textSecondary,
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: AppRadius.radiusMd,
+                  borderSide: const BorderSide(color: AppColors.primary),
                 ),
+                prefixIcon: Icon(Icons.group, color: Colors.grey.shade400),
               ),
             ),
             AppSpacing.verticalMd,
@@ -93,18 +94,23 @@ class CreateGroupView extends GetView<SuperHomeController> {
             // Description
             TextField(
               controller: controller.groupDescriptionController,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Description',
-                labelStyle: TextStyle(color: AppColors.textSecondary),
+                labelStyle: TextStyle(color: Colors.grey.shade400),
                 filled: true,
-                border: OutlineInputBorder(
+                fillColor: AppColors.appbarbg,
+                enabledBorder: OutlineInputBorder(
                   borderRadius: AppRadius.radiusMd,
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(color: Colors.grey.shade800),
                 ),
-                prefixIcon: const Icon(
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: AppRadius.radiusMd,
+                  borderSide: const BorderSide(color: AppColors.primary),
+                ),
+                prefixIcon: Icon(
                   Icons.info_outline,
-                  color: AppColors.textSecondary,
+                  color: Colors.grey.shade400,
                 ),
               ),
               maxLines: 3,
@@ -114,7 +120,7 @@ class CreateGroupView extends GetView<SuperHomeController> {
             // Group Type Selection
             Text(
               'Group Type',
-              style: AppFont.body.copyWith(color: AppColors.textSecondary),
+              style: AppFont.body.copyWith(color: Colors.white70),
             ),
             AppSpacing.verticalSm,
             Obx(
@@ -128,10 +134,12 @@ class CreateGroupView extends GetView<SuperHomeController> {
                 ],
               ),
             ),
+            AppSpacing.verticalMd,
+
             // Members Selection
             Text(
               'Members',
-              style: AppFont.body.copyWith(color: AppColors.textSecondary),
+              style: AppFont.body.copyWith(color: Colors.white70),
             ),
             AppSpacing.verticalSm,
             Obx(
@@ -144,11 +152,18 @@ class CreateGroupView extends GetView<SuperHomeController> {
                       runSpacing: 8,
                       children: controller.selectedMembers.map((member) {
                         return Chip(
-                          label: Text(member.name),
-                          deleteIcon: const Icon(Icons.close, size: 18),
+                          label: Text(
+                            member.name,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          deleteIcon: const Icon(
+                            Icons.close,
+                            size: 18,
+                            color: Colors.white70,
+                          ),
                           onDeleted: () => controller.removeMember(member),
-                          backgroundColor: AppColors.card,
-                          side: BorderSide(color: Colors.grey.shade300),
+                          backgroundColor: AppColors.appbarbg,
+                          side: BorderSide(color: Colors.grey.shade700),
                         );
                       }).toList(),
                     ),
@@ -170,17 +185,22 @@ class CreateGroupView extends GetView<SuperHomeController> {
                         backgroundColor: Colors.transparent,
                       );
                     },
-                    icon: const Icon(Icons.person_add),
+                    icon: const Icon(
+                      Icons.person_add,
+                      color: AppColors.primary,
+                    ),
                     label: Text(
                       controller.selectedMembers.isEmpty
                           ? 'Add Members (Required)'
                           : 'Add More Members',
+                      style: const TextStyle(color: AppColors.primary),
                     ),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 12,
                       ),
+                      side: const BorderSide(color: AppColors.primary),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -224,12 +244,15 @@ class CreateGroupView extends GetView<SuperHomeController> {
       onSelected: (bool selected) {
         if (selected) controller.selectedType.value = value;
       },
-      checkmarkColor: AppColors.card,
-      backgroundColor: AppColors.card,
+      checkmarkColor: Colors.black, // Dark check for contrast on primary
+      backgroundColor: AppColors.appbarbg,
       selectedColor: AppColors.primary,
       labelStyle: TextStyle(
-        color: isSelected ? AppColors.card : AppColors.textSecondary,
+        color: isSelected ? Colors.black : Colors.white,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      ),
+      side: BorderSide(
+        color: isSelected ? Colors.transparent : Colors.grey.shade700,
       ),
     );
   }

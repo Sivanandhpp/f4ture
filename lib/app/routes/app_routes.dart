@@ -14,6 +14,8 @@ abstract class Routes {
   static const MANAGE_USERS = _Paths.MANAGE_USERS;
   static const ATTENDEE = _Paths.ATTENDEE;
   static const FEED = _Paths.FEED;
+  static const EVENT_SCHEDULE = _Paths.EVENT_SCHEDULE;
+  static const MANAGE_EVENTS = _Paths.MANAGE_EVENTS;
 }
 
 abstract class _Paths {
@@ -29,4 +31,6 @@ abstract class _Paths {
   static const MANAGE_USERS = '/manage-users';
   static const ATTENDEE = '/attendee';
   static const FEED = '/feed';
+  static const EVENT_SCHEDULE = '/event-schedule';
+  static const MANAGE_EVENTS = '/manage-events';
 }

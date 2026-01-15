@@ -30,49 +30,60 @@ class GlobalTasksController extends GetxController {
   }
 
   Future<void> fetchMyTasks() async {
-    final userId = _authService.currentUser.value?.id;
-    if (userId == null) return;
+    final user = _authService.currentUser.value;
+    if (user == null) return;
 
     try {
       isLoadingTasks.value = true;
-      // Query root tasks collection directly to avoid dependency on undeployed Cloud Functions
-      final snapshot = await _db
-          .collection('tasks')
-          .where('assignedTo', arrayContains: userId)
-          .get();
+      QuerySnapshot snapshot;
+
+      // If user is NOT an attendee (Admin, Core, Lead, Committee), show ALL tasks
+      if (user.role.toLowerCase() != 'attendee') {
+        snapshot = await _db.collection('tasks').get();
+      } else {
+        // Attendees only see tasks assigned to them
+        snapshot = await _db
+            .collection('tasks')
+            .where('assignedTo', arrayContains: user.id)
+            .get();
+      }
 
       myTasks.value = snapshot.docs
-          .map((doc) => TaskModel.fromJson(doc.data()))
+          .map((doc) => TaskModel.fromJson(doc.data() as Map<String, dynamic>))
           .toList();
       _updateMixedList();
     } catch (e) {
-      print('Error fetching my tasks: $e');
+      print('Error fetching tasks: $e');
     } finally {
       isLoadingTasks.value = false;
     }
   }
 
   Future<void> fetchMyIssues() async {
-    final userId = _authService.currentUser.value?.id;
-    if (userId == null) return;
+    final user = _authService.currentUser.value;
+    if (user == null) return;
 
     try {
       isLoadingIssues.value = true;
-      // Query root issues collection directly
-      final snapshot = await _db
-          .collection('issues')
-          .where('assignedTo', arrayContains: userId)
-          .get();
+      QuerySnapshot snapshot;
 
-      // Also could show issues REPORTED by user? The prompt says "assigned".
-      // Sticking to assignedTo for "My Work".
+      // If user is NOT an attendee, show ALL issues
+      if (user.role.toLowerCase() != 'attendee') {
+        snapshot = await _db.collection('issues').get();
+      } else {
+        // Attendees only see issues assigned to them
+        snapshot = await _db
+            .collection('issues')
+            .where('assignedTo', arrayContains: user.id)
+            .get();
+      }
 
       myIssues.value = snapshot.docs
-          .map((doc) => IssueModel.fromJson(doc.data()))
+          .map((doc) => IssueModel.fromJson(doc.data() as Map<String, dynamic>))
           .toList();
       _updateMixedList();
     } catch (e) {
-      print('Error fetching my issues: $e');
+      print('Error fetching issues: $e');
     } finally {
       isLoadingIssues.value = false;
     }

@@ -52,6 +52,114 @@ class CreateEventController extends GetxController {
 
   // --- Pickers ---
 
+  // Metadata Lists
+  final RxList<String> eventTypes = <String>[].obs;
+  final RxList<String> eventVenues = <String>[].obs;
+  final RxMap<int, DateTime> eventDates = <int, DateTime>{}.obs;
+  final RxList<int> availableDays = <int>[].obs;
+
+  final RxBool isEditMode = false.obs;
+  String? editingEventId;
+
+  final RxnString existingBannerUrl = RxnString();
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchMetaData().then((_) {
+      // Check for arguments after metadata is loaded to ensure lists are ready
+      if (Get.arguments is EventModel) {
+        final event = Get.arguments as EventModel;
+        isEditMode.value = true;
+        editingEventId = event.eventId;
+        _prefillData(event);
+      }
+    });
+  }
+
+  void _prefillData(EventModel event) {
+    titleController.text = event.title;
+    descriptionController.text = event.description;
+    venueController.text = event.venue;
+    ticketPriceController.text = event.ticketPrice.toString();
+    ticketUrlController.text = event.ticketPurchaseUrl ?? '';
+    totalSeatsController.text = event.totalSeats?.toString() ?? '';
+
+    // Ensure values exist in lists before setting, or handle gracefully
+    if (eventTypes.contains(event.type)) {
+      selectedType.value = event.type;
+    }
+
+    if (availableDays.contains(event.day)) {
+      selectedDay.value = event.day;
+    } else {
+      // If for some reason the day isn't 'available' (e.g. metadata changed),
+      // we might want to just show it anyway?
+      // For now, if not found, it stays default (0).
+      // But usually users want to see preserving data.
+      // Given hardcoded dates, it should match 1-4.
+    }
+
+    startTime.value = event.startTime;
+    endTime.value = event.endTime;
+    selectedCurrency.value = event.currency;
+    isSoldOut.value = event.isSoldOut;
+    isFeatured.value = event.isFeatured;
+    existingBannerUrl.value = event.imageUrl;
+  }
+
+  Future<void> fetchMetaData() async {
+    try {
+      // Fetch Types
+      final typeDoc = await _firestore
+          .collection('appMetaData')
+          .doc('eventType')
+          .get();
+      if (typeDoc.exists) {
+        final data = typeDoc.data()!;
+        final types = data.values.map((e) => e.toString()).toList();
+        eventTypes.assignAll(types);
+        if (eventTypes.isNotEmpty) selectedType.value = eventTypes.first;
+      }
+
+      // Fetch Venues
+      final venueDoc = await _firestore
+          .collection('appMetaData')
+          .doc('eventVenue')
+          .get();
+      if (venueDoc.exists) {
+        final data = venueDoc.data()!;
+        final venues = data.values.map((e) => e.toString()).toList();
+        eventVenues.assignAll(venues);
+      }
+
+      // Fetch Dates - HARDCODED as per request
+      final Map<int, DateTime> hardcodedDates = {
+        0: DateTime(2026, 1, 29), // All Days (default to Day 1 date)
+        1: DateTime(2026, 1, 29),
+        2: DateTime(2026, 1, 30),
+        3: DateTime(2026, 1, 31),
+        4: DateTime(2026, 2, 1),
+      };
+
+      eventDates.value = hardcodedDates;
+
+      // 0 represents "All Days"
+      availableDays.assignAll([0, 1, 2, 3, 4]);
+
+      // Default to "All Days" (0)
+      if (availableDays.isNotEmpty) {
+        selectedDay.value = 0;
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to load metadata: $e');
+      if (availableDays.isEmpty) {
+        availableDays.assignAll([0, 1]); // Fallback
+        selectedDay.value = 0;
+      }
+    }
+  }
+
   Future<void> pickBannerImage() async {
     final result = await AppImagePicker.showImagePickerOptions();
     if (result != null) {
@@ -60,52 +168,35 @@ class CreateEventController extends GetxController {
     }
   }
 
-  Future<void> pickDateTime(
-    BuildContext context, {
-    required bool isStart,
-  }) async {
-    final now = DateTime.now();
-    final date = await showDatePicker(
+  Future<void> pickTime(BuildContext context, {required bool isStart}) async {
+    final time = await showTimePicker(
       context: context,
-      initialDate: now,
-      firstDate: now,
-      lastDate: now.add(const Duration(days: 365)),
+      initialTime: TimeOfDay.now(),
     );
 
-    if (date != null) {
-      // ignore: use_build_context_synchronously
-      final time = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
+    if (time != null) {
+      // Get date from selectedDay
+      final date = eventDates[selectedDay.value] ?? DateTime.now();
+
+      final dateTime = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
       );
 
-      if (time != null) {
-        final dateTime = DateTime(
-          date.year,
-          date.month,
-          date.day,
-          time.hour,
-          time.minute,
-        );
-
-        if (isStart) {
-          startTime.value = dateTime;
-          // Reset end time if it's before new start time
-          if (endTime.value != null && endTime.value!.isBefore(dateTime)) {
-            endTime.value = null;
-          }
-        } else {
-          if (startTime.value != null && dateTime.isBefore(startTime.value!)) {
-            Get.snackbar(
-              'Error',
-              'End time cannot be before Start time',
-              backgroundColor: Colors.redAccent,
-              colorText: Colors.white,
-            );
-            return;
-          }
-          endTime.value = dateTime;
+      if (isStart) {
+        startTime.value = dateTime;
+        if (endTime.value != null && endTime.value!.isBefore(dateTime)) {
+          endTime.value = null;
         }
+      } else {
+        if (startTime.value != null && dateTime.isBefore(startTime.value!)) {
+          Get.snackbar('Error', 'End time cannot be before Start time');
+          return;
+        }
+        endTime.value = dateTime;
       }
     }
   }
@@ -138,15 +229,21 @@ class CreateEventController extends GetxController {
     isLoading.value = true;
 
     try {
-      final docRef = _firestore.collection('events').doc();
+      final docRef = isEditMode.value && editingEventId != null
+          ? _firestore.collection('events').doc(editingEventId)
+          : _firestore.collection('events').doc();
+
       String? imageUrl;
 
-      // Upload Image
+      // Upload Image (Only if new image selected)
       if (selectedBanner.value != null) {
         final ref = _storage.ref().child('event_banners/${docRef.id}.jpg');
         final bytes = await selectedBanner.value!.readAsBytes();
         await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
         imageUrl = await ref.getDownloadURL();
+      } else if (isEditMode.value && Get.arguments is EventModel) {
+        // Keep existing image if no new one selected
+        imageUrl = (Get.arguments as EventModel).imageUrl;
       }
 
       final event = EventModel(
@@ -165,28 +262,38 @@ class CreateEventController extends GetxController {
             ? ticketUrlController.text.trim()
             : null,
         totalSeats: int.tryParse(totalSeatsController.text),
-        availableSeats: int.tryParse(
-          totalSeatsController.text,
-        ), // Initially same as total
+        availableSeats: int.tryParse(totalSeatsController.text),
         isSoldOut: isSoldOut.value,
         isFeatured: isFeatured.value,
-        createdAt: DateTime.now(),
+        createdAt: isEditMode.value && Get.arguments is EventModel
+            ? (Get.arguments as EventModel).createdAt
+            : DateTime.now(),
         updatedAt: DateTime.now(),
       );
 
-      await docRef.set(event.toJson());
-
-      Get.back();
-      Get.snackbar(
-        'Success',
-        'Event created successfully!',
-        backgroundColor: AppColors.success,
-        colorText: Colors.white,
-      );
+      if (isEditMode.value) {
+        await docRef.update(event.toJson());
+        Get.snackbar(
+          'Success',
+          'Event updated successfully!',
+          backgroundColor: AppColors.success,
+          colorText: Colors.white,
+        );
+        Get.back(); // Return to Manage Events
+      } else {
+        await docRef.set(event.toJson());
+        Get.snackbar(
+          'Success',
+          'Event created successfully!',
+          backgroundColor: AppColors.success,
+          colorText: Colors.white,
+        );
+        Get.back(); // Return to Manage Events
+      }
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Failed to create event: $e',
+        'Failed to save event: $e',
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
       );
