@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/admin_console/bindings/admin_console_binding.dart';
+import '../modules/admin_console/views/admin_console_view.dart';
 import '../modules/attendee/bindings/attendee_binding.dart';
 import '../modules/attendee/views/attendee_view.dart';
 import '../modules/authentication/bindings/authentication_binding.dart';
@@ -112,6 +114,11 @@ class AppPages {
       name: _Paths.CREATE_POST,
       page: () => const CreatePostView(),
       binding: FeedBinding(), // Reusing FeedBinding for now
+    ),
+    GetPage(
+      name: _Paths.ADMIN_CONSOLE,
+      page: () => const AdminConsoleView(),
+      binding: AdminConsoleBinding(),
     ),
   ];
 }

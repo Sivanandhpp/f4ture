@@ -12,21 +12,21 @@ class ManageUsersView extends GetView<ManageUsersController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50], // Light background for contrast
+      backgroundColor: AppColors.scaffoldbg,
       appBar: AppBar(
         title: Text(
           'Manage Users',
           style: AppFont.heading.copyWith(
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: Colors.white,
             fontSize: 20,
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0.5,
+        backgroundColor: AppColors.appbarbg,
+        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Get.back(),
         ),
       ),
@@ -37,7 +37,9 @@ class ManageUsersView extends GetView<ManageUsersController> {
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                );
               }
 
               final users = controller.filteredUsers;
@@ -62,18 +64,20 @@ class ManageUsersView extends GetView<ManageUsersController> {
   Widget _buildSearchBar() {
     return Container(
       padding: const EdgeInsets.all(16),
-      color: Colors.white,
+      color: AppColors.appbarbg,
       child: TextField(
         onChanged: (val) => controller.searchQuery.value = val,
+        style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
           hintText: 'Search by Name, Email, or Phone',
-          prefixIcon: const Icon(Icons.search, color: Colors.grey),
+          hintStyle: TextStyle(color: Colors.grey[500]),
+          prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
           ),
           filled: true,
-          fillColor: Colors.grey[100],
+          fillColor: Colors.black.withOpacity(0.3),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 12,
@@ -96,32 +100,47 @@ class ManageUsersView extends GetView<ManageUsersController> {
     return Container(
       height: 60,
       padding: const EdgeInsets.symmetric(vertical: 8),
-      color: Colors.white, // Keep background cohesive
-      child: ListView.separated(
+      color: AppColors.scaffoldbg,
+      width: double.infinity,
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: filters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final filter = filters[index];
           return Obx(() {
             final isSelected = controller.selectedFilter.value == filter;
-            return ChoiceChip(
-              label: Text(filter),
-              selected: isSelected,
-              onSelected: (selected) {
-                if (selected) controller.selectedFilter.value = filter;
-              },
-              selectedColor: _getRoleColor(filter),
-              backgroundColor: Colors.white,
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.white : Colors.grey[700],
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: BorderSide(
-                  color: isSelected ? Colors.transparent : Colors.grey[300]!,
+            return GestureDetector(
+              onTap: () => controller.selectedFilter.value = filter,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: const EdgeInsets.only(right: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.primary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.primary.withOpacity(0.5)),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: AppColors.primary.withOpacity(0.4),
+                            blurRadius: 8,
+                          ),
+                        ]
+                      : [],
+                ),
+                child: Center(
+                  child: Text(
+                    filter,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.white70,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
                 ),
               ),
             );
@@ -135,13 +154,13 @@ class ManageUsersView extends GetView<ManageUsersController> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.appbarbg,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -172,6 +191,7 @@ class ManageUsersView extends GetView<ManageUsersController> {
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
+                  color: Colors.white,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -181,12 +201,13 @@ class ManageUsersView extends GetView<ManageUsersController> {
                 margin: const EdgeInsets.only(left: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.red[50],
+                  color: Colors.red.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: Colors.red.withOpacity(0.5)),
                 ),
                 child: const Text(
                   'Inactive',
-                  style: TextStyle(fontSize: 10, color: Colors.red),
+                  style: TextStyle(fontSize: 10, color: Colors.redAccent),
                 ),
               ),
           ],
@@ -198,7 +219,7 @@ class ManageUsersView extends GetView<ManageUsersController> {
               const SizedBox(height: 4),
               Text(
                 user.email!,
-                style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                style: TextStyle(color: Colors.grey[400], fontSize: 13),
               ),
             ],
             const SizedBox(height: 8),
@@ -207,6 +228,9 @@ class ManageUsersView extends GetView<ManageUsersController> {
               decoration: BoxDecoration(
                 color: _getRoleColor(user.role).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: _getRoleColor(user.role).withOpacity(0.3),
+                ),
               ),
               child: Text(
                 user.role.toUpperCase(),
@@ -225,10 +249,9 @@ class ManageUsersView extends GetView<ManageUsersController> {
   }
 
   Widget _buildAdminActions(BuildContext context, UserModel user) {
-    // Only show actions if Admin
-    // In a real app we might verify current user role again, but UI can be permissive as logic is secured
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, color: Colors.grey),
+      icon: Icon(Icons.more_vert, color: Colors.grey[400]),
+      color: AppColors.appbarbg,
       onSelected: (value) {
         if (value == 'edit_role') {
           _showRolePicker(context, user);
@@ -241,9 +264,13 @@ class ManageUsersView extends GetView<ManageUsersController> {
           value: 'edit_role',
           child: Row(
             children: [
-              Icon(Icons.admin_panel_settings_outlined, size: 20),
+              Icon(
+                Icons.admin_panel_settings_outlined,
+                size: 20,
+                color: Colors.white,
+              ),
               SizedBox(width: 8),
-              Text('Change Role'),
+              Text('Change Role', style: TextStyle(color: Colors.white)),
             ],
           ),
         ),
@@ -259,7 +286,10 @@ class ManageUsersView extends GetView<ManageUsersController> {
                 color: user.status == 'active' ? Colors.red : Colors.green,
               ),
               SizedBox(width: 8),
-              Text(user.status == 'active' ? 'Deactivate' : 'Activate'),
+              Text(
+                user.status == 'active' ? 'Deactivate' : 'Activate',
+                style: const TextStyle(color: Colors.white),
+              ),
             ],
           ),
         ),
@@ -272,7 +302,7 @@ class ManageUsersView extends GetView<ManageUsersController> {
       Container(
         padding: const EdgeInsets.all(24),
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: AppColors.appbarbg,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -281,16 +311,28 @@ class ManageUsersView extends GetView<ManageUsersController> {
           children: [
             const Text(
               'Select New Role',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.white,
+              ),
             ),
             const SizedBox(height: 16),
             ...['attendee', 'committee', 'lead', 'core', 'admin'].map((role) {
               return ListTile(
-                title: Text(role.toUpperCase()),
+                title: Text(
+                  role.toUpperCase(),
+                  style: const TextStyle(color: Colors.white),
+                ),
                 leading: Radio<String>(
                   value: role,
                   groupValue: user.role,
                   activeColor: AppColors.primary,
+                  fillColor: MaterialStateProperty.resolveWith(
+                    (states) => states.contains(MaterialState.selected)
+                        ? AppColors.primary
+                        : Colors.grey,
+                  ),
                   onChanged: (val) {
                     Get.back(); // Close sheet
                     if (val != null) controller.updateUserRole(user.id, val);
@@ -317,9 +359,9 @@ class ManageUsersView extends GetView<ManageUsersController> {
       case 'lead':
         return Colors.blue;
       case 'committee':
-        return Colors.purple;
+        return Colors.purpleAccent;
       case 'jain': // for filter chip
-        return Colors.indigo;
+        return Colors.indigoAccent;
       default: // attendee
         return AppColors.primary;
     }
@@ -330,11 +372,11 @@ class ManageUsersView extends GetView<ManageUsersController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.perm_identity, size: 64, color: Colors.grey[300]),
+          Icon(Icons.perm_identity, size: 64, color: Colors.grey[700]),
           const SizedBox(height: 16),
           Text(
             'No users found',
-            style: TextStyle(color: Colors.grey[500], fontSize: 16),
+            style: TextStyle(color: Colors.grey[600], fontSize: 16),
           ),
         ],
       ),

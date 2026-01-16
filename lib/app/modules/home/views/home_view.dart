@@ -68,11 +68,13 @@ class HomeView extends GetView<HomeController> {
                             GestureDetector(
                               onTap: () {
                                 try {
-                                  Get.toNamed(Routes.USER_PROFILE);
+                                  if (user?.role == 'attendee') {
+                                    Get.toNamed(Routes.USER_PROFILE);
+                                  } else {
+                                    Get.toNamed(Routes.ADMIN_CONSOLE);
+                                  }
                                 } catch (e) {
-                                  debugPrint(
-                                    'SuperHomeController not found: $e',
-                                  );
+                                  debugPrint('Navigation error: $e');
                                 }
                               },
                               child: Container(
