@@ -11,184 +11,240 @@ class AuthenticationView extends GetView<AuthenticationController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black, // Dark background for contrast
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background Video
-          AppVideo.background(assetPath: 'assets/videos/background.mp4'),
-
-          // Gradient Overlay
+          // Background Gradient (Subtle)
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withOpacity(0.3),
-                  Colors.black.withOpacity(0.8),
-                ],
+                colors: [Colors.black, Colors.grey.shade900],
               ),
             ),
           ),
+          // Video Background
+          Column(
+            children: [
+              Expanded(
+                flex: 5,
+                child: SizedBox(
+                  child: AppVideo.background(
+                    assetPath: 'assets/videos/background.mp4',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              Expanded(flex: 5, child: Container()),
+            ],
+          ),
 
-          // Content
-          Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Obx(() {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+          // Gradient Overlay for better text/image visibility if needed
+          Container(color: Colors.black.withOpacity(0.3)),
+
+          // Main Layout
+          Column(
+            children: [
+              // Top Area: Image & Video Background
+              Expanded(
+                flex: 4,
+                child: Stack(
+                  fit: StackFit.expand,
                   children: [
-                    // Title
-                    Text(
-                      'Welcome Back',
-                      style: AppFont.heading.copyWith(
-                        fontSize: 32,
-                        color: Colors.white,
-                        letterSpacing: 1.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Sign in to continue',
-                      style: AppFont.body.copyWith(
-                        color: Colors.white70,
-                        fontSize: 16,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 48),
-
-                    // Title for Step
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      child: Text(
-                        controller.currentStep.value == AuthStep.emailInput
-                            ? 'Enter your email'
-                            : 'Enter your password',
-                        key: ValueKey(controller.currentStep.value),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Inputs
-                    if (controller.currentStep.value == AuthStep.emailInput)
-                      _buildRoundedTextField(
-                        textController: controller.emailController,
-                        hint: 'Email Address',
-                        icon: Icons.email_outlined,
-                        keyboardType: TextInputType.emailAddress,
-                      )
-                    else
-                      _buildRoundedTextField(
-                        textController: controller.passwordController,
-                        hint: 'Password',
-                        icon: Icons.lock_outline,
-                        obscureText: !controller.isPasswordVisible.value,
-                        autoFocus: true,
-                        // Add visibility toggle
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            controller.isPasswordVisible.value
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Colors.white70,
-                          ),
-                          onPressed: () =>
-                              controller.isPasswordVisible.toggle(),
+                    // Logo Image
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(62.0),
+                        child: Image.asset(
+                          'assets/images/vishayam.png',
+                          fit: BoxFit.contain,
                         ),
                       ),
-
-                    const SizedBox(height: 24),
-
-                    // Continue Button
-                    _buildRoundedButton(
-                      text: 'Continue',
-                      onPressed: controller.isLoading.value
-                          ? null
-                          : controller.onContinue,
-                      isLoading: controller.isLoading.value,
-                      color: AppColors.primary,
-                      textColor: Colors.white,
                     ),
+                  ],
+                ),
+              ),
 
-                    const SizedBox(height: 16),
-
-                    // Or Divider
-                    if (controller.currentStep.value ==
-                        AuthStep.emailInput) ...[
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Divider(
-                              color: Colors.white.withOpacity(0.3),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(
-                              'OR',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.5),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Divider(
-                              color: Colors.white.withOpacity(0.3),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Google Sign In Button
-                      _buildRoundedButton(
-                        text: 'Login with Google',
-                        onPressed: controller.isLoading.value
-                            ? null
-                            : controller.loginWithGoogle,
-                        isOutlined: true,
-                        textColor: Colors.white,
-                        icon: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: const BoxDecoration(
-                            color: Colors.transparent,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Image.asset(
-                            'assets/images/google.png',
-                            height: 26,
-                            width: 26,
-                          ),
-                        ),
+              // Bottom Area: Form Container
+              Expanded(
+                flex: 6,
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: const Color(
+                      0xFF1E1E1E,
+                    ), // Slightly lighter/distinct dark color
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(32),
+                      topRight: Radius.circular(32),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.5),
+                        blurRadius: 20,
+                        offset: const Offset(0, -5),
                       ),
                     ],
-
-                    // Back Button (if in password step)
-                    if (controller.currentStep.value == AuthStep.passwordInput)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16.0),
-                        child: TextButton(
-                          onPressed: controller.resetFlow,
-                          child: const Text(
-                            'Use a different email',
-                            style: TextStyle(color: Colors.white70),
+                  ),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Obx(() {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Title
+                          Text(
+                            'Welcome Back',
+                            style: AppFont.heading.copyWith(
+                              fontSize: 28,
+                              color: Colors.white,
+                              letterSpacing: 1.2,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                        ),
-                      ),
-                  ],
-                );
-              }),
-            ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Sign in to continue',
+                            style: AppFont.body.copyWith(
+                              color: Colors.white60,
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+
+                          const SizedBox(height: 32),
+                          // Title for Step
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            child: Text(
+                              controller.currentStep.value ==
+                                      AuthStep.emailInput
+                                  ? 'Enter your email'
+                                  : 'Enter your password',
+                              key: ValueKey(controller.currentStep.value),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.start,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Inputs
+                          if (controller.currentStep.value ==
+                              AuthStep.emailInput)
+                            _buildRoundedTextField(
+                              textController: controller.emailController,
+                              hint: 'Email Address',
+                              icon: Icons.email_outlined,
+                              keyboardType: TextInputType.emailAddress,
+                            )
+                          else
+                            _buildRoundedTextField(
+                              textController: controller.passwordController,
+                              hint: 'Password',
+                              icon: Icons.lock_outline,
+                              obscureText: !controller.isPasswordVisible.value,
+                              autoFocus: true,
+                              // Add visibility toggle
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  controller.isPasswordVisible.value
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  color: Colors.white70,
+                                ),
+                                onPressed: () =>
+                                    controller.isPasswordVisible.toggle(),
+                              ),
+                            ),
+
+                          const SizedBox(height: 24),
+
+                          // Continue Button
+                          _buildRoundedButton(
+                            text: 'Continue',
+                            onPressed: controller.isLoading.value
+                                ? null
+                                : controller.onContinue,
+                            isLoading: controller.isLoading.value,
+                            color: AppColors.primary,
+                            textColor: Colors.white,
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Or Divider
+                          if (controller.currentStep.value ==
+                              AuthStep.emailInput) ...[
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Divider(
+                                    color: Colors.white.withOpacity(0.3),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Text(
+                                    'OR',
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.5),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Divider(
+                                    color: Colors.white.withOpacity(0.3),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Google Sign In Button
+                            _buildRoundedButton(
+                              text: 'Login with Google',
+                              onPressed: controller.isLoading.value
+                                  ? null
+                                  : controller.loginWithGoogle,
+                              isOutlined: true,
+                              textColor: Colors.white,
+                              icon: Image.asset(
+                                'assets/images/google.png',
+                                height: 26,
+                                width: 26,
+                              ),
+                            ),
+                          ],
+
+                          // Back Button (if in password step)
+                          if (controller.currentStep.value ==
+                              AuthStep.passwordInput)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 16.0),
+                              child: TextButton(
+                                onPressed: controller.resetFlow,
+                                child: const Text(
+                                  'Use a different email',
+                                  style: TextStyle(color: Colors.white70),
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    }),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
