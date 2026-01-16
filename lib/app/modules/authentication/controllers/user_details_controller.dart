@@ -29,6 +29,14 @@ class UserDetailsController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxList<String> selectedInterests = <String>[].obs;
 
+  // Password Visibility
+  final RxBool isPasswordVisible = false.obs;
+  final RxBool isConfirmPasswordVisible = false.obs;
+
+  // Focus Nodes
+  final FocusNode phoneFocusNode = FocusNode();
+  final FocusNode confirmPasswordFocusNode = FocusNode();
+
   bool isGoogleAuth = false;
 
   final List<String> availableInterests = [
@@ -65,6 +73,9 @@ class UserDetailsController extends GetxController {
     phoneController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
+
+    phoneFocusNode.dispose();
+    confirmPasswordFocusNode.dispose();
     super.onClose();
   }
 

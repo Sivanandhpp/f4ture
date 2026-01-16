@@ -17,6 +17,7 @@ class AuthenticationController extends GetxController {
 
   final Rx<AuthStep> currentStep = AuthStep.emailInput.obs;
   final RxBool isLoading = false.obs;
+  final RxBool isPasswordVisible = false.obs;
 
   @override
   void onClose() {

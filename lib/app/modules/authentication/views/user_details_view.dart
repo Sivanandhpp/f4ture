@@ -93,6 +93,12 @@ class UserDetailsView extends GetView<UserDetailsController> {
                 TextField(
                   controller: controller.nameController,
                   textInputAction: TextInputAction.next,
+                  onSubmitted: (_) {
+                    // Skip Email, go to Phone
+                    FocusScope.of(
+                      context,
+                    ).requestFocus(controller.phoneFocusNode);
+                  },
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Full Name',
@@ -122,6 +128,7 @@ class UserDetailsView extends GetView<UserDetailsController> {
                 TextField(
                   controller: controller.emailController,
                   readOnly: true,
+                  // No focus logic needed as we skip it
                   style: const TextStyle(color: Colors.white70),
                   decoration: InputDecoration(
                     labelText: 'Email',
@@ -147,6 +154,7 @@ class UserDetailsView extends GetView<UserDetailsController> {
                 // Phone Field
                 TextField(
                   controller: controller.phoneController,
+                  focusNode: controller.phoneFocusNode, // Assign Focus Node
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.next,
                   style: const TextStyle(color: Colors.white),
@@ -175,60 +183,94 @@ class UserDetailsView extends GetView<UserDetailsController> {
                 AppSpacing.verticalMd,
 
                 // Password Fields
-                TextField(
-                  controller: controller.passwordController,
-                  obscureText: true,
-                  textInputAction: TextInputAction.next,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    labelStyle: TextStyle(color: Colors.grey.shade400),
-                    prefixIcon: const Icon(
-                      Icons.lock_outline,
-                      color: AppColors.primary,
+                Obx(
+                  () => TextField(
+                    controller: controller.passwordController,
+                    obscureText: !controller.isPasswordVisible.value,
+                    textInputAction: TextInputAction.next,
+                    onSubmitted: (_) {
+                      FocusScope.of(
+                        context,
+                      ).requestFocus(controller.confirmPasswordFocusNode);
+                    },
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      labelStyle: TextStyle(color: Colors.grey.shade400),
+                      prefixIcon: const Icon(
+                        Icons.lock_outline,
+                        color: AppColors.primary,
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          controller.isPasswordVisible.value
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          controller.isPasswordVisible.toggle();
+                        },
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: AppRadius.radiusMd,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: AppRadius.radiusMd,
+                        borderSide: BorderSide(color: Colors.grey.shade800),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: AppRadius.radiusMd,
+                        borderSide: const BorderSide(color: AppColors.primary),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade900,
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: AppRadius.radiusMd,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: AppRadius.radiusMd,
-                      borderSide: BorderSide(color: Colors.grey.shade800),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: AppRadius.radiusMd,
-                      borderSide: const BorderSide(color: AppColors.primary),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey.shade900,
                   ),
                 ),
                 AppSpacing.verticalMd,
-                TextField(
-                  controller: controller.confirmPasswordController,
-                  obscureText: true,
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) => controller.saveProfile(),
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: 'Confirm Password',
-                    labelStyle: TextStyle(color: Colors.grey.shade400),
-                    prefixIcon: const Icon(
-                      Icons.lock_outline,
-                      color: AppColors.primary,
+
+                Obx(
+                  () => TextField(
+                    controller: controller.confirmPasswordController,
+                    focusNode: controller
+                        .confirmPasswordFocusNode, // Assign Focus Node
+                    obscureText: !controller.isConfirmPasswordVisible.value,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => controller.saveProfile(),
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Confirm Password',
+                      labelStyle: TextStyle(color: Colors.grey.shade400),
+                      prefixIcon: const Icon(
+                        Icons.lock_outline,
+                        color: AppColors.primary,
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          controller.isConfirmPasswordVisible.value
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          controller.isConfirmPasswordVisible.toggle();
+                        },
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: AppRadius.radiusMd,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: AppRadius.radiusMd,
+                        borderSide: BorderSide(color: Colors.grey.shade800),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: AppRadius.radiusMd,
+                        borderSide: const BorderSide(color: AppColors.primary),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade900,
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: AppRadius.radiusMd,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: AppRadius.radiusMd,
-                      borderSide: BorderSide(color: Colors.grey.shade800),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: AppRadius.radiusMd,
-                      borderSide: const BorderSide(color: AppColors.primary),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey.shade900,
                   ),
                 ),
                 AppSpacing.verticalMd,

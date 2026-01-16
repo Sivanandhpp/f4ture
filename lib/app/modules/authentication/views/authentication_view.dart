@@ -92,8 +92,19 @@ class AuthenticationView extends GetView<AuthenticationController> {
                         textController: controller.passwordController,
                         hint: 'Password',
                         icon: Icons.lock_outline,
-                        obscureText: true,
+                        obscureText: !controller.isPasswordVisible.value,
                         autoFocus: true,
+                        // Add visibility toggle
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            controller.isPasswordVisible.value
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Colors.white70,
+                          ),
+                          onPressed: () =>
+                              controller.isPasswordVisible.toggle(),
+                        ),
                       ),
 
                     const SizedBox(height: 24),
@@ -150,13 +161,13 @@ class AuthenticationView extends GetView<AuthenticationController> {
                         icon: Container(
                           padding: const EdgeInsets.all(2),
                           decoration: const BoxDecoration(
-                            color: Colors.white,
+                            color: Colors.transparent,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
-                            Icons.g_mobiledata, // Fallback if no asset
-                            color: Colors.black,
-                            size: 20,
+                          child: Image.asset(
+                            'assets/images/google.png',
+                            height: 26,
+                            width: 26,
                           ),
                         ),
                       ),
@@ -191,6 +202,7 @@ class AuthenticationView extends GetView<AuthenticationController> {
     bool obscureText = false,
     TextInputType? keyboardType,
     bool autoFocus = false,
+    Widget? suffixIcon,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -215,6 +227,7 @@ class AuthenticationView extends GetView<AuthenticationController> {
           hintText: hint,
           hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
           prefixIcon: Icon(icon, color: Colors.white70),
+          suffixIcon: suffixIcon,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 24,
