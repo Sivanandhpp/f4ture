@@ -4,13 +4,13 @@ class AppColors {
   AppColors._();
 
   // Primary
-  static const Color primary = Color(0xFF451583);
-  static const Color primaryLight = Color(0xFF6B3BA8);
+  static const Color primary = Color(0xFFBB5CF6);
+  static const Color primaryLight = Color(0xFFBB5CF6);
   static const Color primaryDark = Color(0xFF2E0E5A);
 
   // Secondary/Accent
-  static const Color secondary = Color(0xFFFA0281);
-  static const Color accent = Color(0xFFFA0281);
+  static const Color secondary = Color(0xFFBB5CF6);
+  static const Color accent = Color(0xFFBB5CF6);
 
   // Semantic
   static const Color success = Color(0xFF34C759);

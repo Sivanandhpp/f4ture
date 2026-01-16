@@ -19,7 +19,7 @@ class CountdownWidget extends StatelessWidget {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 50),
       decoration: BoxDecoration(
         color: AppColors.appbarbg.withOpacity(
           0.9,
@@ -81,7 +81,7 @@ class CountdownWidget extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         // Label
         Text(
           label,
