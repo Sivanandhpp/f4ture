@@ -84,61 +84,77 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   }
 
   void _updateState() {
-    final now = DateTime.now();
+    // --- SIMULATION MODE: DAY 1 LIVE ---
+    homeState.value = HomeState.live;
+    currentDayLabel.value = 'Day 1';
 
+    currentEvent.value = EventModel(
+      eventId: 'sim_1',
+      title: 'Opening Ceremony',
+      description: 'Grand opening of F4ture 2026',
+      type: 'Ceremony',
+      day: 1,
+      startTime: DateTime(2026, 1, 29, 10, 0),
+      endTime: DateTime(2026, 1, 29, 11, 0),
+      venue: 'Main Auditorium',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    nextEvent.value = EventModel(
+      eventId: 'sim_2',
+      title: 'Keynote: The Future of AI',
+      description: 'Insights into AGI',
+      type: 'Keynote',
+      day: 1,
+      startTime: DateTime(2026, 1, 29, 11, 30),
+      venue: 'Hall A',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    nextEventTimeLeft.value = '30m';
+
+    // --- REAL LOGIC (Commented out for simulation) ---
+    /*
+    final now = DateTime.now();
+    
     // 1. Check if before Event Start
     if (now.isBefore(eventStartDate)) {
       homeState.value = HomeState.countdown;
       final diff = eventStartDate.difference(now);
-
+      
       final days = diff.inDays.toString().padLeft(2, '0');
       final hours = (diff.inHours % 24).toString().padLeft(2, '0');
       final minutes = (diff.inMinutes % 60).toString().padLeft(2, '0');
       final seconds = (diff.inSeconds % 60).toString().padLeft(2, '0');
-
+      
       timeLeftStr.value = '$days : $hours : $minutes : $seconds';
       return;
     }
 
     // 2. Check Day Logic (29 Jan - 1 Feb)
     homeState.value = HomeState.live;
-
+    
     // Day Calculation
-    // Day 1: 29 Jan
-    // Day 2: 30 Jan...
     final diffDays = now.difference(eventStartDate).inDays + 1;
     if (diffDays >= 1 && diffDays <= 4) {
       currentDayLabel.value = 'Day $diffDays';
     } else if (diffDays > 4) {
-      homeState.value = HomeState.post;
-      currentDayLabel.value = 'Event Ended';
+       homeState.value = HomeState.post;
+       currentDayLabel.value = 'Event Ended';
     } else {
-      currentDayLabel.value = '';
+       currentDayLabel.value = '';
     }
 
     // 3. Find Current and Next Event
-    // Current: Started but not ended (or closest future if nothing running)
-    // Actually, user wants:
-    // "Current <next event...>"
-    // Let's find the first event that hasn't ended yet
-
-    final upcoming = events
-        .where((e) => e.endTime == null || e.endTime!.isAfter(now))
-        .toList();
-
+    final upcoming = events.where((e) => e.endTime == null || e.endTime!.isAfter(now)).toList();
+    
     if (upcoming.isNotEmpty) {
-      // Logic:
-      // If we are IN an event (start < now < end), that's current.
-      // If not, the immediate next start is current (as "Up Next").
-
-      // Let's try to find an active event first
-      final active = upcoming.firstWhereOrNull(
-        (e) => e.startTime.isBefore(now),
-      );
-
+      final active = upcoming.firstWhereOrNull((e) => e.startTime.isBefore(now));
+      
       if (active != null) {
         currentEvent.value = active;
-        // Next is the one after active
         final index = upcoming.indexOf(active);
         if (index + 1 < upcoming.length) {
           nextEvent.value = upcoming[index + 1];
@@ -146,7 +162,6 @@ class HomeController extends GetxController with WidgetsBindingObserver {
           nextEvent.value = null;
         }
       } else {
-        // No active event, so everything is future. Current is the first one.
         currentEvent.value = upcoming.first;
         if (upcoming.length > 1) {
           nextEvent.value = upcoming[1];
@@ -154,26 +169,27 @@ class HomeController extends GetxController with WidgetsBindingObserver {
           nextEvent.value = null;
         }
       }
-
-      // Calc time left for NEXT event to START
+      
       if (nextEvent.value != null) {
-        final diff = nextEvent.value!.startTime.difference(now);
-        if (diff.isNegative) {
-          nextEventTimeLeft.value = 'Now';
-        } else {
-          final h = diff.inHours;
-          final m = diff.inMinutes % 60;
-          if (h > 0) {
-            nextEventTimeLeft.value = '${h}h ${m}m';
-          } else {
-            nextEventTimeLeft.value = '${m}m';
-          }
-        }
+         final diff = nextEvent.value!.startTime.difference(now);
+         if (diff.isNegative) {
+            nextEventTimeLeft.value = 'Now';
+         } else {
+            final h = diff.inHours;
+            final m = diff.inMinutes % 60;
+            if (h > 0) {
+              nextEventTimeLeft.value = '${h}h ${m}m';
+            } else {
+               nextEventTimeLeft.value = '${m}m';
+            }
+         }
       }
+      
     } else {
       currentEvent.value = null;
       nextEvent.value = null;
     }
+    */
   }
 
   @override

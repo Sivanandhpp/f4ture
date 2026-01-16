@@ -46,9 +46,14 @@ flutter:
   assets:
     - assets/images/
     - assets/videos/
-    - assets/svgs/
 
   fonts:
     - family: Valorax
       fonts:
         - asset: assets/fonts/Valorax-lg25V.otf
+    - family: Orbitron
+      fonts:
+        - asset: assets/fonts/Orbitron.ttf
+    - family: Cynosure
+      fonts:
+        - asset: assets/fonts/Cynosure.ttf
