@@ -17,6 +17,7 @@ abstract class Routes {
   static const EVENT_SCHEDULE = _Paths.EVENT_SCHEDULE;
   static const MANAGE_EVENTS = _Paths.MANAGE_EVENTS;
   static const EVENT_MAP = _Paths.EVENT_MAP;
+  static const CREATE_POST = _Paths.CREATE_POST;
 }
 
 abstract class _Paths {
@@ -35,4 +36,5 @@ abstract class _Paths {
   static const EVENT_SCHEDULE = '/event-schedule';
   static const MANAGE_EVENTS = '/manage-events';
   static const EVENT_MAP = '/event-map';
+  static const CREATE_POST = '/create-post';
 }

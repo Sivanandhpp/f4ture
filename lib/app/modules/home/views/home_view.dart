@@ -5,12 +5,14 @@ import 'package:get/get.dart';
 import '../../../core/index.dart';
 import '../../../data/services/auth_service.dart';
 import '../../super_home/controllers/super_home_controller.dart';
+import '../../attendee/controllers/attendee_controller.dart';
 import '../controllers/home_controller.dart';
+import '../widgets/countdown_widget.dart';
 import '../widgets/futuristic_background.dart';
+import '../widgets/home_action_card.dart';
+import '../widgets/live_now_widget.dart';
 import '../widgets/neon_button.dart';
 import '../widgets/video_background.dart';
-import '../widgets/countdown_widget.dart';
-import '../widgets/live_now_widget.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -179,8 +181,58 @@ class HomeView extends GetView<HomeController> {
                         }),
                       ),
 
-                      // Spacer for scroll demo (optional, reduced)
-                      const SizedBox(height: 400),
+                      const SizedBox(height: 24),
+
+                      // Action Cards
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          children: [
+                            HomeActionCard(
+                              title: 'Navigate\nto Future',
+                              imagePath: 'assets/images/vishayam.png',
+                              onTap: () {
+                                try {
+                                  Get.find<AttendeeController>().changeTab(
+                                    3,
+                                  ); // Map Tab
+                                } catch (_) {
+                                  Get.snackbar(
+                                    'Coming Soon',
+                                    'Event Map is currently available for attendees.',
+                                  );
+                                }
+                              },
+                            ),
+                            const SizedBox(width: 12),
+                            HomeActionCard(
+                              title: 'Share your\nmoments',
+                              imagePath: 'assets/images/vishayam.png',
+                              onTap: () => Get.toNamed(Routes.CREATE_POST),
+                            ),
+                            const SizedBox(width: 12),
+                            HomeActionCard(
+                              title: 'Connect\nto Future',
+                              imagePath: 'assets/images/vishayam.png',
+                              onTap: () {
+                                try {
+                                  Get.find<AttendeeController>().changeTab(
+                                    2,
+                                  ); // Feed Tab
+                                } catch (_) {
+                                  // Fallback or generic navigation
+                                  Get.snackbar(
+                                    'Coming Soon',
+                                    'Future Feed is currently available for attendees.',
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 100),
                     ],
                   ),
                 ),

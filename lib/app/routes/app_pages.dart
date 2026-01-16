@@ -19,6 +19,7 @@ import '../modules/event_map/views/event_map_view.dart';
 import '../modules/event_schedule/bindings/event_schedule_binding.dart';
 import '../modules/event_schedule/views/event_schedule_view.dart';
 import '../modules/feed/bindings/feed_binding.dart';
+import '../modules/feed/views/create_post_view.dart';
 import '../modules/feed/views/feed_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
@@ -106,6 +107,11 @@ class AppPages {
       name: _Paths.EVENT_MAP,
       page: () => const EventMapView(),
       binding: EventMapBinding(),
+    ),
+    GetPage(
+      name: _Paths.CREATE_POST,
+      page: () => const CreatePostView(),
+      binding: FeedBinding(), // Reusing FeedBinding for now
     ),
   ];
 }

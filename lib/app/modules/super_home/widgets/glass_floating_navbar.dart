@@ -65,8 +65,8 @@ class GlassFloatingNavbar extends StatelessWidget {
       onTap: () => onTap(index),
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.fastOutSlowIn,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isSelected
