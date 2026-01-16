@@ -10,11 +10,22 @@ class UserDetailsView extends GetView<UserDetailsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.scaffoldbg,
       appBar: AppBar(
-        title: const Text('Complete Profile'),
-        backgroundColor: Colors.transparent,
+        title: const Text(
+          'Complete Profile',
+          style: TextStyle(color: AppColors.appbaritems),
+        ),
+        backgroundColor: AppColors.scaffoldbg,
         elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.appbaritems,
+          ),
+          onPressed: () => Get.back(),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -81,6 +92,7 @@ class UserDetailsView extends GetView<UserDetailsController> {
                 // Name Field
                 TextField(
                   controller: controller.nameController,
+                  textInputAction: TextInputAction.next,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Full Name',
@@ -106,15 +118,43 @@ class UserDetailsView extends GetView<UserDetailsController> {
                 ),
                 AppSpacing.verticalMd,
 
-                // Email Field (Optional)
+                // Email Field (Read-only)
                 TextField(
                   controller: controller.emailController,
+                  readOnly: true,
+                  style: const TextStyle(color: Colors.white70),
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    labelStyle: TextStyle(color: Colors.grey.shade400),
+                    prefixIcon: const Icon(Icons.email, color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: AppRadius.radiusMd,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: AppRadius.radiusMd,
+                      borderSide: BorderSide(color: Colors.grey.shade800),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: AppRadius.radiusMd,
+                      borderSide: BorderSide(color: Colors.grey.shade800),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey.shade900,
+                  ),
+                ),
+                AppSpacing.verticalMd,
+
+                // Phone Field
+                TextField(
+                  controller: controller.phoneController,
+                  keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.next,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    labelText: 'Email (Optional)',
+                    labelText: 'Phone Number',
                     labelStyle: TextStyle(color: Colors.grey.shade400),
                     prefixIcon: const Icon(
-                      Icons.email,
+                      Icons.phone,
                       color: AppColors.primary,
                     ),
                     border: OutlineInputBorder(
@@ -132,46 +172,107 @@ class UserDetailsView extends GetView<UserDetailsController> {
                     fillColor: Colors.grey.shade900,
                   ),
                 ),
+                AppSpacing.verticalMd,
+
+                // Password Fields
+                TextField(
+                  controller: controller.passwordController,
+                  obscureText: true,
+                  textInputAction: TextInputAction.next,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: TextStyle(color: Colors.grey.shade400),
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                      color: AppColors.primary,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: AppRadius.radiusMd,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: AppRadius.radiusMd,
+                      borderSide: BorderSide(color: Colors.grey.shade800),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: AppRadius.radiusMd,
+                      borderSide: const BorderSide(color: AppColors.primary),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey.shade900,
+                  ),
+                ),
+                AppSpacing.verticalMd,
+                TextField(
+                  controller: controller.confirmPasswordController,
+                  obscureText: true,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => controller.saveProfile(),
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Confirm Password',
+                    labelStyle: TextStyle(color: Colors.grey.shade400),
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                      color: AppColors.primary,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: AppRadius.radiusMd,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: AppRadius.radiusMd,
+                      borderSide: BorderSide(color: Colors.grey.shade800),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: AppRadius.radiusMd,
+                      borderSide: const BorderSide(color: AppColors.primary),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey.shade900,
+                  ),
+                ),
+                AppSpacing.verticalMd,
+
                 AppSpacing.verticalLg,
 
-                // Interests
-                Text(
-                  'Select Interests (Multi-select)',
-                  style: AppFont.subtitle.copyWith(color: Colors.white),
-                ),
-                AppSpacing.verticalSm,
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: controller.availableInterests.map((interest) {
-                    final isSelected = controller.selectedInterests.contains(
-                      interest,
-                    );
-                    return FilterChip(
-                      label: Text(interest),
-                      selected: isSelected,
-                      onSelected: (_) => controller.toggleInterest(interest),
-                      backgroundColor: Colors.grey.shade900,
-                      selectedColor: AppColors.primary,
-                      checkmarkColor: Colors.white,
-                      labelStyle: TextStyle(
-                        color: isSelected ? Colors.white : Colors.grey.shade400,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: BorderSide(
-                          color: isSelected
-                              ? AppColors.primary
-                              : Colors.grey.shade800,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                AppSpacing.verticalXl,
+                // // Interests
+                // Text(
+                //   'Select Interests (Multi-select)',
+                //   style: AppFont.subtitle.copyWith(color: Colors.white),
+                // ),
+                // AppSpacing.verticalSm,
+                // Wrap(
+                //   spacing: 8,
+                //   runSpacing: 8,
+                //   children: controller.availableInterests.map((interest) {
+                //     final isSelected = controller.selectedInterests.contains(
+                //       interest,
+                //     );
+                //     return FilterChip(
+                //       label: Text(interest),
+                //       selected: isSelected,
+                //       onSelected: (_) => controller.toggleInterest(interest),
+                //       backgroundColor: Colors.grey.shade900,
+                //       selectedColor: AppColors.primary,
+                //       checkmarkColor: Colors.white,
+                //       labelStyle: TextStyle(
+                //         color: isSelected ? Colors.white : Colors.grey.shade400,
+                //         fontWeight: isSelected
+                //             ? FontWeight.bold
+                //             : FontWeight.normal,
+                //       ),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(20),
+                //         side: BorderSide(
+                //           color: isSelected
+                //               ? AppColors.primary
+                //               : Colors.grey.shade800,
+                //         ),
+                //       ),
+                //     );
+                //   }).toList(),
+                // ),
+                // AppSpacing.verticalXl,
 
                 // Save Button
                 AppButton(

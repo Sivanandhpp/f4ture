@@ -257,3 +257,29 @@ exports.onMessageCreate = functions.firestore
       }
     }
   });
+
+exports.checkEmailExists = functions.https.onCall(async (data, context) => {
+  const email = data.email;
+
+  if (!email || typeof email !== 'string') {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'The function must be called with a valid email string.'
+    );
+  }
+
+  try {
+    await admin.auth().getUserByEmail(email);
+    return { exists: true };
+  } catch (error) {
+    if (error.code === 'auth/user-not-found') {
+      return { exists: false };
+    }
+    console.error("Error in checkEmailExists:", error);
+    throw new functions.https.HttpsError(
+      'unknown',
+      'Error checking email existence',
+      error.message
+    );
+  }
+});

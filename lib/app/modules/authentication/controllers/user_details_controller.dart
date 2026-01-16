@@ -18,13 +18,18 @@ class UserDetailsController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final nameController = TextEditingController();
-  final emailController = TextEditingController();
+  final emailController = TextEditingController(); // Read-only if passed
+  final phoneController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   final Rx<XFile?> selectedImage = Rx<XFile?>(null);
   final Rx<Uint8List?> selectedImageBytes = Rx<Uint8List?>(null);
   final RxString uploadedImageUrl = ''.obs;
   final RxBool isLoading = false.obs;
   final RxList<String> selectedInterests = <String>[].obs;
+
+  bool isGoogleAuth = false;
 
   final List<String> availableInterests = [
     'Concert',
@@ -40,9 +45,26 @@ class UserDetailsController extends GetxController {
   ];
 
   @override
+  void onInit() {
+    super.onInit();
+    final args = Get.arguments as Map<String, dynamic>? ?? {};
+    if (args.containsKey('email')) {
+      emailController.text = args['email'] ?? '';
+    }
+    if (args.containsKey('name')) {
+      nameController.text = args['name'] ?? '';
+    }
+    // Handle Google Auth case
+    isGoogleAuth = args['isGoogle'] == true;
+  }
+
+  @override
   void onClose() {
     nameController.dispose();
     emailController.dispose();
+    phoneController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
     super.onClose();
   }
 
@@ -51,7 +73,6 @@ class UserDetailsController extends GetxController {
     if (result != null) {
       selectedImage.value = result.selectedImage;
       selectedImageBytes.value = await result.selectedImage.readAsBytes();
-      // No need to manually dispose XFile, OS handles temp cache.
     }
   }
 
@@ -65,6 +86,9 @@ class UserDetailsController extends GetxController {
 
   Future<void> saveProfile() async {
     final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final phone = phoneController.text.trim();
+
     if (name.isEmpty) {
       Get.snackbar(
         'Error',
@@ -73,8 +97,58 @@ class UserDetailsController extends GetxController {
       );
       return;
     }
+    if (phone.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please enter your phone number',
+        backgroundColor: AppColors.error,
+      );
+      return;
+    }
 
-    if (selectedImage.value == null) {
+    if (!isGoogleAuth) {
+      // Email Auth Validation
+      if (passwordController.text.length < 6) {
+        Get.snackbar(
+          'Error',
+          'Password must be at least 6 characters',
+          backgroundColor: AppColors.error,
+        );
+        return;
+      }
+      if (passwordController.text != confirmPasswordController.text) {
+        Get.snackbar(
+          'Error',
+          'Passwords do not match',
+          backgroundColor: AppColors.error,
+        );
+        return;
+      }
+    } else {
+      // Google Auth: If password provided, validate it
+      if (passwordController.text.isNotEmpty) {
+        if (passwordController.text.length < 6) {
+          Get.snackbar(
+            'Error',
+            'Password must be at least 6 characters',
+            backgroundColor: AppColors.error,
+          );
+          return;
+        }
+        if (passwordController.text != confirmPasswordController.text) {
+          Get.snackbar(
+            'Error',
+            'Passwords do not match',
+            backgroundColor: AppColors.error,
+          );
+          return;
+        }
+      }
+    }
+
+    if (selectedImage.value == null && !isGoogleAuth) {
+      // Require image for new email users? Or optional?
+      // User asked to "ask for profile pic", usually helpful.
       Get.snackbar(
         'Error',
         'Please select a profile picture',
@@ -84,32 +158,56 @@ class UserDetailsController extends GetxController {
     }
 
     isLoading.value = true;
-    final user = _auth.currentUser;
-    if (user == null) {
-      isLoading.value = false;
-      Get.snackbar('Error', 'User not authenticated');
-      return;
-    }
 
+    User? user;
     try {
-      // 1. Upload Image
-      final ref = _storage.ref().child('profile_photos/${user.uid}.jpg');
+      if (isGoogleAuth) {
+        user = _auth.currentUser;
+        // If password is set, update it
+        if (user != null && passwordController.text.isNotEmpty) {
+          try {
+            await user.updatePassword(passwordController.text);
+          } catch (e) {
+            Get.snackbar(
+              'Warning',
+              'Failed to set password: $e',
+              backgroundColor: Colors.orange,
+            );
+          }
+        }
+      } else {
+        // Create user with Email/Password
+        final cred = await AuthService.to.signUpWithEmail(
+          email,
+          passwordController.text,
+        );
+        user = cred.user;
+      }
 
-      // Use bytes for cross-platform compatibility
-      final bytes = await selectedImage.value!.readAsBytes();
-      await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
+      if (user == null) {
+        throw Exception('Failed to authenticate user');
+      }
 
-      final imageUrl = await ref.getDownloadURL();
-      uploadedImageUrl.value = imageUrl;
+      // Upload Image if selected
+      String? imageUrl;
+      if (selectedImage.value != null) {
+        final ref = _storage.ref().child('profile_photos/${user.uid}.jpg');
+        final bytes = await selectedImage.value!.readAsBytes();
+        await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
+        imageUrl = await ref.getDownloadURL();
+      } else {
+        // Use Google photo if available and no new image picked
+        imageUrl = user.photoURL;
+      }
 
-      // 2. Create User Document
+      uploadedImageUrl.value = imageUrl ?? '';
+
+      // Create User Document
       final newUser = UserModel(
         id: user.uid,
         name: name,
-        phone: user.phoneNumber ?? '',
-        email: emailController.text.trim().isNotEmpty
-            ? emailController.text.trim()
-            : null,
+        phone: phone,
+        email: email,
         role: 'attendee',
         status: 'active',
         profilePhoto: imageUrl,
