@@ -1,10 +1,8 @@
 import 'package:f4ture/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../../core/index.dart';
 import '../../../data/services/auth_service.dart';
-import '../../super_home/controllers/super_home_controller.dart';
 import '../../attendee/controllers/attendee_controller.dart';
 import '../../event_schedule/widgets/cyberpunk_event_card.dart';
 import '../controllers/home_controller.dart';
@@ -12,13 +10,11 @@ import '../widgets/countdown_widget.dart';
 import '../widgets/futuristic_background.dart';
 import '../widgets/home_action_card.dart';
 import '../widgets/live_now_widget.dart';
-import '../widgets/neon_button.dart';
 import '../widgets/video_background.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
 
-  @override
   @override
   Widget build(BuildContext context) {
     // Note: HomeView extends GetView<HomeController>, but we are using AuthService here directly.

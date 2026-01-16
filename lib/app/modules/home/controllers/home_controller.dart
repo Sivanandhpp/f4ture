@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:f4ture/app/data/models/event_model.dart';
+import 'package:f4ture/app/modules/attendee/controllers/attendee_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:f4ture/app/modules/super_home/controllers/super_home_controller.dart';
-import 'package:intl/intl.dart';
 
 enum HomeState { countdown, live, post }
 
@@ -12,7 +11,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   final ScrollController scrollController = ScrollController();
   final isVideoVisible = true.obs;
 
-  late SuperHomeController _superHomeController;
+  late AttendeeController _attendeeController;
   AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
 
   // Event Data
@@ -68,10 +67,10 @@ class HomeController extends GetxController with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
 
     try {
-      _superHomeController = Get.find<SuperHomeController>();
-      ever(_superHomeController.tabIndex, (_) => _checkVisibility());
+      _attendeeController = Get.find<AttendeeController>();
+      ever(_attendeeController.tabIndex, (_) => _checkVisibility());
     } catch (e) {
-      debugPrint('SuperHomeController not found: $e');
+      debugPrint('AttendeeController not found: $e');
     }
 
     fetchHomeEvents();
@@ -218,7 +217,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
     }
 
     try {
-      if (_superHomeController.tabIndex.value != 0) {
+      if (_attendeeController.tabIndex.value != 0) {
         if (isVideoVisible.value) isVideoVisible.value = false;
         return;
       }

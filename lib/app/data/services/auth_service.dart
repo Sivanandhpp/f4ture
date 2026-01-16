@@ -78,11 +78,6 @@ class AuthService extends GetxService {
       }
       return Routes.AUTHENTICATION;
     }
-
-    if (user.role == 'attendee') {
       return Routes.ATTENDEE;
-    } else {
-      return Routes.SUPER_HOME;
-    }
   }
 }

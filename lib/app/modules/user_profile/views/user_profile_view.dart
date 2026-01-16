@@ -174,7 +174,22 @@ class UserProfileView extends GetView<UserProfileController> {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: controller.logout,
+                  onPressed: () {
+                    Get.defaultDialog(
+                      title: 'Logout',
+                      titleStyle: const TextStyle(fontWeight: FontWeight.bold),
+                      middleText: 'Are you sure you want to logout?',
+                      textConfirm: 'Yes',
+                      textCancel: 'No',
+                      confirmTextColor: Colors.white,
+                      buttonColor: Colors.red[400],
+                      cancelTextColor: Colors.red[400],
+                      radius: 12,
+                      onConfirm: () {
+                        controller.logout();
+                      },
+                    );
+                  },
                   icon: const Icon(Icons.logout, size: 20, color: Colors.white),
                   label: const Text(
                     'Logout',

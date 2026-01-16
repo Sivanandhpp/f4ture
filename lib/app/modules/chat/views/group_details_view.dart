@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/app_image.dart';
-import '../../super_home/widgets/user_selector.dart';
+import '../../chat/widgets/user_selector.dart';
 import '../controllers/group_details_controller.dart';
 
 class GroupDetailsView extends GetView<GroupDetailsController> {

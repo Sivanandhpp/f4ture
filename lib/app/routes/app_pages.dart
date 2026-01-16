@@ -27,8 +27,6 @@ import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/manage_users/bindings/manage_users_binding.dart';
 import '../modules/manage_users/views/manage_users_view.dart';
-import '../modules/super_home/bindings/super_home_binding.dart';
-import '../modules/super_home/views/super_home_view.dart';
 import '../modules/user_profile/bindings/user_profile_binding.dart';
 import '../modules/user_profile/views/user_profile_view.dart';
 
@@ -54,11 +52,6 @@ class AppPages {
       name: _Paths.USER_DETAILS,
       page: () => const UserDetailsView(),
       binding: UserDetailsBinding(),
-    ),
-    GetPage(
-      name: _Paths.SUPER_HOME,
-      page: () => const SuperHomeView(),
-      binding: SuperHomeBinding(),
     ),
     GetPage(
       name: _Paths.CHAT,

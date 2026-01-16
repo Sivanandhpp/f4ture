@@ -7,15 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../core/index.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/app_image_picker.dart';
 import '../../../data/models/group_model.dart';
 import '../../../data/models/user_model.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../data/services/local_chat_service.dart';
 import '../../../routes/app_pages.dart';
-import 'global_tasks_controller.dart';
 
-class SuperHomeController extends GetxController {
+class ChatListController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -30,6 +30,24 @@ class SuperHomeController extends GetxController {
 
   final RxList<UserModel> selectedMembers = <UserModel>[].obs;
 
+  final RxList<String> myGroupIds = <String>[].obs;
+  final RxList<GroupModel> publicGroups = <GroupModel>[].obs;
+  final RxBool isPublicGroupsLoading = true.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _bindMyGroups();
+    _bindPublicGroups();
+  }
+
+  @override
+  void onClose() {
+    groupNameController.dispose();
+    groupDescriptionController.dispose();
+    super.onClose();
+  }
+
   void updateSelectedMembers(List<UserModel> members) {
     selectedMembers.value = members;
   }
@@ -37,8 +55,6 @@ class SuperHomeController extends GetxController {
   void removeMember(UserModel member) {
     selectedMembers.remove(member);
   }
-
-  final RxInt tabIndex = 1.obs; // Default to Chats tab (Index 1)
 
   // Stream of groups
   Stream<List<GroupModel>> get groupsStream {
@@ -67,11 +83,6 @@ class SuperHomeController extends GetxController {
         .asyncMap((snapshot) async {
           if (snapshot.docs.isEmpty) return <GroupModel>[];
 
-          // Fetch last read times and calculate unread counts
-          // Since we can't do complex joins or async maps efficiently on a stream of lists effectively without multiple reads,
-          // we do what we did before: fetch individually.
-          // Optimization: fetch counts only if necessary.
-
           // Map groupId to joinedAt to use as fallback for lastRead
           final groupJoinDates = {
             for (var doc in snapshot.docs)
@@ -93,8 +104,6 @@ class SuperHomeController extends GetxController {
               final group = GroupModel.fromJson(groupDoc.data()!);
 
               // Local Unread Logic
-              // If we have no local record, assume we've read up to the point we joined
-              // (or if we rejoined, the new join date).
               final lastRead =
                   LocalChatService.to.getLastRead(id) ?? groupJoinDates[id]!;
               int unread = 0;
@@ -129,17 +138,6 @@ class SuperHomeController extends GetxController {
             // Sort manually by lastMessageAt descending
             ..sort((a, b) => b.lastMessageAt.compareTo(a.lastMessageAt));
         });
-  }
-
-  final RxList<String> myGroupIds = <String>[].obs;
-  final RxList<GroupModel> publicGroups = <GroupModel>[].obs;
-  final RxBool isPublicGroupsLoading = true.obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-    _bindMyGroups();
-    _bindPublicGroups();
   }
 
   void _bindMyGroups() {
@@ -197,7 +195,7 @@ class SuperHomeController extends GetxController {
         'joinedAt': FieldValue.serverTimestamp(),
       });
 
-      // 2. Add group to user's groups subcollection (redundancy for efficient querying)
+      // 2. Add group to user's groups subcollection
       final userGroupRef = _firestore
           .collection('users')
           .doc(user.id)
@@ -227,13 +225,6 @@ class SuperHomeController extends GetxController {
         backgroundColor: AppColors.error,
       );
     }
-  }
-
-  @override
-  void onClose() {
-    groupNameController.dispose();
-    groupDescriptionController.dispose();
-    super.onClose();
   }
 
   Future<void> pickGroupIcon() async {
@@ -359,16 +350,6 @@ class SuperHomeController extends GetxController {
         'Failed to create group: $e',
         backgroundColor: AppColors.error,
       );
-    }
-  }
-
-  void changeTab(int index) {
-    tabIndex.value = index;
-    // Refresh Tasks if switching to Tasks tab (Index 3)
-    if (index == 3) {
-      if (Get.isRegistered<GlobalTasksController>()) {
-        Get.find<GlobalTasksController>().fetchData();
-      }
     }
   }
 }

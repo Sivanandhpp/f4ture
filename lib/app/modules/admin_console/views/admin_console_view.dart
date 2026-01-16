@@ -3,14 +3,13 @@ import 'package:f4ture/app/core/constants/app_styles.dart';
 import 'package:f4ture/app/data/models/issue_model.dart';
 import 'package:f4ture/app/data/models/task_model.dart';
 import 'package:f4ture/app/data/services/auth_service.dart';
-import 'package:f4ture/app/modules/super_home/controllers/global_tasks_controller.dart';
+import 'package:f4ture/app/modules/chat/views/create_group_view.dart';
+import '../controllers/global_tasks_controller.dart';
 
 import 'package:f4ture/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
-import '../../super_home/views/create_group_view.dart';
 import '../controllers/admin_console_controller.dart';
 
 class AdminConsoleView extends GetView<AdminConsoleController> {
@@ -35,7 +34,27 @@ class AdminConsoleView extends GetView<AdminConsoleController> {
         centerTitle: true,
         backgroundColor: AppColors.appbarbg,
         elevation: 0,
-        leading: const BackButton(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () {
+              Get.defaultDialog(
+                title: 'Logout',
+                titleStyle: const TextStyle(fontWeight: FontWeight.bold),
+                middleText: 'Are you sure you want to logout?',
+                textConfirm: 'Yes',
+                textCancel: 'No',
+                confirmTextColor: Colors.white,
+                buttonColor: AppColors.primary,
+                cancelTextColor: AppColors.primary,
+                radius: 12,
+                onConfirm: () {
+                  AuthService.to.clearUser();
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

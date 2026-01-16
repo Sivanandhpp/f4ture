@@ -3,10 +3,10 @@ import 'package:get/get.dart';
 
 import '../../../core/index.dart';
 import '../../../data/services/auth_service.dart';
-import '../../super_home/widgets/user_selector.dart';
-import '../controllers/super_home_controller.dart';
+import '../../chat/widgets/user_selector.dart';
+import '../controllers/chat_list_controller.dart';
 
-class CreateGroupView extends GetView<SuperHomeController> {
+class CreateGroupView extends GetView<ChatListController> {
   const CreateGroupView({super.key});
 
   @override
