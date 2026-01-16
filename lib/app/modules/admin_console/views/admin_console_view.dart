@@ -10,6 +10,7 @@ import 'package:f4ture/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/cupertino.dart';
 import '../controllers/admin_console_controller.dart';
 
 class AdminConsoleView extends GetView<AdminConsoleController> {
@@ -34,23 +35,30 @@ class AdminConsoleView extends GetView<AdminConsoleController> {
         centerTitle: true,
         backgroundColor: AppColors.appbarbg,
         elevation: 0,
+        leading: const BackButton(color: Colors.white),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
-              Get.defaultDialog(
-                title: 'Logout',
-                titleStyle: const TextStyle(fontWeight: FontWeight.bold),
-                middleText: 'Are you sure you want to logout?',
-                textConfirm: 'Yes',
-                textCancel: 'No',
-                confirmTextColor: Colors.white,
-                buttonColor: AppColors.primary,
-                cancelTextColor: AppColors.primary,
-                radius: 12,
-                onConfirm: () {
-                  AuthService.to.clearUser();
-                },
+              Get.dialog(
+                CupertinoAlertDialog(
+                  title: const Text('Logout'),
+                  content: const Text('Are you sure you want to logout?'),
+                  actions: [
+                    CupertinoDialogAction(
+                      child: const Text('No'),
+                      onPressed: () => Get.back(),
+                    ),
+                    CupertinoDialogAction(
+                      isDestructiveAction: true,
+                      onPressed: () {
+                        Get.back(); // Close dialog
+                        controller.logout();
+                      },
+                      child: const Text('Yes'),
+                    ),
+                  ],
+                ),
               );
             },
           ),

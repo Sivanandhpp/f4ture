@@ -145,15 +145,10 @@ class ChatsList extends GetView<ChatListController> {
       final publicGroups = controller.publicGroups;
       final myGroups = controller.myGroupIds;
 
-      // Filter groups: Show only those NOT in myGroups
-      final joinableGroups = publicGroups
-          .where((g) => !myGroups.contains(g.groupId))
-          .toList();
-
-      if (joinableGroups.isEmpty) {
+      if (publicGroups.isEmpty) {
         return Center(
           child: Text(
-            'No new communities to join',
+            'No communities available',
             style: TextStyle(color: Colors.grey.shade500),
           ),
         );
@@ -161,18 +156,19 @@ class ChatsList extends GetView<ChatListController> {
 
       return ListView.separated(
         padding: const EdgeInsets.only(top: 10),
-        itemCount: joinableGroups.length,
+        itemCount: publicGroups.length,
         separatorBuilder: (context, index) =>
             Divider(color: Colors.grey.shade800, height: 1, indent: 82),
         itemBuilder: (context, index) {
-          final group = joinableGroups[index];
-          return _buildJoinableGroupTile(group);
+          final group = publicGroups[index];
+          final isJoined = myGroups.contains(group.groupId);
+          return _buildJoinableGroupTile(group, isJoined);
         },
       );
     });
   }
 
-  Widget _buildJoinableGroupTile(GroupModel group) {
+  Widget _buildJoinableGroupTile(GroupModel group, bool isJoined) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -206,21 +202,38 @@ class ChatsList extends GetView<ChatListController> {
             ),
           ),
 
-          // Join Button
-          ElevatedButton(
-            onPressed: () => controller.joinGroup(group),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary.withOpacity(0.1),
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
-              shape: RoundedRectangleBorder(
+          // Join Button or Joined Status
+          if (isJoined)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.grey.withOpacity(0.5)),
               ),
-              shadowColor: AppColors.primary.withOpacity(0.3),
-              elevation: 5,
+              child: const Text(
+                'Joined',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+          else
+            ElevatedButton(
+              onPressed: () => controller.joinGroup(group),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary.withOpacity(0.1),
+                foregroundColor: AppColors.primary,
+                side: const BorderSide(color: AppColors.primary),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                shadowColor: AppColors.primary.withOpacity(0.3),
+                elevation: 5,
+              ),
+              child: const Text('JOIN'),
             ),
-            child: const Text('JOIN'),
-          ),
         ],
       ),
     );
