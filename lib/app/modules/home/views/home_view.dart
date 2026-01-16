@@ -9,6 +9,8 @@ import '../controllers/home_controller.dart';
 import '../widgets/futuristic_background.dart';
 import '../widgets/neon_button.dart';
 import '../widgets/video_background.dart';
+import '../widgets/countdown_widget.dart';
+import '../widgets/live_now_widget.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -54,7 +56,7 @@ class HomeView extends GetView<HomeController> {
                         padding: const EdgeInsets.only(
                           left: 24,
                           right: 24,
-                          top: 20,
+                          top: 2,
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -118,22 +120,9 @@ class HomeView extends GetView<HomeController> {
                                     fontSize: 12,
                                   ),
                                 ),
-                                Text(
-                                  'FUTURE',
-                                  style: AppFont.heading.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 24,
-                                    letterSpacing: 2,
-                                    shadows: [
-                                      Shadow(
-                                        color: AppColors.primary.withOpacity(
-                                          0.8,
-                                        ),
-                                        blurRadius: 15,
-                                      ),
-                                    ],
-                                  ),
+                                AppImage.asset(
+                                  path: 'assets/images/futuretext.png',
+                                  height: 25,
                                 ),
                               ],
                             ),
@@ -150,7 +139,7 @@ class HomeView extends GetView<HomeController> {
                               ),
                               child: const Icon(
                                 Icons.notifications_none_rounded,
-                                color: AppColors.primary, // Yellow/Primary tint
+                                color: AppColors.scaffolditems,
                                 size: 24,
                               ),
                             ),
@@ -158,48 +147,40 @@ class HomeView extends GetView<HomeController> {
                         ),
                       ),
 
-                      const SizedBox(height: 150),
+                      const SizedBox(height: 120),
 
-                      // Action Buttons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          NeonButton(
-                            text: 'Get Tickets',
-                            onTap: () {},
-                            glowColor: AppColors.primaryLight, // Cyan
-                          ),
-                          const SizedBox(width: 20),
-                          NeonButton(
-                            text: 'Explore',
-                            onTap: () {},
-                            glowColor: AppColors.info, // Purple
-                          ),
-                        ],
+                      // Dynamic Home Content
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20),
+                        child: Obx(() {
+                          if (controller.homeState.value ==
+                              HomeState.countdown) {
+                            return CountdownWidget(
+                              timeLeft: controller.timeLeftStr.value,
+                            );
+                          } else if (controller.homeState.value ==
+                              HomeState.live) {
+                            return LiveNowWidget(
+                              dayLabel: controller.currentDayLabel.value,
+                              currentEvent: controller.currentEvent.value,
+                              nextEvent: controller.nextEvent.value,
+                              nextEventTimeLeft:
+                                  controller.nextEventTimeLeft.value,
+                            );
+                          } else {
+                            // Post Event
+                            return const Center(
+                              child: Text(
+                                'See you next year! 🚀',
+                                style: TextStyle(color: Colors.white54),
+                              ),
+                            );
+                          }
+                        }),
                       ),
 
-                      // Placeholder for scrollable content
-                      // Replacing Spacer with Fixed Height to enable scrolling demonstration
-                      const SizedBox(height: 600),
-
-                      Container(
-                        margin: const EdgeInsets.all(20),
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.1),
-                          ),
-                        ),
-                        child: const Text(
-                          "Coming Soon\nMore interactive features...",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white54),
-                        ),
-                      ),
-
-                      const SizedBox(height: 100), // Extra bottom padding
+                      // Spacer for scroll demo (optional, reduced)
+                      const SizedBox(height: 400),
                     ],
                   ),
                 ),
