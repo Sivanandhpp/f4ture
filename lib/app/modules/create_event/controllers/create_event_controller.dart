@@ -273,22 +273,24 @@ class CreateEventController extends GetxController {
 
       if (isEditMode.value) {
         await docRef.update(event.toJson());
+        Get.back(); // Return to Manage Events
         Get.snackbar(
           'Success',
           'Event updated successfully!',
           backgroundColor: AppColors.success,
           colorText: Colors.white,
         );
-        Get.back(); // Return to Manage Events
+        
       } else {
         await docRef.set(event.toJson());
+        Get.back(); // Return to Manage Events
         Get.snackbar(
           'Success',
           'Event created successfully!',
           backgroundColor: AppColors.success,
           colorText: Colors.white,
         );
-        Get.back(); // Return to Manage Events
+        
       }
     } catch (e) {
       Get.snackbar(

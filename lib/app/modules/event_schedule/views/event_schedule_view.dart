@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-
 import 'package:f4ture/app/core/constants/app_colors.dart';
 import 'package:f4ture/app/core/constants/app_styles.dart';
-import 'package:f4ture/app/data/models/event_model.dart';
 import '../controllers/event_schedule_controller.dart';
+import '../widgets/day_section_widget.dart';
 
 class EventScheduleView extends GetView<EventScheduleController> {
   const EventScheduleView({super.key});
@@ -60,35 +58,95 @@ class EventScheduleView extends GetView<EventScheduleController> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16.0,
-                  vertical: 8.0,
+                  vertical: 16.0,
                 ),
                 child: Container(
-                  height: 40,
+                  height: 50,
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(10),
+                    color: AppColors.appbarbg,
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: TextField(
                     onChanged: (val) => controller.searchQuery.value = val,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      hintText: 'Search Events',
+                      hintText: 'Search Events...',
                       hintStyle: TextStyle(
                         color: Colors.grey.shade500,
                         fontSize: 16,
                       ),
                       prefixIcon: Icon(
                         Icons.search,
-                        color: Colors.grey.shade500,
-                        size: 20,
+                        color: AppColors.primary,
+                        size: 24,
                       ),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.only(top: 10),
+                      contentPadding: const EdgeInsets.only(top: 14),
                     ),
                   ),
                 ),
               ),
             ),
+
+            // Filter Chips
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: SizedBox(
+                  height: 40,
+                  child: Obx(
+                    () => ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: controller.eventTypes.length,
+                      itemBuilder: (context, index) {
+                        final type = controller.eventTypes[index];
+                        final isSelected =
+                            controller.selectedCategory.value == type;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(type),
+                            selected: isSelected,
+                            onSelected: (bool selected) {
+                              controller.selectedCategory.value = type;
+                            },
+                            backgroundColor: AppColors.appbarbg,
+                            selectedColor: AppColors.primary,
+                            checkmarkColor: Colors.black,
+                            labelStyle: TextStyle(
+                              color: isSelected ? Colors.black : Colors.white,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              fontSize: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : Colors.white.withOpacity(0.1),
+                              ),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
             Obx(() {
               if (controller.isLoading.value && controller.events.isEmpty) {
                 return const SliverFillRemaining(
@@ -98,9 +156,12 @@ class EventScheduleView extends GetView<EventScheduleController> {
                 );
               }
 
-              final events = controller.filteredEvents;
+              final eventsByDay = controller.eventsByDay;
+              final hasEvents = eventsByDay.values.any(
+                (list) => list.isNotEmpty,
+              );
 
-              if (events.isEmpty) {
+              if (!hasEvents) {
                 return SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(
@@ -110,14 +171,14 @@ class EventScheduleView extends GetView<EventScheduleController> {
                         Icon(
                           Icons.event_busy,
                           size: 64,
-                          color: Colors.grey.shade700,
+                          color: Colors.grey.shade800,
                         ),
                         const SizedBox(height: 16),
                         Text(
                           controller.searchQuery.value.isNotEmpty
-                              ? "No events found"
+                              ? "No events match your search"
                               : "No upcoming events",
-                          style: TextStyle(color: Colors.grey.shade500),
+                          style: TextStyle(color: Colors.grey.shade600),
                         ),
                       ],
                     ),
@@ -126,10 +187,16 @@ class EventScheduleView extends GetView<EventScheduleController> {
               }
 
               return SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final event = events[index];
-                  return _buildEventItem(event);
-                }, childCount: events.length),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final day = index + 1; // 1 to 4
+                    final events = eventsByDay[day] ?? [];
+                    if (events.isEmpty) return const SizedBox.shrink();
+
+                    return DaySectionWidget(dayNumber: day, events: events);
+                  },
+                  childCount: 4, // 4 Days
+                ),
               );
             }),
             const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
@@ -139,127 +206,5 @@ class EventScheduleView extends GetView<EventScheduleController> {
     );
   }
 
-  Widget _buildEventItem(EventModel event) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.appbarbg, // Dark card
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Date Box
-          Container(
-            width: 50,
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.primary.withOpacity(0.3)),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  DateFormat('d').format(event.startTime),
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
-                ),
-                Text(
-                  DateFormat('MMM').format(event.startTime).toUpperCase(),
-                  style: TextStyle(
-                    color: AppColors.primary.withOpacity(0.8),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          // Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  event.title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.access_time,
-                      size: 14,
-                      color: Colors.grey.shade400,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${DateFormat('h:mm a').format(event.startTime)} - ${DateFormat('h:mm a').format(event.endTime)}',
-                      style: TextStyle(
-                        color: Colors.grey.shade400,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on,
-                      size: 14,
-                      color: Colors.grey.shade400,
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        event.venue,
-                        style: TextStyle(
-                          color: Colors.grey.shade400,
-                          fontSize: 12,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                // Type Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade800,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    event.type.toUpperCase(),
-                    style: TextStyle(
-                      color: Colors.grey.shade300,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Removed old _buildEventItem as it's replaced by DaySectionWidget and CyberpunkEventCard
 }

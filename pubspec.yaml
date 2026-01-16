@@ -31,6 +31,7 @@ dependencies:
   flutter_local_notifications: ^19.5.0
   timeago: ^3.7.1
   uuid: ^4.5.2
+  flutter_svg: ^2.0.17
 
 dev_dependencies:
   flutter_test:
@@ -45,3 +46,9 @@ flutter:
   assets:
     - assets/images/
     - assets/videos/
+    - assets/svgs/
+
+  fonts:
+    - family: Valorax
+      fonts:
+        - asset: assets/fonts/Valorax-lg25V.otf
