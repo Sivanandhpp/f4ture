@@ -7,7 +7,7 @@ class EventModel {
   final String type; // concert, keynote, panel, etc.
   final int day; // 1, 2, 3, 4
   final DateTime startTime;
-  final DateTime endTime;
+  final DateTime? endTime;
   final String venue;
   final String? imageUrl;
   final double ticketPrice; // 0 for free
@@ -27,7 +27,7 @@ class EventModel {
     required this.type,
     required this.day,
     required this.startTime,
-    required this.endTime,
+    this.endTime,
     required this.venue,
     this.imageUrl,
     this.ticketPrice = 0.0,
@@ -49,7 +49,7 @@ class EventModel {
       type: json['type'] as String,
       day: json['day'] as int? ?? 1,
       startTime: (json['startTime'] as Timestamp).toDate(),
-      endTime: (json['endTime'] as Timestamp).toDate(),
+      endTime: (json['endTime'] as Timestamp?)?.toDate(),
       venue: json['venue'] as String,
       imageUrl: json['imageUrl'] as String?,
       ticketPrice: (json['ticketPrice'] as num?)?.toDouble() ?? 0.0,
@@ -72,7 +72,7 @@ class EventModel {
       'type': type,
       'day': day,
       'startTime': Timestamp.fromDate(startTime),
-      'endTime': Timestamp.fromDate(endTime),
+      'endTime': endTime != null ? Timestamp.fromDate(endTime!) : null,
       'venue': venue,
       'imageUrl': imageUrl,
       'ticketPrice': ticketPrice,
@@ -95,7 +95,8 @@ class EventModel {
     int? day,
     DateTime? startTime,
     DateTime? endTime,
-    String? venue,
+    String?
+    venue, // Explicitly handle null if needed, but here structure kept same
     String? imageUrl,
     double? ticketPrice,
     String? currency,

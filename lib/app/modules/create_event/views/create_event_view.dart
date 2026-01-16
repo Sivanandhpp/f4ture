@@ -268,9 +268,7 @@ class CreateEventView extends GetView<CreateEventController> {
                                     ).format(controller.endTime.value!)
                                   : '',
                             ),
-                            validator: (v) => controller.endTime.value == null
-                                ? 'Required'
-                                : null,
+                            validator: (v) => null,
                           ),
                         ),
                       ),

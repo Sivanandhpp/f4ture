@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:f4ture/app/core/constants/app_colors.dart';
 import 'package:f4ture/app/data/models/event_model.dart';
 import 'cyberpunk_event_card.dart';
+import '../views/event_details_view.dart';
+import 'package:get/get.dart';
 
 /// A widget that displays a horizontal list of events for a specific day.
 /// Features a vertical "DAY X" label on the left side.
@@ -37,7 +39,7 @@ class DaySectionWidget extends StatelessWidget {
                 return CyberpunkEventCard(
                   event: events[index],
                   onTap: () {
-                    // TODO: Navigate to details
+                    Get.to(() => EventDetailsView(event: events[index]));
                   },
                 );
               },

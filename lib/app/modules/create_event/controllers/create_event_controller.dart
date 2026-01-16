@@ -206,10 +206,10 @@ class CreateEventController extends GetxController {
   Future<void> saveEvent() async {
     if (!formKey.currentState!.validate()) return;
 
-    if (startTime.value == null || endTime.value == null) {
+    if (startTime.value == null) {
       Get.snackbar(
         'Required',
-        'Please select Start and End times',
+        'Please select Start time',
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
       );
@@ -253,7 +253,7 @@ class CreateEventController extends GetxController {
         type: selectedType.value,
         day: selectedDay.value,
         startTime: startTime.value!,
-        endTime: endTime.value!,
+        endTime: endTime.value,
         venue: venueController.text.trim(),
         imageUrl: imageUrl,
         ticketPrice: double.tryParse(ticketPriceController.text) ?? 0.0,
@@ -280,7 +280,6 @@ class CreateEventController extends GetxController {
           backgroundColor: AppColors.success,
           colorText: Colors.white,
         );
-        
       } else {
         await docRef.set(event.toJson());
         Get.back(); // Return to Manage Events
@@ -290,7 +289,6 @@ class CreateEventController extends GetxController {
           backgroundColor: AppColors.success,
           colorText: Colors.white,
         );
-        
       }
     } catch (e) {
       Get.snackbar(
