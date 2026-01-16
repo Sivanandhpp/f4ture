@@ -31,7 +31,36 @@ class HomeController extends GetxController with WidgetsBindingObserver {
   final RxString nextEventTimeLeft = ''.obs; // HH:MM for next event
 
   // Start Date: Jan 29, 2026
+  // Start Date: Jan 29, 2026
   final DateTime eventStartDate = DateTime(2026, 1, 29);
+
+  // Event Filtering for Home Tab
+  final RxString selectedFilter = 'Featured'.obs;
+
+  List<EventModel> get filteredEvents {
+    if (events.isEmpty) return [];
+    switch (selectedFilter.value) {
+      case 'Featured':
+        return events.where((e) => e.isFeatured == true).toList();
+      case 'Concerts':
+        return events.where((e) => e.type?.toLowerCase() == 'concert').toList();
+      case 'Day 1':
+        return events.where((e) => e.day == 1).toList();
+      case 'Day 2':
+        return events.where((e) => e.day == 2).toList();
+      case 'Day 3':
+        return events.where((e) => e.day == 3).toList();
+      case 'Day 4':
+        return events.where((e) => e.day == 4).toList();
+      default:
+        // Default to Featured if unknown filter, or empty
+        return events.where((e) => e.isFeatured == true).toList();
+    }
+  }
+
+  void setFilter(String filter) {
+    selectedFilter.value = filter;
+  }
 
   @override
   void onInit() {

@@ -24,7 +24,7 @@ class HomeActionCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: AppColors.primary.withOpacity(0.3),
+              color: AppColors.primary.withOpacity(0.5),
               width: 1,
             ),
             boxShadow: [

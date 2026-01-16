@@ -102,46 +102,60 @@ class EventScheduleView extends GetView<EventScheduleController> {
                 padding: const EdgeInsets.only(bottom: 16),
                 child: SizedBox(
                   height: 40,
-                  child: Obx(
-                    () => ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: controller.eventTypes.length,
-                      itemBuilder: (context, index) {
-                        final type = controller.eventTypes[index];
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: controller.eventTypes.length,
+                    itemBuilder: (context, index) {
+                      final filter = controller.eventTypes[index];
+                      return Obx(() {
                         final isSelected =
-                            controller.selectedCategory.value == type;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: FilterChip(
-                            label: Text(type),
-                            selected: isSelected,
-                            onSelected: (bool selected) {
-                              controller.selectedCategory.value = type;
-                            },
-                            backgroundColor: AppColors.appbarbg,
-                            selectedColor: AppColors.primary,
-                            checkmarkColor: Colors.black,
-                            labelStyle: TextStyle(
-                              color: isSelected ? Colors.black : Colors.white,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              fontSize: 12,
+                            controller.selectedCategory.value == filter;
+                        return GestureDetector(
+                          onTap: () =>
+                              controller.selectedCategory.value = filter,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            margin: const EdgeInsets.only(right: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
                             ),
-                            shape: RoundedRectangleBorder(
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(20),
-                              side: BorderSide(
-                                color: isSelected
-                                    ? AppColors.primary
-                                    : Colors.white.withOpacity(0.1),
+                              border: Border.all(
+                                color: AppColors.primary.withOpacity(0.5),
+                              ),
+                              boxShadow: isSelected
+                                  ? [
+                                      BoxShadow(
+                                        color: AppColors.primary.withOpacity(
+                                          0.4,
+                                        ),
+                                        blurRadius: 8,
+                                      ),
+                                    ]
+                                  : [],
+                            ),
+                            child: Center(
+                              child: Text(
+                                filter,
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.white70,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
                           ),
                         );
-                      },
-                    ),
+                      });
+                    },
                   ),
                 ),
               ),

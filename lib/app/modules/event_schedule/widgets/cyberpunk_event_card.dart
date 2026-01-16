@@ -13,7 +13,7 @@ class CyberpunkEventCard extends StatelessWidget {
     super.key,
     required this.event,
     this.onTap,
-    this.width = 180, // Default width
+    this.width = 160, // Default width
   });
 
   @override

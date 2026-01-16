@@ -24,7 +24,7 @@ class DaySectionWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 24.0),
       child: SizedBox(
-        height: 240, // Reduced height for the smaller card
+        height: 220, // Reduced height for the smaller card
         child: Stack(
           // crossAxisAlignment: CrossAxisAlignment.start,
           children: [

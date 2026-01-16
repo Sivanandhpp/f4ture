@@ -6,6 +6,7 @@ import '../../../core/index.dart';
 import '../../../data/services/auth_service.dart';
 import '../../super_home/controllers/super_home_controller.dart';
 import '../../attendee/controllers/attendee_controller.dart';
+import '../../event_schedule/widgets/cyberpunk_event_card.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/countdown_widget.dart';
 import '../widgets/futuristic_background.dart';
@@ -149,11 +150,10 @@ class HomeView extends GetView<HomeController> {
                         ),
                       ),
 
-                      const SizedBox(height: 120),
-
+                      const SizedBox(height: 140),
                       // Dynamic Home Content
                       Padding(
-                        padding: const EdgeInsets.only(top: 20),
+                        padding: const EdgeInsets.only(top: 12),
                         child: Obx(() {
                           if (controller.homeState.value ==
                               HomeState.countdown) {
@@ -180,9 +180,7 @@ class HomeView extends GetView<HomeController> {
                           }
                         }),
                       ),
-
-                      const SizedBox(height: 24),
-
+                      const SizedBox(height: 12),
                       // Action Cards
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -190,7 +188,7 @@ class HomeView extends GetView<HomeController> {
                           children: [
                             HomeActionCard(
                               title: 'Navigate\nto Future',
-                              imagePath: 'assets/images/vishayam.png',
+                              imagePath: 'assets/images/navigatefuture.png',
                               onTap: () {
                                 try {
                                   Get.find<AttendeeController>().changeTab(
@@ -207,13 +205,13 @@ class HomeView extends GetView<HomeController> {
                             const SizedBox(width: 12),
                             HomeActionCard(
                               title: 'Share your\nmoments',
-                              imagePath: 'assets/images/vishayam.png',
+                              imagePath: 'assets/images/sharemoments.png',
                               onTap: () => Get.toNamed(Routes.CREATE_POST),
                             ),
                             const SizedBox(width: 12),
                             HomeActionCard(
                               title: 'Connect\nto Future',
-                              imagePath: 'assets/images/vishayam.png',
+                              imagePath: 'assets/images/connectfuture.png',
                               onTap: () {
                                 try {
                                   Get.find<AttendeeController>().changeTab(
@@ -230,6 +228,110 @@ class HomeView extends GetView<HomeController> {
                             ),
                           ],
                         ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // Filter Chips
+                      SizedBox(
+                        height: 40,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          children:
+                              [
+                                'Featured',
+                                'Concerts',
+                                'Day 1',
+                                'Day 2',
+                                'Day 3',
+                                'Day 4',
+                              ].map((filter) {
+                                return Obx(() {
+                                  final isSelected =
+                                      controller.selectedFilter.value == filter;
+                                  return GestureDetector(
+                                    onTap: () => controller.setFilter(filter),
+                                    child: AnimatedContainer(
+                                      duration: const Duration(
+                                        milliseconds: 200,
+                                      ),
+                                      margin: const EdgeInsets.only(right: 12),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isSelected
+                                            ? AppColors.primary
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: AppColors.primary.withOpacity(
+                                            0.5,
+                                          ),
+                                        ),
+                                        boxShadow: isSelected
+                                            ? [
+                                                BoxShadow(
+                                                  color: AppColors.primary
+                                                      .withOpacity(0.4),
+                                                  blurRadius: 8,
+                                                ),
+                                              ]
+                                            : [],
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          filter,
+                                          style: TextStyle(
+                                            color: isSelected
+                                                ? Colors.white
+                                                : Colors.white70,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                });
+                              }).toList(),
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // Horizontal Event List
+                      SizedBox(
+                        height: 220, // Height for Cyberpunk Card
+                        child: Obx(() {
+                          final events = controller.filteredEvents;
+                          if (events.isEmpty) {
+                            return const Center(
+                              child: Text(
+                                'No events found.',
+                                style: TextStyle(color: Colors.white54),
+                              ),
+                            );
+                          }
+                          return ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            itemCount: events.length,
+                            physics: const BouncingScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              final event = events[index];
+                              return CyberpunkEventCard(
+                                event: event,
+                                width: 160, // Slightly wider for home
+                                onTap: () {
+                                  // Optional: Navigate to details
+                                },
+                              );
+                            },
+                          );
+                        }),
                       ),
 
                       const SizedBox(height: 100),

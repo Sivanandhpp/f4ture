@@ -13,17 +13,42 @@ class EventScheduleController extends GetxController {
   // Search & Filter
   final RxString searchQuery = ''.obs;
   final RxString selectedCategory = 'All'.obs;
-  final RxList<String> eventTypes = <String>['All'].obs;
+  final List<String> eventTypes = [
+    'All',
+    'Concert',
+    'Competition',
+    'Workshop',
+    'Keynote',
+    'Panel Discussion',
+    'Other',
+  ];
 
   List<EventModel> get filteredEvents {
     var filtered = events;
 
     // 1. Filter by Category
     if (selectedCategory.value != 'All') {
-      filtered = filtered
-          .where((event) => event.type == selectedCategory.value)
-          .toList()
-          .obs;
+      if (selectedCategory.value == 'Other') {
+        // Filter for any type NOT in the main list (excluding 'All' and 'Others')
+        final mainTypes = eventTypes
+            .where((t) => t != 'All' && t != 'Other')
+            .toList();
+
+        filtered = filtered
+            .where((event) {
+              if (event.type == null) return true;
+              // Case insensitive matching might be safer, but for now exact:
+              return !mainTypes.contains(event.type);
+            })
+            .toList()
+            .obs;
+      } else {
+        // Specific Category
+        filtered = filtered
+            .where((event) => event.type == selectedCategory.value)
+            .toList()
+            .obs;
+      }
     }
 
     // 2. Filter by Search Query
@@ -68,26 +93,11 @@ class EventScheduleController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchEventTypes();
+    // fetchEventTypes(); // Removed
     fetchEvents();
   }
 
-  Future<void> fetchEventTypes() async {
-    try {
-      final typeDoc = await _firestore
-          .collection('appMetaData')
-          .doc('eventType')
-          .get();
-      if (typeDoc.exists) {
-        final data = typeDoc.data()!;
-        final types = data.values.map((e) => e.toString()).toList();
-        // Ensure 'All' is first
-        eventTypes.assignAll(['All', ...types]);
-      }
-    } catch (e) {
-      print('Error fetching event types: $e');
-    }
-  }
+  // fetchEventTypes removed
 
   Future<void> fetchEvents() async {
     try {
