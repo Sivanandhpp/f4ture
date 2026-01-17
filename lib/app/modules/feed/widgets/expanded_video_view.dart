@@ -41,6 +41,7 @@ class _ExpandedVideoViewState extends State<ExpandedVideoView> {
       backgroundColor: Colors.black,
       body: PageView.builder(
         controller: _pageController,
+        physics: const ReelsScrollPhysics(parent: BouncingScrollPhysics()),
         scrollDirection: Axis.vertical,
         itemCount: widget.videoPosts.length,
         itemBuilder: (context, index) {
@@ -340,4 +341,16 @@ class _TikTokVideoPageState extends State<TikTokVideoPage> {
       ),
     );
   }
+}
+
+class ReelsScrollPhysics extends PageScrollPhysics {
+  const ReelsScrollPhysics({super.parent});
+
+  @override
+  ReelsScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return ReelsScrollPhysics(parent: buildParent(ancestor));
+  }
+
+  @override
+  double get minFlingVelocity => 2.0; // Lower threshold = easier to flick
 }

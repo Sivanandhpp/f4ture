@@ -365,4 +365,35 @@ class FeedController extends GetxController {
     _hasMore = true;
     await loadPosts();
   }
+
+  Future<void> deletePost(PostModel post) async {
+    final user = _auth.currentUser;
+    final currentUserModel = AuthService.to.currentUser.value;
+
+    // Check if user is author OR admin
+    final isAuthor = user != null && user.uid == post.authorId;
+    final isAdmin = currentUserModel?.role == 'admin';
+
+    if (!isAuthor && !isAdmin) {
+      Get.snackbar('Error', 'You can only delete your own posts');
+      return;
+    }
+
+    try {
+      // 1. Delete from Firestore
+      await _firestore.collection('posts').doc(post.postId).delete();
+
+      // 2. Remove from local list
+      posts.removeWhere((p) => p.postId == post.postId);
+
+      Get.snackbar(
+        'Success',
+        'Post deleted',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to delete post: $e');
+    }
+  }
 }
