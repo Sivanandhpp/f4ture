@@ -43,27 +43,27 @@ class FeedView extends GetView<FeedController> {
                 ),
               ),
               centerTitle: false,
-              actions: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.camera_alt_outlined,
-                    color: AppColors.scaffolditems,
-                  ),
-                  onPressed: controller.captureAndCreatePost,
-                ),
-                // Add Icon
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: InkWell(
-                    onTap: () => Get.to(() => const CreatePostView()),
-                    customBorder: const CircleBorder(),
-                    child: const Icon(
-                      Icons.add,
-                      color: AppColors.scaffolditems,
-                    ),
-                  ),
-                ),
-              ],
+              // actions: [
+              //   IconButton(
+              //     icon: const Icon(
+              //       Icons.camera_alt_outlined,
+              //       color: AppColors.scaffolditems,
+              //     ),
+              //     onPressed: controller.captureAndCreatePost,
+              //   ),
+              //   // Add Icon
+              //   Padding(
+              //     padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              //     child: InkWell(
+              //       onTap: () => Get.to(() => const CreatePostView()),
+              //       customBorder: const CircleBorder(),
+              //       child: const Icon(
+              //         Icons.add,
+              //         color: AppColors.scaffolditems,
+              //       ),
+              //     ),
+              //   ),
+              // ],
             ),
             SliverToBoxAdapter(child: const CreatePostCard()),
             Obx(() {

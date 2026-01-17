@@ -1,0 +1,20 @@
+Event Schefule features 
+- All day events should be added as horizontal list 
+- Show venue map with google map navigation in event details page 
+- show event speakers with their details if available
+
+Event creation updation
+-  add optional speaker details 
+
+Communities updation
+- show Future Announcements communities as pinned in home screen for everyone
+- show join communities if user not joined any Communities
+
+Future Feed Optimization
+- top post creation needs to be fixed
+- post creation needs to shown gallery first then select media to prceed to post creation
+
+Event Map updation
+- Show event table 
+
+Bottom overflow in create task
