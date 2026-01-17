@@ -14,38 +14,42 @@ class NavigationView extends GetView<NavigationController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors
-          .scaffoldbg, // Dark background for contrast with glass navbar
-      body: Stack(
-        children: [
-          // 1. Main Content
-          Obx(
-            () => IndexedStack(
-              index: controller.tabIndex.value,
-              children: [
-                HomeView(),
-                FeedView(),
-                ChatsList(),
-                const EventMapView(),
-                const EventScheduleView(),
-              ],
-            ),
-          ),
+    return Obx(
+      () => PopScope(
+        canPop: controller.tabIndex.value == 0,
+        onPopInvoked: (didPop) {
+          if (didPop) return;
+          controller.changeTab(0);
+        },
+        child: Scaffold(
+          backgroundColor: AppColors.scaffoldbg,
+          body: Stack(
+            children: [
+              // 1. Main Content
+              IndexedStack(
+                index: controller.tabIndex.value,
+                children: [
+                  HomeView(),
+                  FeedView(),
+                  ChatsList(),
+                  const EventMapView(),
+                  const EventScheduleView(),
+                ],
+              ),
 
-          // 2. Floating Navbar
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: SafeArea(
-              child: Obx(
-                () => NavigationGlassNavbar(
-                  currentIndex: controller.tabIndex.value,
-                  onTap: controller.changeTab,
+              // 2. Floating Navbar
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: SafeArea(
+                  child: NavigationGlassNavbar(
+                    currentIndex: controller.tabIndex.value,
+                    onTap: controller.changeTab,
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
