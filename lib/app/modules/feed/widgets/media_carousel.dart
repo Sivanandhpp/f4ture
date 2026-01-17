@@ -22,7 +22,7 @@ class _MediaCarouselState extends State<MediaCarousel> {
     return Column(
       children: [
         AspectRatio(
-          aspectRatio: 1, // Square posts for now, can be dynamic
+          aspectRatio: 4 / 5, // 4:5 Instagram style (Vertical)
           child: PageView.builder(
             itemCount: widget.mediaUrls.length,
             onPageChanged: (index) {
