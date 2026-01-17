@@ -163,6 +163,22 @@ class AuthenticationView extends GetView<AuthenticationController> {
                                     controller.isPasswordVisible.toggle(),
                               ),
                             ),
+                          // Forgot Password Button
+                          if (controller.currentStep.value ==
+                              AuthStep.passwordInput)
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: controller.forgotPassword,
+                                child: const Text(
+                                  'Forgot Password?',
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ),
 
                           const SizedBox(height: 24),
 

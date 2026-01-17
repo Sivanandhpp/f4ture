@@ -134,7 +134,48 @@ class AuthenticationController extends GetxController {
       }
     } catch (e) {
       isLoading.value = false;
-      Get.snackbar('Error', 'Failed to process login: $e');
+    }
+  }
+
+  Future<void> forgotPassword() async {
+    final email = emailController.text.trim();
+    if (email.isEmpty || !GetUtils.isEmail(email)) {
+      Get.snackbar('Error', 'Please enter a valid email address');
+      return;
+    }
+
+    isLoading.value = true;
+    try {
+      await _authService.sendPasswordResetEmail(email);
+      isLoading.value = false;
+
+      // iOS Style Popup
+      Get.dialog(
+        AlertDialog(
+          backgroundColor: const Color(0xFF1E1E1E),
+          title: const Text(
+            'Password Reset',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Password reset mail sent to $email. Check spam if not found.',
+            style: const TextStyle(color: Colors.white70),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text('OK', style: TextStyle(color: Colors.blue)),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    } catch (e) {
+      isLoading.value = false;
+      Get.snackbar('Error', e.toString());
     }
   }
 }

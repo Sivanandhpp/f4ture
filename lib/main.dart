@@ -31,7 +31,7 @@ void main() async {
       theme: ThemeData().copyWith(
         scaffoldBackgroundColor: AppColors.scaffoldbg,
         primaryColor: AppColors.primary,
-        colorScheme: const ColorScheme.light(
+        colorScheme: const ColorScheme.dark(
           primary: AppColors.primary,
           secondary: AppColors.secondary,
         ),

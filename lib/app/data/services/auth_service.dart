@@ -169,6 +169,16 @@ class AuthService extends GetxService {
     }
   }
 
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthError(e);
+    } catch (e) {
+      throw 'Failed to send reset email. Please try again.';
+    }
+  }
+
   Future<UserCredential?> signInWithGoogle() async {
     try {
       // API v6: Use standard signIn()
