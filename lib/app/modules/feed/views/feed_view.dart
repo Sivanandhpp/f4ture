@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../controllers/feed_controller.dart';
 import '../widgets/feed_post_item.dart';
 import 'create_post_view.dart'; // Direct import or route
+import '../widgets/create_post_card.dart';
 
 class FeedView extends GetView<FeedController> {
   const FeedView({super.key});
@@ -64,41 +65,7 @@ class FeedView extends GetView<FeedController> {
                 ),
               ],
             ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
-                child: Container(
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: TextField(
-                    onChanged: (val) => controller.searchQuery.value = val,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      hintText: 'Search',
-                      hintStyle: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 16,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: Colors.grey.shade500,
-                        size: 20,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.only(
-                        top: 10,
-                      ), // Center text vertically
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            SliverToBoxAdapter(child: const CreatePostCard()),
             Obx(() {
               // 1. Loading State (Initial)
               if (controller.isLoading.value && controller.posts.isEmpty) {

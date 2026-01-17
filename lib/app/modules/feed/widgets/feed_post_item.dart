@@ -9,11 +9,10 @@ import 'media_carousel.dart';
 
 class FeedPostItem extends StatelessWidget {
   final PostModel post;
-  final FeedController controller = Get.find(); // Find existing or pass in
+  final FeedController controller = Get.find();
 
   FeedPostItem({super.key, required this.post});
 
-  // Custom Dark Colors
   static const Color kSurface = Color(0xFF1E1E1E);
   static const Color kTextPrimary = Colors.white;
   static const Color kTextSecondary = Color(0xFFAAAAAA);
@@ -21,18 +20,30 @@ class FeedPostItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: kSurface,
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: kSurface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
+          // 1. Header
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
             child: Row(
               children: [
                 CircleAvatar(
-                  radius: 16,
+                  radius: 18,
                   backgroundImage: NetworkImage(post.authorAvatar),
                   backgroundColor: Colors.grey[800],
                   onBackgroundImageError: (_, __) =>
@@ -48,141 +59,144 @@ class FeedPostItem extends StatelessWidget {
                         style: const TextStyle(
                           color: kTextPrimary,
                           fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          fontSize: 15,
                         ),
                       ),
-                      if (post.type == PostType.blog)
-                        Text(
-                          'Blog Article',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: AppColors.primary.withOpacity(0.8),
-                            fontWeight: FontWeight.bold,
+                      Row(
+                        children: [
+                          Text(
+                            timeago.format(post.createdAt),
+                            style: const TextStyle(
+                              color: kTextSecondary,
+                              fontSize: 11,
+                            ),
                           ),
-                        ),
+                          if (post.type == PostType.blog) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Text(
+                                'BLOG',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ],
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.more_vert, color: kTextSecondary),
-                  onPressed: () {}, // Report/Menu options
+                  icon: const Icon(Icons.more_horiz, color: kTextSecondary),
+                  onPressed: () {},
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  iconSize: 20,
                 ),
               ],
             ),
           ),
 
-          // Content Helper (Media)
-          if (post.mediaUrls.isNotEmpty)
-            MediaCarousel(
-              mediaUrls: post.mediaUrls,
-              thumbnailUrl: post.thumbnailUrl,
+          const SizedBox(height: 12),
+
+          // 2. Caption (Top)
+          if (post.text.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12.0, left: 16, right: 16),
+              child: Text(
+                post.text,
+                style: const TextStyle(
+                  color: kTextPrimary,
+                  fontSize: 14,
+                  height: 1.4,
+                ),
+              ),
             ),
 
-          // Interaction Bar
+          // 3. Media (Rounded & Bordered)
+          if (post.mediaUrls.isNotEmpty)
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColors.primary.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: MediaCarousel(
+                mediaUrls: post.mediaUrls,
+                thumbnailUrl: post.thumbnailUrl,
+              ),
+            ),
+
+          const SizedBox(height: 16),
+
+          // 4. Interaction Bar
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.only(bottom: 12.0, left: 16, right: 16),
             child: Row(
               children: [
-                InkWell(
+                _buildInteractionButton(
+                  icon: post.isLikedByMe
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  color: post.isLikedByMe ? Colors.red : kTextPrimary,
+                  label: '${post.likesCount}',
                   onTap: () => controller.toggleLike(post),
-                  child: Icon(
-                    post.isLikedByMe ? Icons.favorite : Icons.favorite_border,
-                    color: post.isLikedByMe ? Colors.red : kTextPrimary,
-                    size: 26,
-                  ),
                 ),
-                const SizedBox(width: 16),
-                InkWell(
+                const SizedBox(width: 20),
+                _buildInteractionButton(
+                  icon: Icons.chat_bubble_outline_rounded,
+                  color: kTextPrimary,
+                  label: '${post.commentsCount}',
                   onTap: () => controller.openComments(post),
-                  child: const Icon(
-                    Icons.chat_bubble_outline_rounded,
-                    color: kTextPrimary,
-                    size: 24,
-                  ),
                 ),
-                const SizedBox(width: 16),
-                const Icon(Icons.send_rounded, color: kTextPrimary, size: 24),
+                const SizedBox(width: 20),
+                // Share (Placeholder)
+                // const Icon(Icons.send_rounded, color: kTextPrimary, size: 22),
                 const Spacer(),
-                if (post.type == PostType.blog)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Text(
-                      "READ",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                // Icon(
+                //   Icons.bookmark_border_rounded,
+                //   color: kTextPrimary,
+                //   size: 24,
+                // ),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
 
-          // Counts & Caption
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (post.likesCount > 0)
-                  Text(
-                    '${post.likesCount} likes',
-                    style: const TextStyle(
-                      color: kTextPrimary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                  ),
-
-                const SizedBox(height: 4),
-
-                RichText(
-                  text: TextSpan(
-                    style: const TextStyle(color: kTextPrimary, fontSize: 13),
-                    children: [
-                      TextSpan(
-                        text: '${post.authorName} ',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(text: post.text),
-                    ],
-                  ),
-                ),
-
-                if (post.commentsCount > 0)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: GestureDetector(
-                      onTap: () => controller.openComments(post),
-                      child: Text(
-                        'View all ${post.commentsCount} comments',
-                        style: const TextStyle(
-                          color: kTextSecondary,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                Padding(
-                  padding: const EdgeInsets.only(top: 4, bottom: 8),
-                  child: Text(
-                    timeago.format(post.createdAt),
-                    style: const TextStyle(color: kTextSecondary, fontSize: 11),
-                  ),
-                ),
-              ],
+  Widget _buildInteractionButton({
+    required IconData icon,
+    required Color color,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              color: kTextPrimary,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
             ),
           ),
         ],
