@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:f4ture/app/modules/navigation/controllers/navigation_controller.dart';
+import 'package:f4ture/app/routes/app_pages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -228,7 +230,7 @@ class GroupDetailsController extends GetxController {
           .doc(uid)
           .delete();
 
-      Get.offAllNamed('/home'); // Or appropriate route
+      Get.offAllNamed(Routes.NAVIGATION);
     } catch (e) {
       Get.snackbar('Error', 'Failed to exit group');
     }

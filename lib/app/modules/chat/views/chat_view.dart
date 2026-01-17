@@ -23,6 +23,7 @@ class ChatView extends GetView<ChatController> {
         title: GestureDetector(
           onTap: () =>
               Get.toNamed(Routes.GROUP_DETAILS, arguments: controller.group),
+          behavior: HitTestBehavior.opaque,
           child: Row(
             children: [
               Hero(

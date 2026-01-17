@@ -117,44 +117,32 @@ class UserDetailsController extends GetxController {
       return;
     }
 
-    if (!isGoogleAuth) {
-      // Email Auth Validation
-      if (passwordController.text.length < 6) {
-        Get.snackbar(
-          'Error',
-          'Password must be at least 6 characters',
-          backgroundColor: AppColors.error,
-        );
-        return;
-      }
-      if (passwordController.text != confirmPasswordController.text) {
-        Get.snackbar(
-          'Error',
-          'Passwords do not match',
-          backgroundColor: AppColors.error,
-        );
-        return;
-      }
-    } else {
-      // Google Auth: If password provided, validate it
-      if (passwordController.text.isNotEmpty) {
-        if (passwordController.text.length < 6) {
-          Get.snackbar(
-            'Error',
-            'Password must be at least 6 characters',
-            backgroundColor: AppColors.error,
-          );
-          return;
-        }
-        if (passwordController.text != confirmPasswordController.text) {
-          Get.snackbar(
-            'Error',
-            'Passwords do not match',
-            backgroundColor: AppColors.error,
-          );
-          return;
-        }
-      }
+    // Verify Password (Required for BOTH Google and Email)
+    if (passwordController.text.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please set a password for your account',
+        backgroundColor: AppColors.error,
+      );
+      return;
+    }
+
+    if (passwordController.text.length < 6) {
+      Get.snackbar(
+        'Error',
+        'Password must be at least 6 characters',
+        backgroundColor: AppColors.error,
+      );
+      return;
+    }
+
+    if (passwordController.text != confirmPasswordController.text) {
+      Get.snackbar(
+        'Error',
+        'Passwords do not match',
+        backgroundColor: AppColors.error,
+      );
+      return;
     }
 
     if (selectedImage.value == null && !isGoogleAuth) {

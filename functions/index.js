@@ -9,26 +9,44 @@ exports.syncGroupToUser = functions.firestore
   .document("groups/{groupId}/members/{userId}")
   .onWrite(async (change, context) => {
     const { groupId, userId } = context.params;
+    const groupRef = db.collection("groups").doc(groupId);
+    const batch = db.batch();
 
+    // 1. Maintain membersCount
+    if (!change.before.exists && change.after.exists) {
+      // Member Added
+      batch.update(groupRef, { 
+        membersCount: admin.firestore.FieldValue.increment(1) 
+      });
+    } else if (change.before.exists && !change.after.exists) {
+      // Member Removed
+      batch.update(groupRef, { 
+        membersCount: admin.firestore.FieldValue.increment(-1) 
+      });
+    }
+
+    // 2. Sync to User Profile
     if (!change.after.exists) {
       console.log(`Removing group ${groupId} from user ${userId}`);
-      await db.doc(`users/${userId}/groups/${groupId}`).delete();
+      batch.delete(db.doc(`users/${userId}/groups/${groupId}`));
     } else {
       const memberData = change.after.data();
-      const groupDoc = await db.collection("groups").doc(groupId).get();
-      const groupType = groupDoc.exists ? groupDoc.data().type : "public";
+      const groupDoc = await groupRef.get();
+      // Safety check if group exists
+      if (groupDoc.exists) { 
+        const groupType = groupDoc.data().type || "public";
 
-      const userGroupData = {
-        joinedAt: memberData.joinedAt,
-        role: memberData.role,
-        type: groupType,
-      };
+        const userGroupData = {
+          joinedAt: memberData.joinedAt,
+          role: memberData.role,
+          type: groupType,
+        };
 
-      await db.doc(`users/${userId}/groups/${groupId}`).set(
-        userGroupData,
-        { merge: true },
-      );
+        batch.set(db.doc(`users/${userId}/groups/${groupId}`), userGroupData, { merge: true });
+      }
     }
+
+    await batch.commit();
     return recalculateUserRole(userId);
   });
 
