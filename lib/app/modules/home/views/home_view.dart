@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../core/index.dart';
 import '../../../data/services/auth_service.dart';
 import '../../navigation/controllers/navigation_controller.dart';
+import '../../event_schedule/views/event_details_view.dart';
 import '../../event_schedule/widgets/cyberpunk_event_card.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/countdown_widget.dart';
@@ -324,7 +325,7 @@ class HomeView extends GetView<HomeController> {
                                 event: event,
                                 width: 160, // Slightly wider for home
                                 onTap: () {
-                                  // Optional: Navigate to details
+                                  Get.to(() => EventDetailsView(event: event));
                                 },
                               );
                             },
