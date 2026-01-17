@@ -195,7 +195,7 @@ class HomeView extends GetView<HomeController> {
                           children: [
                             HomeActionCard(
                               title: 'Navigate\nto Future',
-                              imagePath: 'assets/images/navigatefuture.png',
+                              imagePath: 'assets/images/navigatefuture.jpg',
                               onTap: () {
                                 try {
                                   Get.find<NavigationController>().changeTab(
@@ -212,13 +212,13 @@ class HomeView extends GetView<HomeController> {
                             const SizedBox(width: 12),
                             HomeActionCard(
                               title: 'Share your\nmoments',
-                              imagePath: 'assets/images/sharemoments.png',
+                              imagePath: 'assets/images/sharemoments.jpg',
                               onTap: () => Get.toNamed(Routes.CREATE_POST),
                             ),
                             const SizedBox(width: 12),
                             HomeActionCard(
                               title: 'Connect\nto Future',
-                              imagePath: 'assets/images/connectfuture.png',
+                              imagePath: 'assets/images/connectfuture.jpg',
                               onTap: () {
                                 try {
                                   Get.find<NavigationController>().changeTab(
