@@ -161,7 +161,7 @@ class GroupDetailsController extends GetxController {
 
       // Refresh list
       await _fetchMembers();
-      Get.snackbar('Success', '${newMembers.length} members added');
+      // Get.snackbar('Success', '${newMembers.length} members added');
     } catch (e) {
       Get.snackbar('Error', 'Failed to add members: $e');
     }

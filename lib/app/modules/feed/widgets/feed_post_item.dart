@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,6 +11,9 @@ import '../../../data/models/post_model.dart';
 import '../../../data/services/auth_service.dart';
 import '../../navigation/controllers/navigation_controller.dart';
 import '../controllers/feed_controller.dart';
+import 'package:dio/dio.dart';
+import 'package:gal/gal.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'media_carousel.dart';
 
 class FeedPostItem extends StatefulWidget {
@@ -28,6 +32,293 @@ class _FeedPostItemState extends State<FeedPostItem> {
   static const Color kSurface = Color(0xFF1E1E1E);
   static const Color kTextPrimary = Colors.white;
   static const Color kTextSecondary = Color(0xFFAAAAAA);
+
+  Future<void> _saveMedia() async {
+    if (widget.post.mediaUrls.isEmpty) return;
+
+    Get.back(); // Close sheet
+    Get.snackbar('Saving', 'Downloading media...', showProgressIndicator: true);
+
+    try {
+      // Check permissions implicitly handled by Gal or OS
+      // If Gal throws access denied, catch it.
+
+      int successCount = 0;
+      for (final url in widget.post.mediaUrls) {
+        // Determine extension
+        String extension = '.jpg'; // Default
+        final lowerUrl = url.toLowerCase();
+        final isVideo = lowerUrl.contains('.mp4') || lowerUrl.contains('.mov');
+
+        if (isVideo) {
+          if (lowerUrl.contains('.mp4'))
+            extension = '.mp4';
+          else if (lowerUrl.contains('.mov'))
+            extension = '.mov';
+        } else {
+          if (lowerUrl.contains('.png'))
+            extension = '.png';
+          else if (lowerUrl.contains('.jpeg'))
+            extension = '.jpeg';
+        }
+
+        final path =
+            '${Directory.systemTemp.path}/${DateTime.now().millisecondsSinceEpoch}_${widget.post.postId}$extension';
+
+        await Dio().download(url, path);
+
+        if (isVideo) {
+          await Gal.putVideo(path);
+        } else {
+          await Gal.putImage(path);
+        }
+        successCount++;
+
+        // Cleanup temp file
+        File(path).delete().ignore();
+      }
+
+      if (successCount > 0) {
+        Get.snackbar(
+          'Success',
+          'Saved to Gallery',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to save: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> _reportPost() async {
+    Get.back(); // Close sheet
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'sivanandhpp@gmail.com',
+      query: _encodeQueryParameters(<String, String>{
+        'subject': 'Report Post: ${widget.post.postId}',
+        'body':
+            'Reporting Post ID: ${widget.post.postId}\n\n'
+            'Author: ${widget.post.authorName} (${widget.post.authorId})\n'
+            'Content: ${widget.post.text}\n\n'
+            'Reason for reporting: \n',
+      }),
+    );
+
+    if (!await launchUrl(emailLaunchUri)) {
+      Get.snackbar('Error', 'Could not launch email client');
+    }
+  }
+
+  String? _encodeQueryParameters(Map<String, String> params) {
+    return params.entries
+        .map(
+          (e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+        )
+        .join('&');
+  }
+
+  void _showActionSheet() {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final currentUserModel = Get.find<AuthService>().currentUser.value;
+    final isAuthor = currentUser?.uid == widget.post.authorId;
+    final isAdmin = currentUserModel?.role == 'admin';
+
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: const BoxDecoration(
+          color: kSurface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Wrap(
+          children: [
+            // Handle Bar
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[600],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+
+            if (widget.post.mediaUrls.isNotEmpty)
+              ListTile(
+                leading: const Icon(
+                  Icons.download_rounded,
+                  color: Colors.white,
+                ),
+                title: const Text(
+                  'Save to device',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: _saveMedia,
+              ),
+
+            if (isAuthor || isAdmin)
+              ListTile(
+                leading: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.redAccent,
+                ),
+                title: const Text(
+                  'Delete Post',
+                  style: TextStyle(color: Colors.redAccent),
+                ),
+                onTap: () {
+                  Get.back();
+                  _confirmDelete();
+                },
+              ),
+
+            ListTile(
+              leading: const Icon(
+                Icons.report_gmailerrorred_rounded,
+                color: Colors.amber,
+              ),
+              title: const Text(
+                'Report',
+                style: TextStyle(color: Colors.amber),
+              ),
+              onTap: _reportPost,
+            ),
+
+            const Divider(color: Colors.white10),
+
+            ListTile(
+              leading: const Icon(Icons.close, color: Colors.white70),
+              title: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white70),
+              ),
+              onTap: () => Get.back(),
+            ),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
+    );
+  }
+
+  void _confirmDelete() {
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withOpacity(0.1)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.4),
+                blurRadius: 20,
+                spreadRadius: 5,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.red,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Delete Post?',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'This action cannot be undone.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Get.back(),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: Colors.white.withOpacity(0.1),
+                          ),
+                        ),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back(); // Close dialog
+                        controller.deletePost(widget.post);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Delete',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   void _handleDoubleTap() {
     setState(() {
@@ -129,181 +420,7 @@ class _FeedPostItemState extends State<FeedPostItem> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.more_horiz, color: kTextSecondary),
-                  onPressed: () {
-                    final currentUser = FirebaseAuth.instance.currentUser;
-                    final currentUserModel =
-                        Get.find<AuthService>().currentUser.value;
-
-                    final isAuthor = currentUser?.uid == widget.post.authorId;
-                    final isAdmin = currentUserModel?.role == 'admin';
-
-                    if (isAuthor || isAdmin) {
-                      Get.bottomSheet(
-                        Container(
-                          color: kSurface,
-                          child: Wrap(
-                            children: [
-                              ListTile(
-                                leading: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                ),
-                                title: const Text(
-                                  'Delete Post',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                                onTap: () {
-                                  Get.back(); // Close sheet
-                                  Get.dialog(
-                                    Dialog(
-                                      backgroundColor: Colors.transparent,
-                                      elevation: 0,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(24),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF1E1E1E),
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                          border: Border.all(
-                                            color: Colors.white.withOpacity(
-                                              0.1,
-                                            ),
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(
-                                                0.4,
-                                              ),
-                                              blurRadius: 20,
-                                              spreadRadius: 5,
-                                            ),
-                                          ],
-                                        ),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.all(16),
-                                              decoration: BoxDecoration(
-                                                color: Colors.red.withOpacity(
-                                                  0.1,
-                                                ),
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: const Icon(
-                                                Icons.delete_outline_rounded,
-                                                color: Colors.red,
-                                                size: 32,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 16),
-                                            const Text(
-                                              'Delete Post?',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              'This action cannot be undone.',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                color: Colors.white.withOpacity(
-                                                  0.7,
-                                                ),
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 24),
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: TextButton(
-                                                    onPressed: () => Get.back(),
-                                                    style: TextButton.styleFrom(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            vertical: 12,
-                                                          ),
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              12,
-                                                            ),
-                                                        side: BorderSide(
-                                                          color: Colors.white
-                                                              .withOpacity(0.1),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    child: const Text(
-                                                      'Cancel',
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 12),
-                                                Expanded(
-                                                  child: ElevatedButton(
-                                                    onPressed: () {
-                                                      Get.back(); // Close dialog
-                                                      controller.deletePost(
-                                                        widget.post,
-                                                      );
-                                                    },
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor:
-                                                          Colors.red,
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            vertical: 12,
-                                                          ),
-                                                      elevation: 0,
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              12,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                    child: const Text(
-                                                      'Delete',
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    } else {
-                      // Report or other options
-                      Get.snackbar(
-                        'Options',
-                        'Report functionality coming soon',
-                      );
-                    }
-                  },
+                  onPressed: _showActionSheet,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),

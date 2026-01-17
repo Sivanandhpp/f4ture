@@ -228,7 +228,8 @@ class CreateEventController extends GetxController {
   Future<void> saveEvent() async {
     if (!formKey.currentState!.validate()) return;
 
-    if (selectedBanner.value == null) {
+    // Validation: Require image ONLY if no existing image is available
+    if (selectedBanner.value == null && existingBannerUrl.value == null) {
       Get.snackbar(
         'Required',
         'Please select an Event Banner',
@@ -253,9 +254,9 @@ class CreateEventController extends GetxController {
         final bytes = await selectedBanner.value!.readAsBytes();
         await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
         imageUrl = await ref.getDownloadURL();
-      } else if (isEditMode.value && Get.arguments is EventModel) {
+      } else if (existingBannerUrl.value != null) {
         // Keep existing image if no new one selected
-        imageUrl = (Get.arguments as EventModel).imageUrl;
+        imageUrl = existingBannerUrl.value;
       }
 
       final event = EventModel(

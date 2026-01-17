@@ -123,7 +123,10 @@ class _UserSelectorState extends State<UserSelector> {
               children: [
                 Text(
                   'Add Members',
-                  style: AppFont.heading.copyWith(fontSize: 20),
+                  style: AppFont.heading.copyWith(
+                    fontSize: 20,
+                    color: AppColors.appbaritems,
+                  ),
                 ),
                 TextButton(
                   onPressed: () => Get.back(),
@@ -138,11 +141,13 @@ class _UserSelectorState extends State<UserSelector> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
               controller: _searchController,
+              style: TextStyle(color: AppColors.appbaritems),
               decoration: InputDecoration(
                 hintText: 'Search by name or email',
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
-                fillColor: AppColors.scaffoldbg.withOpacity(0.5),
+                hintStyle: TextStyle(color: AppColors.appbaritems),
+                fillColor: AppColors.textPrimary.withOpacity(0.5),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,

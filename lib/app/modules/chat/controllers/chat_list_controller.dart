@@ -342,7 +342,9 @@ class ChatListController extends GetxController {
       groupNameController.clear();
       groupDescriptionController.clear();
       selectedGroupIcon.value = null;
+      selectedGroupIconBytes.value = null;
       selectedMembers.clear();
+      selectedType.value = 'public';
     } catch (e) {
       isLoading.value = false;
       Get.snackbar(

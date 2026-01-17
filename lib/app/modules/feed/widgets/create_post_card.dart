@@ -13,7 +13,7 @@ class CreatePostCard extends GetView<FeedController> {
     final user = AuthService.to.currentUser.value;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E), // Dark surface
