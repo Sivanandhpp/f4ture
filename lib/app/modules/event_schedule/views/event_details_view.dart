@@ -120,9 +120,11 @@ class EventDetailsView extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      DateFormat(
-                                        'd MMM yyyy',
-                                      ).format(event.startTime),
+                                      event.startTime != null
+                                          ? DateFormat(
+                                              'd MMM yyyy',
+                                            ).format(event.startTime!)
+                                          : 'Date TBA',
                                       style: const TextStyle(
                                         color: Colors.white70,
                                         fontSize: 14,
@@ -140,11 +142,13 @@ class EventDetailsView extends StatelessWidget {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      event.endTime != null
-                                          ? '${DateFormat('h:mm a').format(event.startTime)} - ${DateFormat('h:mm a').format(event.endTime!)}'
-                                          : DateFormat(
-                                              'h:mm a',
-                                            ).format(event.startTime),
+                                      event.startTime != null
+                                          ? (event.endTime != null
+                                                ? '${DateFormat('h:mm a').format(event.startTime!)} - ${DateFormat('h:mm a').format(event.endTime!)}'
+                                                : DateFormat(
+                                                    'h:mm a',
+                                                  ).format(event.startTime!))
+                                          : 'Time TBA',
                                       style: const TextStyle(
                                         color: Colors.white70,
                                         fontSize: 14,

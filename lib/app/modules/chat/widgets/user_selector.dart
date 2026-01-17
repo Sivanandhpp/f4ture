@@ -99,7 +99,7 @@ class _UserSelectorState extends State<UserSelector> {
     return Container(
       height: Get.height * 0.85,
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.scaffoldbg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -142,7 +142,7 @@ class _UserSelectorState extends State<UserSelector> {
                 hintText: 'Search by name or email',
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
-                fillColor: Colors.grey.shade100,
+                fillColor: AppColors.scaffoldbg.withOpacity(0.5),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -210,7 +210,7 @@ class _UserSelectorState extends State<UserSelector> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.primary,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),

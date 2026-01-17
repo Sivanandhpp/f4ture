@@ -151,17 +151,19 @@ class HomeController extends GetxController with WidgetsBindingObserver {
     // Let's find the first event that hasn't ended yet
 
     final upcoming = events
-        .where((e) => e.endTime == null || e.endTime!.isAfter(now))
+        .where(
+          (e) =>
+              e.startTime !=
+                  null && // Must have start time to be "Upcoming" in timeline
+              (e.endTime == null || e.endTime!.isAfter(now)),
+        )
         .toList();
 
     if (upcoming.isNotEmpty) {
-      // Logic:
+      // ... Logic ...
       // If we are IN an event (start < now < end), that's current.
-      // If not, the immediate next start is current (as "Up Next").
-
-      // Let's try to find an active event first
       final active = upcoming.firstWhereOrNull(
-        (e) => e.startTime.isBefore(now),
+        (e) => e.startTime!.isBefore(now),
       );
 
       if (active != null) {
@@ -174,7 +176,7 @@ class HomeController extends GetxController with WidgetsBindingObserver {
           nextEvent.value = null;
         }
       } else {
-        // No active event, so everything is future. Current is the first one.
+        // No active event/future.
         currentEvent.value = upcoming.first;
         if (upcoming.length > 1) {
           nextEvent.value = upcoming[1];
@@ -184,8 +186,8 @@ class HomeController extends GetxController with WidgetsBindingObserver {
       }
 
       // Calc time left for NEXT event to START
-      if (nextEvent.value != null) {
-        final diff = nextEvent.value!.startTime.difference(now);
+      if (nextEvent.value != null && nextEvent.value!.startTime != null) {
+        final diff = nextEvent.value!.startTime!.difference(now);
         if (diff.isNegative) {
           nextEventTimeLeft.value = 'Now';
         } else {

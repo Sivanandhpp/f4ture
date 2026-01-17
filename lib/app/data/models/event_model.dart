@@ -6,8 +6,9 @@ class EventModel {
   final String description;
   final String type; // concert, keynote, panel, etc.
   final int day; // 1, 2, 3, 4
-  final DateTime startTime;
+  final DateTime? startTime;
   final DateTime? endTime;
+  final String? track; // Optional track (e.g., Education, Tech)
   final String venue;
   final String? imageUrl;
   final double ticketPrice; // 0 for free
@@ -26,7 +27,7 @@ class EventModel {
     required this.description,
     required this.type,
     required this.day,
-    required this.startTime,
+    this.startTime,
     this.endTime,
     required this.venue,
     this.imageUrl,
@@ -37,6 +38,7 @@ class EventModel {
     this.availableSeats,
     this.isSoldOut = false,
     this.isFeatured = false,
+    this.track,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -48,7 +50,7 @@ class EventModel {
       description: json['description'] as String,
       type: json['type'] as String,
       day: json['day'] as int? ?? 1,
-      startTime: (json['startTime'] as Timestamp).toDate(),
+      startTime: (json['startTime'] as Timestamp?)?.toDate(),
       endTime: (json['endTime'] as Timestamp?)?.toDate(),
       venue: json['venue'] as String,
       imageUrl: json['imageUrl'] as String?,
@@ -59,6 +61,7 @@ class EventModel {
       availableSeats: json['availableSeats'] as int?,
       isSoldOut: json['isSoldOut'] as bool? ?? false,
       isFeatured: json['isFeatured'] as bool? ?? false,
+      track: json['track'] as String?,
       createdAt: (json['createdAt'] as Timestamp).toDate(),
       updatedAt: (json['updatedAt'] as Timestamp).toDate(),
     );
@@ -71,7 +74,7 @@ class EventModel {
       'description': description,
       'type': type,
       'day': day,
-      'startTime': Timestamp.fromDate(startTime),
+      'startTime': startTime != null ? Timestamp.fromDate(startTime!) : null,
       'endTime': endTime != null ? Timestamp.fromDate(endTime!) : null,
       'venue': venue,
       'imageUrl': imageUrl,
@@ -82,6 +85,7 @@ class EventModel {
       'availableSeats': availableSeats,
       'isSoldOut': isSoldOut,
       'isFeatured': isFeatured,
+      'track': track,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
     };
@@ -105,6 +109,7 @@ class EventModel {
     int? availableSeats,
     bool? isSoldOut,
     bool? isFeatured,
+    String? track,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -125,6 +130,7 @@ class EventModel {
       availableSeats: availableSeats ?? this.availableSeats,
       isSoldOut: isSoldOut ?? this.isSoldOut,
       isFeatured: isFeatured ?? this.isFeatured,
+      track: track ?? this.track,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

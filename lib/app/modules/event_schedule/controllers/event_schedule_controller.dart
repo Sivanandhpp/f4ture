@@ -84,7 +84,12 @@ class EventScheduleController extends GetxController {
 
     // Sort each day's events by start time
     grouped.forEach((key, list) {
-      list.sort((a, b) => a.startTime.compareTo(b.startTime));
+      list.sort((a, b) {
+        if (a.startTime == null && b.startTime == null) return 0;
+        if (a.startTime == null) return 1; // Nulls last
+        if (b.startTime == null) return -1;
+        return a.startTime!.compareTo(b.startTime!);
+      });
     });
 
     return grouped;

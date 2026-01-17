@@ -101,7 +101,7 @@ class ManageEventsView extends GetView<ManageEventsController> {
                   children: [
                     const SizedBox(height: 4),
                     Text(
-                      '${DateFormat('MMM dd').format(event.startTime)} • ${event.venue}',
+                      '${event.startTime != null ? DateFormat('MMM dd').format(event.startTime!) : 'TBA'} • ${event.venue}',
                       style: TextStyle(color: Colors.grey.shade400),
                     ),
                     const SizedBox(height: 4),

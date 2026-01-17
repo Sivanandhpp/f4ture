@@ -25,6 +25,7 @@ class CreateEventController extends GetxController {
   // Observable Values
   final RxString selectedType = 'Concert'.obs;
   final RxInt selectedDay = 1.obs;
+  final RxnString selectedTrack = RxnString(); // Track selection
   final RxString selectedCurrency = 'INR'.obs;
 
   final Rx<DateTime?> startTime = Rx<DateTime?>(null);
@@ -55,6 +56,8 @@ class CreateEventController extends GetxController {
   // Metadata Lists
   final RxList<String> eventTypes = <String>[].obs;
   final RxList<String> eventVenues = <String>[].obs;
+
+  final RxList<String> eventTracks = <String>[].obs; // Metadata for Tracks
   final RxMap<int, DateTime> eventDates = <int, DateTime>{}.obs;
   final RxList<int> availableDays = <int>[].obs;
 
@@ -105,6 +108,8 @@ class CreateEventController extends GetxController {
     selectedCurrency.value = event.currency;
     isSoldOut.value = event.isSoldOut;
     isFeatured.value = event.isFeatured;
+    isFeatured.value = event.isFeatured;
+    selectedTrack.value = event.track;
     existingBannerUrl.value = event.imageUrl;
   }
 
@@ -131,6 +136,19 @@ class CreateEventController extends GetxController {
         final data = venueDoc.data()!;
         final venues = data.values.map((e) => e.toString()).toList();
         eventVenues.assignAll(venues);
+        eventVenues.assignAll(venues);
+      }
+
+      // Fetch Tracks
+      final trackDoc = await _firestore
+          .collection('appMetaData')
+          .doc('eventTracks')
+          .get();
+      if (trackDoc.exists) {
+        final data = trackDoc.data()!;
+        // Assuming map keys "1", "2" etc. We want the values.
+        final tracks = data.values.map((e) => e.toString()).toList();
+        eventTracks.assignAll(tracks);
       }
 
       // Fetch Dates - HARDCODED as per request
@@ -176,7 +194,11 @@ class CreateEventController extends GetxController {
 
     if (time != null) {
       // Get date from selectedDay
-      final date = eventDates[selectedDay.value] ?? DateTime.now();
+      // Get date from selectedDay. If 0 (All Days), default to Day 1.
+      final dayKey = selectedDay.value == 0
+          ? 1
+          : selectedDay.value; // Map 0 to Day 1
+      final date = eventDates[dayKey] ?? DateTime(2026, 1, 29);
 
       final dateTime = DateTime(
         date.year,
@@ -205,16 +227,6 @@ class CreateEventController extends GetxController {
 
   Future<void> saveEvent() async {
     if (!formKey.currentState!.validate()) return;
-
-    if (startTime.value == null) {
-      Get.snackbar(
-        'Required',
-        'Please select Start time',
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-      );
-      return;
-    }
 
     if (selectedBanner.value == null) {
       Get.snackbar(
@@ -252,7 +264,7 @@ class CreateEventController extends GetxController {
         description: descriptionController.text.trim(),
         type: selectedType.value,
         day: selectedDay.value,
-        startTime: startTime.value!,
+        startTime: startTime.value,
         endTime: endTime.value,
         venue: venueController.text.trim(),
         imageUrl: imageUrl,
@@ -264,7 +276,9 @@ class CreateEventController extends GetxController {
         totalSeats: int.tryParse(totalSeatsController.text),
         availableSeats: int.tryParse(totalSeatsController.text),
         isSoldOut: isSoldOut.value,
+
         isFeatured: isFeatured.value,
+        track: selectedTrack.value,
         createdAt: isEditMode.value && Get.arguments is EventModel
             ? (Get.arguments as EventModel).createdAt
             : DateTime.now(),

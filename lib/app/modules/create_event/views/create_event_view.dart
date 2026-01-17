@@ -60,16 +60,16 @@ class CreateEventView extends GetView<CreateEventController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Banner Image
+              // 1. Banner Image
               GestureDetector(
                 onTap: controller.pickBannerImage,
                 child: Obx(() {
                   return Container(
-                    height: 180,
+                    height: 200,
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: AppColors.appbarbg,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                       image: controller.selectedBannerBytes.value != null
                           ? DecorationImage(
                               image: MemoryImage(
@@ -85,8 +85,16 @@ class CreateEventView extends GetView<CreateEventController> {
                                     fit: BoxFit.cover,
                                   )
                                 : null),
-                      border: Border.all(color: Colors.grey.shade800),
+                      border: Border.all(color: Colors.white10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
                     ),
+                    alignment: Alignment.center,
                     child:
                         (controller.selectedBannerBytes.value == null &&
                             controller.existingBannerUrl.value == null)
@@ -94,24 +102,37 @@ class CreateEventView extends GetView<CreateEventController> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: const [
                               Icon(
-                                Icons.add_a_photo,
-                                size: 40,
-                                color: Colors.grey,
+                                Icons.add_photo_alternate_rounded,
+                                size: 50,
+                                color: AppColors.primary,
                               ),
-                              SizedBox(height: 8),
+                              SizedBox(height: 12),
                               Text(
-                                'Add Event Banner',
-                                style: TextStyle(color: Colors.grey),
+                                'Upload Event Banner',
+                                style: TextStyle(
+                                  color: Colors.white60,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ],
                           )
-                        : null,
+                        : Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black45,
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            padding: const EdgeInsets.all(8),
+                            child: const Icon(Icons.edit, color: Colors.white),
+                          ),
                   );
                 }),
               ),
               const SizedBox(height: 24),
 
-              // Title
+              // 2. Basic Info
+              _buildSectionHeader('Basic Information'),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: controller.titleController,
                 decoration: _inputDecoration('Event Title'),
@@ -119,8 +140,6 @@ class CreateEventView extends GetView<CreateEventController> {
                 validator: (v) => v!.isEmpty ? 'Title is required' : null,
               ),
               const SizedBox(height: 16),
-
-              // Description
               TextFormField(
                 controller: controller.descriptionController,
                 maxLines: 4,
@@ -128,121 +147,63 @@ class CreateEventView extends GetView<CreateEventController> {
                 style: const TextStyle(color: Colors.white),
                 validator: (v) => v!.isEmpty ? 'Description is required' : null,
               ),
+              const SizedBox(height: 24),
+
+              // 3. Date & Time
+              _buildSectionHeader('Date & Time'),
               const SizedBox(height: 16),
-
-              // Type & Day Row
-              Row(
-                children: [
-                  Expanded(
-                    child: Obx(() {
-                      // Safe value selection logic
-                      final validValue =
-                          controller.eventTypes.contains(
-                            controller.selectedType.value,
-                          )
-                          ? controller.selectedType.value
-                          : (controller.eventTypes.isNotEmpty
-                                ? controller.eventTypes.first
-                                : null);
-
-                      return DropdownButtonFormField<String>(
-                        value: validValue,
-                        decoration: _inputDecoration('Type'),
-                        dropdownColor: AppColors.appbarbg,
-                        style: const TextStyle(color: Colors.white),
-                        items: controller.eventTypes
-                            .map(
-                              (t) => DropdownMenuItem(
-                                value: t,
-                                child: Text(
-                                  t,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (v) {
-                          if (v != null) controller.selectedType.value = v;
-                        },
-                      );
-                    }),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Obx(() {
-                      final validValue =
-                          controller.availableDays.contains(
-                            controller.selectedDay.value,
-                          )
-                          ? controller.selectedDay.value
-                          : (controller.availableDays.isNotEmpty
-                                ? controller.availableDays.first
-                                : null);
-
-                      return DropdownButtonFormField<int>(
-                        value: validValue,
-                        decoration: _inputDecoration('Day'),
-                        dropdownColor: AppColors.appbarbg,
-                        style: const TextStyle(color: Colors.white),
-                        items: controller.availableDays.map((d) {
-                          if (d == 0) {
-                            return DropdownMenuItem(
-                              value: d,
-                              child: const Text(
-                                'All Days',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            );
-                          }
-                          final date = controller.eventDates[d];
-                          final dateStr = date != null
+              // Day Selection (Chips)
+              Obx(() {
+                return Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: controller.availableDays.map((day) {
+                    final isSelected = controller.selectedDay.value == day;
+                    final date = controller.eventDates[day];
+                    final dateStr = day == 0
+                        ? 'Jan 29-Feb 1'
+                        : (date != null
                               ? DateFormat('MMM dd').format(date)
-                              : '';
-                          return DropdownMenuItem(
-                            value: d,
-                            child: Text(
-                              'Day $d - $dateStr',
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (v) {
-                          if (v != null) controller.selectedDay.value = v;
-                        },
-                      );
-                    }),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
+                              : '');
 
+                    return ChoiceChip(
+                      label: Text(
+                        day == 0 ? 'All Days' : 'Day $day ($dateStr)',
+                      ),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        if (selected) controller.selectedDay.value = day;
+                      },
+                      selectedColor: AppColors.primary,
+                      backgroundColor: AppColors.appbarbg,
+                      labelStyle: TextStyle(
+                        color: isSelected ? Colors.black : Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(
+                          color: isSelected
+                              ? AppColors.primary
+                              : Colors.white12,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                );
+              }),
+              const SizedBox(height: 16),
               // Time Row
               Row(
                 children: [
                   Expanded(
                     child: GestureDetector(
                       onTap: () => controller.pickTime(context, isStart: true),
-                      child: AbsorbPointer(
-                        child: Obx(
-                          () => TextFormField(
-                            decoration: _inputDecoration('Start Time').copyWith(
-                              suffixIcon: const Icon(
-                                Icons.access_time,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            style: const TextStyle(color: Colors.white),
-                            controller: TextEditingController(
-                              text: controller.startTime.value != null
-                                  ? DateFormat(
-                                      'hh:mm a',
-                                    ).format(controller.startTime.value!)
-                                  : '',
-                            ),
-                            validator: (v) => controller.startTime.value == null
-                                ? 'Required'
-                                : null,
-                          ),
+                      child: Obx(
+                        () => _buildTimeCard(
+                          'Start Time (Optional)',
+                          controller.startTime.value,
+                          Icons.wb_sunny_outlined,
                         ),
                       ),
                     ),
@@ -251,40 +212,101 @@ class CreateEventView extends GetView<CreateEventController> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () => controller.pickTime(context, isStart: false),
-                      child: AbsorbPointer(
-                        child: Obx(
-                          () => TextFormField(
-                            decoration: _inputDecoration('End Time').copyWith(
-                              suffixIcon: const Icon(
-                                Icons.access_time,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            style: const TextStyle(color: Colors.white),
-                            controller: TextEditingController(
-                              text: controller.endTime.value != null
-                                  ? DateFormat(
-                                      'hh:mm a',
-                                    ).format(controller.endTime.value!)
-                                  : '',
-                            ),
-                            validator: (v) => null,
-                          ),
+                      child: Obx(
+                        () => _buildTimeCard(
+                          'End Time (Optional)',
+                          controller.endTime.value,
+                          Icons.nightlight_round,
                         ),
                       ),
                     ),
                   ),
                 ],
               ),
+              const SizedBox(height: 24),
+
+              // 4. Categorization
+              _buildSectionHeader('Categorization'),
               const SizedBox(height: 16),
-
-              // Venue
+              // Type Dropdown
               Obx(() {
-                // Ensure selected value exists
-                final venues = controller.eventVenues;
-                // Ideally we should use a dropdown, but previously it was text field.
-                // Detailed request says "use drop down for ... venue".
+                final validValue =
+                    controller.eventTypes.contains(
+                      controller.selectedType.value,
+                    )
+                    ? controller.selectedType.value
+                    : (controller.eventTypes.isNotEmpty
+                          ? controller.eventTypes.first
+                          : null);
 
+                return DropdownButtonFormField<String>(
+                  value: validValue,
+                  decoration: _inputDecoration('Event Type'),
+                  dropdownColor: AppColors.appbarbg,
+                  style: const TextStyle(color: Colors.white),
+                  items: controller.eventTypes
+                      .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                      .toList(),
+                  onChanged: (v) {
+                    if (v != null) controller.selectedType.value = v;
+                  },
+                );
+              }),
+              const SizedBox(height: 16),
+              // Track Chips (Optional)
+              const Text(
+                'Track (Optional)',
+                style: TextStyle(color: Colors.grey, fontSize: 14),
+              ),
+              const SizedBox(height: 8),
+              Obx(() {
+                if (controller.eventTracks.isEmpty) {
+                  return const Text(
+                    'No tracks available',
+                    style: TextStyle(color: Colors.white24),
+                  );
+                }
+                return Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: controller.eventTracks.map((track) {
+                    final isSelected = controller.selectedTrack.value == track;
+                    return FilterChip(
+                      label: Text(track),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        controller.selectedTrack.value = selected
+                            ? track
+                            : null;
+                      },
+                      selectedColor: AppColors.secondary,
+                      backgroundColor: AppColors.appbarbg,
+                      labelStyle: TextStyle(
+                        color: isSelected ? Colors.black : Colors.white,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(
+                          color: isSelected
+                              ? AppColors.secondary
+                              : Colors.white12,
+                        ),
+                      ),
+                      checkmarkColor: Colors.black,
+                    );
+                  }).toList(),
+                );
+              }),
+              const SizedBox(height: 24),
+
+              // 5. Venue & Tickets
+              _buildSectionHeader('Venue & Tickets'),
+              const SizedBox(height: 16),
+              Obx(() {
+                final venues = controller.eventVenues;
                 return DropdownButtonFormField<String>(
                   value: venues.contains(controller.venueController.text)
                       ? controller.venueController.text
@@ -302,15 +324,7 @@ class CreateEventView extends GetView<CreateEventController> {
                     style: TextStyle(color: Colors.grey),
                   ),
                   items: venues
-                      .map(
-                        (v) => DropdownMenuItem(
-                          value: v,
-                          child: Text(
-                            v,
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      )
+                      .map((v) => DropdownMenuItem(value: v, child: Text(v)))
                       .toList(),
                   onChanged: (v) {
                     if (v != null) controller.venueController.text = v;
@@ -320,22 +334,7 @@ class CreateEventView extends GetView<CreateEventController> {
                       : null,
                 );
               }),
-
-              const SizedBox(height: 24),
-              Divider(color: Colors.grey.shade800),
-              const SizedBox(height: 24),
-
-              const Text(
-                'Ticket Details',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
-              ),
               const SizedBox(height: 16),
-
-              // Price & Currency (Fixed INR)
               Row(
                 children: [
                   Expanded(
@@ -348,17 +347,17 @@ class CreateEventView extends GetView<CreateEventController> {
                       validator: (v) => v!.isEmpty ? 'Required' : null,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
                     flex: 1,
                     child: Container(
                       height: 56,
+                      alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: AppColors.appbarbg,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade800),
+                        border: Border.all(color: Colors.white10),
                       ),
-                      alignment: Alignment.center,
                       child: const Text(
                         'INR',
                         style: TextStyle(
@@ -371,8 +370,6 @@ class CreateEventView extends GetView<CreateEventController> {
                 ],
               ),
               const SizedBox(height: 16),
-
-              // Purchase URL
               TextFormField(
                 controller: controller.ticketUrlController,
                 keyboardType: TextInputType.url,
@@ -380,27 +377,29 @@ class CreateEventView extends GetView<CreateEventController> {
                 decoration: _inputDecoration('Ticket Purchase URL (Optional)'),
               ),
               const SizedBox(height: 16),
-
-              // Seats
               TextFormField(
                 controller: controller.totalSeatsController,
                 keyboardType: TextInputType.number,
                 style: const TextStyle(color: Colors.white),
                 decoration: _inputDecoration('Total Seats (Optional)'),
               ),
-
               const SizedBox(height: 24),
 
-              // Toggles
+              // 6. Settings
+              _buildSectionHeader('Settings'),
+              const SizedBox(height: 12),
               Obx(
                 () => SwitchListTile(
                   title: const Text(
                     'Mark as Sold Out',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   value: controller.isSoldOut.value,
                   onChanged: (v) => controller.isSoldOut.value = v,
-                  activeColor: Colors.red,
+                  activeColor: Colors.redAccent,
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -408,11 +407,14 @@ class CreateEventView extends GetView<CreateEventController> {
                 () => SwitchListTile(
                   title: const Text(
                     'Featured Event',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  subtitle: Text(
+                  subtitle: const Text(
                     'Show on Home Highlights',
-                    style: TextStyle(color: Colors.grey.shade400),
+                    style: TextStyle(color: Colors.white54, fontSize: 12),
                   ),
                   value: controller.isFeatured.value,
                   onChanged: (v) => controller.isFeatured.value = v,
@@ -420,11 +422,72 @@ class CreateEventView extends GetView<CreateEventController> {
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
-
               const SizedBox(height: 50),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Row(
+      children: [
+        Container(
+          height: 20,
+          width: 4,
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimeCard(String label, DateTime? time, IconData icon) {
+    final hasTime = time != null;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.appbarbg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: hasTime ? AppColors.primary.withOpacity(0.5) : Colors.white10,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: Colors.grey),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            hasTime ? DateFormat('hh:mm a').format(time) : '--:--',
+            style: TextStyle(
+              color: hasTime ? Colors.white : Colors.white38,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }

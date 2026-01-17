@@ -244,11 +244,11 @@ class CreateGroupView extends GetView<ChatListController> {
       onSelected: (bool selected) {
         if (selected) controller.selectedType.value = value;
       },
-      checkmarkColor: Colors.black, // Dark check for contrast on primary
+      checkmarkColor: Colors.white, // Dark check for contrast on primary
       backgroundColor: AppColors.appbarbg,
       selectedColor: AppColors.primary,
       labelStyle: TextStyle(
-        color: isSelected ? Colors.black : Colors.white,
+        color: isSelected ? Colors.white : Colors.white,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),
       side: BorderSide(
