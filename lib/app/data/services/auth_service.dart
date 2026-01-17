@@ -24,7 +24,8 @@ class AuthService extends GetxService {
   // or generally defaults are fine for Firebase Auth (profile/email).
 
   // Use the singleton instance as required by latest version
-  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  // Use the singleton instance as required by latest version
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // Observable User State
   final Rx<UserModel?> currentUser = Rx<UserModel?>(null);
@@ -170,27 +171,35 @@ class AuthService extends GetxService {
 
   Future<UserCredential?> signInWithGoogle() async {
     try {
-      // Use authenticate() as requested by user / latest API
-      final GoogleSignInAccount? googleUser = await _googleSignIn
-          .authenticate();
+      // API v6: Use standard signIn()
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
-      if (googleUser == null) return null; // User canceled
+      if (googleUser == null) {
+        Get.log('AuthService: Google Sign In canceled by user.');
+        return null;
+      }
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
+      Get.log(
+        'AuthService: Google Auth Success. Token: ${googleAuth.idToken != null ? "Present" : "Missing"}',
+      );
+
       final OAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken:
-            null, // accessToken might be missing/null in latest implicit flow
+        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
       return await _auth.signInWithCredential(credential);
     } on FirebaseAuthException catch (e) {
+      Get.log(
+        'AuthService: FirebaseAuthException in Google Sign In: ${e.code} - ${e.message}',
+      );
       throw _handleAuthError(e);
     } catch (e) {
-      Get.log('AuthService: Google Sign In Error: $e');
-      throw 'Google Sign In failed.';
+      Get.log('AuthService: Unhandled Google Sign In Error: $e');
+      throw 'Google Sign In failed: $e';
     }
   }
 
