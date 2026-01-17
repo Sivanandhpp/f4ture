@@ -18,6 +18,7 @@ abstract class Routes {
   static const EVENT_MAP = _Paths.EVENT_MAP;
   static const CREATE_POST = _Paths.CREATE_POST;
   static const ADMIN_CONSOLE = _Paths.ADMIN_CONSOLE;
+  static const BLOCKED = _Paths.BLOCKED;
 }
 
 abstract class _Paths {
@@ -37,4 +38,5 @@ abstract class _Paths {
   static const EVENT_MAP = '/event-map';
   static const CREATE_POST = '/create-post';
   static const ADMIN_CONSOLE = '/admin-console';
+  static const BLOCKED = '/blocked';
 }

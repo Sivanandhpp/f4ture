@@ -116,8 +116,15 @@ class AuthenticationController extends GetxController {
       isLoading.value = false;
 
       if (doc.exists && doc.data() != null) {
-        // Existing User -> Load and Go Home
+        // Existing User -> Load and Check Status
         final userModel = UserModel.fromJson(doc.data()!);
+
+        if (userModel.status == 'inactive') {
+          await _authService.clearUser();
+          Get.offAllNamed(Routes.BLOCKED, arguments: userModel);
+          return;
+        }
+
         await _authService.saveUser(userModel);
         Get.offAllNamed(Routes.NAVIGATION);
       } else {

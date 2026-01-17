@@ -89,6 +89,15 @@ class AuthService extends GetxService {
       final doc = await _firestore.collection('users').doc(uid).get();
       if (doc.exists && doc.data() != null) {
         final userModel = UserModel.fromJson(doc.data()!);
+
+        // Check Account Status
+        if (userModel.status == 'inactive') {
+          // Blocked User -> Clear session and Redirect
+          await clearUser();
+          Get.offAllNamed(Routes.BLOCKED, arguments: userModel);
+          return;
+        }
+
         await saveUser(userModel);
       } else {
         Get.log('AuthService: User authenticated but no profile found.');

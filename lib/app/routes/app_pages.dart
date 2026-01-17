@@ -11,6 +11,8 @@ import '../modules/authentication/views/user_details_view.dart';
 import '../modules/chat/bindings/chat_binding.dart';
 import '../modules/chat/bindings/group_details_binding.dart';
 import '../modules/chat/views/chat_view.dart';
+import '../modules/blocked_user/bindings/blocked_user_binding.dart';
+import '../modules/blocked_user/views/blocked_user_view.dart';
 import '../modules/chat/views/group_details_view.dart';
 import '../modules/create_event/bindings/create_event_binding.dart';
 import '../modules/create_event/bindings/manage_events_binding.dart';
@@ -112,6 +114,16 @@ class AppPages {
       name: _Paths.ADMIN_CONSOLE,
       page: () => const AdminConsoleView(),
       binding: AdminConsoleBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADMIN_CONSOLE,
+      page: () => const AdminConsoleView(),
+      binding: AdminConsoleBinding(),
+    ),
+    GetPage(
+      name: _Paths.BLOCKED,
+      page: () => const BlockedUserView(),
+      binding: BlockedUserBinding(),
     ),
   ];
 }

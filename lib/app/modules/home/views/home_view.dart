@@ -136,8 +136,16 @@ class HomeView extends GetView<HomeController> {
                                 shape: BoxShape.circle,
                                 color: Colors.white.withOpacity(0.1),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.1),
+                                  color: AppColors.primary.withOpacity(0.5),
+                                  width: 2,
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.primary.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
                               ),
                               child: const Icon(
                                 Icons.notifications_none_rounded,
