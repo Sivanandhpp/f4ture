@@ -288,7 +288,7 @@ class ChatListController extends GetxController {
         createdAt: DateTime.now(),
         lastMessage: 'Group created',
         lastMessageAt: DateTime.now(),
-        membersCount: selectedMembers.length + 1, // Creator + Selected
+        membersCount: 0, // let Cloud Function increment it (syncGroupToUser)
         type: selectedType.value,
       );
 
