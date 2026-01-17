@@ -119,7 +119,7 @@ class AuthenticationController extends GetxController {
         // Existing User -> Load and Go Home
         final userModel = UserModel.fromJson(doc.data()!);
         await _authService.saveUser(userModel);
-        Get.offAllNamed(Routes.ATTENDEE);
+        Get.offAllNamed(Routes.NAVIGATION);
       } else {
         // New User (via Google) or Incomplete Registration -> User Details
         Get.offAllNamed(

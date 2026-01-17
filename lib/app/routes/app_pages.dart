@@ -2,8 +2,8 @@ import 'package:get/get.dart';
 
 import '../modules/admin_console/bindings/admin_console_binding.dart';
 import '../modules/admin_console/views/admin_console_view.dart';
-import '../modules/attendee/bindings/attendee_binding.dart';
-import '../modules/attendee/views/attendee_view.dart';
+import '../modules/navigation/bindings/navigation_binding.dart';
+import '../modules/navigation/views/navigation_view.dart';
 import '../modules/authentication/bindings/authentication_binding.dart';
 import '../modules/authentication/bindings/user_details_binding.dart';
 import '../modules/authentication/views/authentication_view.dart';
@@ -84,9 +84,9 @@ class AppPages {
       binding: ManageUsersBinding(),
     ),
     GetPage(
-      name: _Paths.ATTENDEE,
-      page: () => const AttendeeView(),
-      binding: AttendeeBinding(),
+      name: _Paths.NAVIGATION,
+      page: () => const NavigationView(),
+      binding: NavigationBinding(),
     ),
     GetPage(
       name: _Paths.FEED,

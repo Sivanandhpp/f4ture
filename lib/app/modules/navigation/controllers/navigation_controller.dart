@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 
 import '../../feed/controllers/feed_controller.dart';
 
-class AttendeeController extends GetxController {
+class NavigationController extends GetxController {
   final RxInt tabIndex = 0.obs;
 
   void changeTab(int index) {

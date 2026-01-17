@@ -2,11 +2,11 @@ import 'dart:ui';
 import 'package:f4ture/app/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
-class AttendeeGlassNavbar extends StatelessWidget {
+class NavigationGlassNavbar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  const AttendeeGlassNavbar({
+  const NavigationGlassNavbar({
     super.key,
     required this.currentIndex,
     required this.onTap,

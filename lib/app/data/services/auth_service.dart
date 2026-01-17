@@ -230,7 +230,7 @@ class AuthService extends GetxService {
     final firebaseUser = _auth.currentUser;
 
     if (user != null) {
-      return Routes.ATTENDEE;
+      return Routes.NAVIGATION;
     }
 
     if (firebaseUser != null) {

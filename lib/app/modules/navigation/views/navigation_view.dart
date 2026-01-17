@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../feed/views/feed_view.dart';
 import '../../home/views/home_view.dart';
-import '../controllers/attendee_controller.dart';
-import '../widgets/attendee_glass_navbar.dart';
+import '../controllers/navigation_controller.dart';
+import '../widgets/navigation_glass_navbar.dart';
 import '../../chat/views/chats_list.dart';
 import '../../event_map/views/event_map_view.dart';
 import '../../event_schedule/views/event_schedule_view.dart';
 
-class AttendeeView extends GetView<AttendeeController> {
-  const AttendeeView({super.key});
+class NavigationView extends GetView<NavigationController> {
+  const NavigationView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class AttendeeView extends GetView<AttendeeController> {
             alignment: Alignment.bottomCenter,
             child: SafeArea(
               child: Obx(
-                () => AttendeeGlassNavbar(
+                () => NavigationGlassNavbar(
                   currentIndex: controller.tabIndex.value,
                   onTap: controller.changeTab,
                 ),

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/index.dart';
 import '../../../data/services/auth_service.dart';
-import '../../attendee/controllers/attendee_controller.dart';
+import '../../navigation/controllers/navigation_controller.dart';
 import '../../event_schedule/widgets/cyberpunk_event_card.dart';
 import '../controllers/home_controller.dart';
 import '../widgets/countdown_widget.dart';
@@ -189,7 +189,7 @@ class HomeView extends GetView<HomeController> {
                               imagePath: 'assets/images/navigatefuture.png',
                               onTap: () {
                                 try {
-                                  Get.find<AttendeeController>().changeTab(
+                                  Get.find<NavigationController>().changeTab(
                                     3,
                                   ); // Map Tab
                                 } catch (_) {
@@ -212,7 +212,7 @@ class HomeView extends GetView<HomeController> {
                               imagePath: 'assets/images/connectfuture.png',
                               onTap: () {
                                 try {
-                                  Get.find<AttendeeController>().changeTab(
+                                  Get.find<NavigationController>().changeTab(
                                     2,
                                   ); // Feed Tab
                                 } catch (_) {

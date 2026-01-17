@@ -231,7 +231,7 @@ class UserDetailsController extends GetxController {
       await AuthService.to.saveUser(newUser);
 
       isLoading.value = false;
-      Get.offAllNamed(Routes.ATTENDEE);
+      Get.offAllNamed(Routes.NAVIGATION);
     } catch (e) {
       isLoading.value = false;
       Get.snackbar('Error', e.toString(), backgroundColor: AppColors.error);
