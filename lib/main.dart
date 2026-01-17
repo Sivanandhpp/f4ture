@@ -12,6 +12,10 @@ import 'app/data/services/auth_service.dart';
 import 'app/data/services/notification_service.dart';
 import 'app/data/services/local_chat_service.dart';
 
+// Global Route Observer
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -27,6 +31,7 @@ void main() async {
       title: "F4ture",
       initialRoute: authService.determineInitialRoute(),
       getPages: AppPages.routes,
+      navigatorObservers: [routeObserver],
       debugShowCheckedModeBanner: false,
       theme: ThemeData().copyWith(
         scaffoldBackgroundColor: AppColors.scaffoldbg,

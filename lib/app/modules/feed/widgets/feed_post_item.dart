@@ -2,9 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../data/models/post_model.dart';
+import '../../navigation/controllers/navigation_controller.dart';
 import '../controllers/feed_controller.dart';
 import 'media_carousel.dart';
 
@@ -165,9 +167,31 @@ class _FeedPostItemState extends State<FeedPostItem> {
                       ),
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: MediaCarousel(
-                      mediaUrls: widget.post.mediaUrls,
-                      thumbnailUrl: widget.post.thumbnailUrl,
+                    child: VisibilityDetector(
+                      key: Key(widget.post.postId),
+                      onVisibilityChanged: (info) {
+                        if (info.visibleFraction > 0.7) {
+                          // Debounce or just set logic
+                          // Only update if not already set to avoid constant updates
+                          if (controller.visiblePostId.value !=
+                              widget.post.postId) {
+                            controller.visiblePostId.value = widget.post.postId;
+                          }
+                        }
+                      },
+                      child: Obx(() {
+                        final navIndex =
+                            Get.find<NavigationController>().tabIndex.value;
+                        final isFeedTab = navIndex == 1;
+                        final isFocused =
+                            controller.visiblePostId.value ==
+                            widget.post.postId;
+                        return MediaCarousel(
+                          mediaUrls: widget.post.mediaUrls,
+                          thumbnailUrl: widget.post.thumbnailUrl,
+                          shouldPlay: isFocused && isFeedTab,
+                        );
+                      }),
                     ),
                   ),
                   if (isHeartAnimating)

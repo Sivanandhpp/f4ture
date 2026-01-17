@@ -351,7 +351,7 @@ class ChatController extends GetxController {
   Future<void> pickAttachment() async {
     Get.bottomSheet(
       Container(
-        color: Colors.white,
+        color: AppColors.scaffoldbg,
         child: Wrap(
           children: [
             ListTile(

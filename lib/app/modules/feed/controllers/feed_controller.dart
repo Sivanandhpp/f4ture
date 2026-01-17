@@ -23,6 +23,9 @@ class FeedController extends GetxController {
   // Search
   final RxString searchQuery = ''.obs;
 
+  // Video Playback
+  final RxString visiblePostId = ''.obs;
+
   List<PostModel> get filteredPosts {
     if (searchQuery.value.isEmpty) {
       return posts;
@@ -228,13 +231,14 @@ class FeedController extends GetxController {
   Future<void> pickMedia() async {
     try {
       final ImagePicker picker = ImagePicker();
-      final List<XFile> images = await picker.pickMultiImage();
+      final List<XFile> media = await picker
+          .pickMultipleMedia(); // Supports mixed
 
-      if (images.isNotEmpty) {
-        selectedMedia.addAll(images);
+      if (media.isNotEmpty) {
+        selectedMedia.addAll(media);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to pick images: $e');
+      Get.snackbar('Error', 'Failed to pick media: $e');
     }
   }
 
@@ -304,12 +308,13 @@ class FeedController extends GetxController {
             'posts/$postId/$fileName',
           );
 
-          // Compress/Resize logic could go here
+          final isVideo =
+              file.path.toLowerCase().endsWith('.mp4') ||
+              file.path.toLowerCase().endsWith('.mov');
+          final contentType = isVideo ? 'video/mp4' : 'image/jpeg';
+
           final bytes = await file.readAsBytes();
-          await ref.putData(
-            bytes,
-            SettableMetadata(contentType: 'image/jpeg'),
-          ); // Assume images for now
+          await ref.putData(bytes, SettableMetadata(contentType: contentType));
           final url = await ref.getDownloadURL();
           mediaUrls.add(url);
         }

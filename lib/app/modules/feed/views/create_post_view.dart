@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
 import '../controllers/feed_controller.dart';
+import '../widgets/local_video_preview.dart';
 
 class CreatePostView extends StatefulWidget {
   const CreatePostView({super.key});
@@ -167,12 +168,7 @@ class _CreatePostViewState extends State<CreatePostView> {
                             children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
-                                child: Image.file(
-                                  File(file.path),
-                                  height: 288,
-                                  width: 220,
-                                  fit: BoxFit.cover,
-                                ),
+                                child: _buildPreview(file),
                               ),
                               Positioned(
                                 top: 8,
@@ -249,6 +245,27 @@ class _CreatePostViewState extends State<CreatePostView> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPreview(dynamic file) {
+    // Check extension
+    final path = file.path.toLowerCase();
+    final isVideo = path.endsWith('.mp4') || path.endsWith('.mov');
+
+    if (isVideo) {
+      return SizedBox(
+        height: 288,
+        width: 220,
+        child: LocalVideoPreview(file: File(file.path)),
+      );
+    }
+
+    return Image.file(
+      File(file.path),
+      height: 288,
+      width: 220,
+      fit: BoxFit.cover,
     );
   }
 
