@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/index.dart';
 import '../controllers/authentication_controller.dart';
@@ -254,6 +255,13 @@ class AuthenticationView extends GetView<AuthenticationController> {
                                 ),
                               ),
                             ),
+
+                          // Terms and Conditions Link (Only on Email Step)
+                          if (controller.currentStep.value ==
+                              AuthStep.emailInput) ...[
+                            const SizedBox(height: 24),
+                            _buildTermsAndConditions(),
+                          ],
                         ],
                       );
                     }),
@@ -371,6 +379,87 @@ class AuthenticationView extends GetView<AuthenticationController> {
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTermsAndConditions() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'By signing up, you agree to our',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.6),
+            fontSize: 12,
+            height: 1.5,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () {
+                launchUrl(
+                  Uri.parse(
+                    'https://thef4turesummit.web.app/terms-and-conditions',
+                  ),
+                  mode: LaunchMode.externalApplication,
+                );
+              },
+              behavior: HitTestBehavior.opaque,
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                child: Text(
+                  'Terms & Conditions',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    decoration: TextDecoration.underline,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+            Text(
+              'and',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.6),
+                fontSize: 12,
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                launchUrl(
+                  Uri.parse('https://thef4turesummit.web.app/privacy-policy'),
+                  mode: LaunchMode.externalApplication,
+                );
+              },
+              behavior: HitTestBehavior.opaque,
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                child: Text(
+                  'Privacy Policy',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    decoration: TextDecoration.underline,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+            Text(
+              '.',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.6),
+                fontSize: 12,
+              ),
+            ),
+          ],
         ),
       ],
     );

@@ -64,21 +64,20 @@ class EventScheduleController extends GetxController {
     return filtered.toList();
   }
 
-  /// Groups filtered events by day (1, 2, 3, 4).
+  /// Groups filtered events by day (0=All, 1, 2, 3, 4).
   /// Returns a Map where key is Day Number and value is List of Events.
   Map<int, List<EventModel>> get eventsByDay {
-    final Map<int, List<EventModel>> grouped = {1: [], 2: [], 3: [], 4: []};
+    final Map<int, List<EventModel>> grouped = {
+      0: [],
+      1: [],
+      2: [],
+      3: [],
+      4: [],
+    };
 
     for (var event in filteredEvents) {
-      // Assuming event.day is 1-based index (1-4)
       if (grouped.containsKey(event.day)) {
         grouped[event.day]!.add(event);
-      } else {
-        // Handle events with day 0 (All Days) or out of range by adding to all?
-        // Or specific logic. For now, let's assign day 0 to Day 1 or ignore.
-        if (event.day == 0) {
-          grouped[1]!.add(event);
-        }
       }
     }
 

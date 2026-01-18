@@ -203,13 +203,13 @@ class EventScheduleView extends GetView<EventScheduleController> {
               return SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
-                    final day = index + 1; // 1 to 4
+                    final day = index; // 0 to 4
                     final events = eventsByDay[day] ?? [];
                     if (events.isEmpty) return const SizedBox.shrink();
 
                     return DaySectionWidget(dayNumber: day, events: events);
                   },
-                  childCount: 4, // 4 Days
+                  childCount: 5, // 0 to 4 Days (5 total)
                 ),
               );
             }),

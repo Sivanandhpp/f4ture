@@ -55,9 +55,9 @@ class DaySectionWidget extends StatelessWidget {
       width: 100,
       alignment: Alignment.center,
       child: Text(
-        '$dayNumber',
+        dayNumber == 0 ? '*' : '$dayNumber',
         style: TextStyle(
-          fontSize: 160,
+          fontSize: dayNumber == 0 ? 400 : 160,
           fontFamily: 'Valorax',
           height: 1, // Minimize vertical padding
           foreground: Paint()
