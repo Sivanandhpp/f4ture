@@ -1,26 +1,53 @@
 {
-    "functions": {
-        "source": "functions"
-    },
-    "flutter": {
-        "platforms": {
-            "android": {
-                "default": {
-                    "projectId": "thef4turesummit",
-                    "appId": "1:836340362776:android:a0e12338d230faffa0dd6d",
-                    "fileOutput": "android/app/google-services.json"
-                }
-            },
-            "dart": {
-                "lib/firebase_options.dart": {
-                    "projectId": "thef4turesummit",
-                    "configurations": {
-                        "android": "1:836340362776:android:a0e12338d230faffa0dd6d",
-                        "ios": "1:836340362776:ios:f615dee4b5ec8a62a0dd6d",
-                        "web": "1:836340362776:web:dbba52baadc03e99a0dd6d"
-                    }
-                }
-            }
-        }
+  "functions": [
+    {
+      "codebase": "default",
+      "source": "functions",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
     }
+  ],
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "thef4turesummit",
+          "appId": "1:836340362776:android:a0e12338d230faffa0dd6d",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "thef4turesummit",
+          "configurations": {
+            "android": "1:836340362776:android:a0e12338d230faffa0dd6d",
+            "ios": "1:836340362776:ios:f615dee4b5ec8a62a0dd6d",
+            "web": "1:836340362776:web:dbba52baadc03e99a0dd6d"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "hosting/dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
 }

@@ -18,3 +18,5 @@ Event Map updation
 - Show event table 
 
 Bottom overflow in create task
+
+generate privacy policy and terms and conditions
