@@ -19,7 +19,7 @@ export default function Home() {
     return (
         <div className="space-y-32">
             {/* Hero Section */}
-            <section className="relative pt-20 pb-32 flex flex-col items-center text-center">
+            <section className="relative pt-20 pb-32 flex flex-col items-center text-center overflow-hidden">
                 {/* Abstract Background Elements */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
 

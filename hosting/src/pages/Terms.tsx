@@ -1,4 +1,4 @@
-import { FileText, AlertTriangle, UserX, Gavel, Mail } from 'lucide-react';
+import { FileText, AlertTriangle, UserX, Gavel, Mail, Shield, Copyright, Server } from 'lucide-react';
 import { APP_CONFIG } from '../config';
 
 export default function Terms() {
@@ -18,61 +18,87 @@ export default function Terms() {
                             <FileText className="text-primary" /> 1. Agreement to Terms
                         </h2>
                         <p className="text-zinc-400">
-                            By accessing or using the Service you agree to be bound by these Terms. If you disagree with any part of the terms then you may not access the Service.
+                            By accessing or using the Service, you agree to be bound by these Terms. If you disagree with any part of the terms, then you may not access the Service.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold mb-4 text-white flex items-center gap-2">
-                            <AlertTriangle className="text-primary" /> 2. User Content & Conduct
+                            <Shield className="text-primary" /> 2. Account Responsibility
+                        </h2>
+                        <p className="text-zinc-400">
+                            You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use of your account. We are not liable for any loss or damage arising from your failure to protect your account information.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4 text-white flex items-center gap-2">
+                            <AlertTriangle className="text-primary" /> 3. User Content & Conduct
                         </h2>
                         <p className="text-zinc-400 mb-4">
-                            Our Service allows you to post, link, store, share and otherwise make available certain information, text, graphics, videos, or other material ("Content"). You are responsible for the Content that you post to the Service, including its legality, reliability, and appropriateness.
+                            Our Service allows you to post, link, store, share, and otherwise make available certain information, text, graphics, videos, or other material ("Content").
                         </p>
-                        <ul className="list-disc pl-6 text-zinc-400 space-y-2">
-                            <li>You must not post violent, nude, partially nude, discriminatory, unlawful, infringing, hateful, pornographic or sexually suggestive photos or other content via the Service.</li>
-                            <li>You must not defame, stalk, bully, abuse, harass, threaten, impersonate or intimidate people or entities.</li>
-                            <li>You may not use the Service for any illegal or unauthorized purpose.</li>
+                        <ul className="list-disc pl-6 text-zinc-400 space-y-4">
+                            <li><strong>Ownership:</strong> You retain all ownership rights to the User Content you post. We do not claim ownership over your personal data or content.</li>
+                            <li><strong>License to Us:</strong> By posting User Content, you grant {APP_CONFIG.name} a limited, non-exclusive, worldwide, royalty-free license to use, store, display, reproduce, and distribute your User Content solely for the purpose of operating, developing, providing, and improving the Service.</li>
+                            <li><strong>Prohibited Conduct:</strong> You must not post violent, nude, partially nude, discriminatory, unlawful, infringing, hateful, pornographic, or sexually suggestive photos or other content via the Service. You must not defame, stalk, bully, abuse, harass, threaten, impersonate, or intimidate people or entities. You may not use the Service for any illegal or unauthorized purpose.</li>
+                            <li><strong>Moderation:</strong> We provide tools for users to report objectionable content and block other users. We maintain a zero-tolerance policy for objectionable content or abusive users. Any reported violations will be reviewed and acted upon within 24 hours.</li>
                         </ul>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold mb-4 text-white flex items-center gap-2">
-                            <UserX className="text-primary" /> 3. Termination
+                            <Copyright className="text-primary" /> 4. Intellectual Property
                         </h2>
                         <p className="text-zinc-400">
-                            We may terminate or suspend access to our Service immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.
-                            <br /><br />
-                            All provisions of the Terms which by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity and limitations of liability.
+                            The Service and its original content (excluding User Content), features, and functionality are and will remain the exclusive property of {APP_CONFIG.name} and its licensors. The Service is protected by copyright, trademark, and other laws. Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of {APP_CONFIG.name}.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold mb-4 text-white flex items-center gap-2">
-                            <Gavel className="text-primary" /> 4. Limitation of Liability
+                            <Server className="text-primary" /> 5. Service Availability
                         </h2>
                         <p className="text-zinc-400">
-                            In no event shall {APP_CONFIG.name}, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from (i) your access to or use of or inability to access or use the Service; (ii) any conduct or content of any third party on the Service; (iii) any content obtained from the Service; and (iv) unauthorized access, use or alteration of your transmissions or content, whether based on warranty, contract, tort (including negligence) or any other legal theory.
+                            The Service is provided on an "AS IS" and "AS AVAILABLE" basis. We do not warrant that the Service will be uninterrupted, secure, or free from errors or omissions. We reserve the right to modify, suspend, or discontinue the Service at any time without notice.
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-bold mb-4 text-white">5. Governing Law</h2>
+                        <h2 className="text-2xl font-bold mb-4 text-white flex items-center gap-2">
+                            <UserX className="text-primary" /> 6. Termination
+                        </h2>
+                        <p className="text-zinc-400">
+                            We may terminate or suspend access to our Service immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms. All provisions of the Terms which by their nature should survive termination shall survive termination.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4 text-white flex items-center gap-2">
+                            <Gavel className="text-primary" /> 7. Limitation of Liability
+                        </h2>
+                        <p className="text-zinc-400">
+                            In no event shall {APP_CONFIG.name}, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from (i) your access to or use of or inability to access or use the Service; (ii) any conduct or content of any third party on the Service; (iii) any content obtained from the Service; and (iv) unauthorized access, use or alteration of your transmissions or content, whether based on warranty, contract, tort (including negligence) or any other legal theory.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4 text-white">8. Governing Law</h2>
                         <p className="text-zinc-400">
                             These Terms shall be governed and construed in accordance with the laws of India, without regard to its conflict of law provisions.
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-bold mb-4 text-white">6. Changes</h2>
+                        <h2 className="text-2xl font-bold mb-4 text-white">9. Changes</h2>
                         <p className="text-zinc-400">
-                            We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material we will try to provide at least 30 days notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion.
+                            We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material, we will try to provide at least 30 days notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion.
                         </p>
                     </section>
 
                     <section>
                         <h2 className="text-2xl font-bold mb-4 text-white flex items-center gap-2">
-                            <Mail className="text-primary" /> 7. Contact Us
+                            <Mail className="text-primary" /> 10. Contact Us
                         </h2>
                         <p className="text-zinc-400">
                             If you have any questions about these Terms, please contact us at <a href={`mailto:${APP_CONFIG.supportEmail}`} className="text-primary hover:underline">{APP_CONFIG.supportEmail}</a>.

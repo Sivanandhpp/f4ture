@@ -42,7 +42,7 @@ export default function Support() {
                 <div className="space-y-6">
                     <FAQItem
                         question="How do I delete my account?"
-                        answer="You can delete your account securely within the app by navigating to Settings > Profile > Delete Account. This will permanently remove your data from our servers."
+                        answer="You can initiate account deletion in the app (Home > Profile > Delete Account). Your account will be deactivated immediately, and you have 14 days to change your mind. If you don't log back in within 14 days, your data is permanently removed."
                     />
                     <FAQItem
                         question="How do I report inappropriate content?"

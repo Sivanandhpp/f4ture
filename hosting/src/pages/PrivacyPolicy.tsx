@@ -62,21 +62,28 @@ export default function PrivacyPolicy() {
                     <p>
                         We retain your personal information only for as long as is necessary for the purposes set out in this Privacy Policy.
                     </p>
+                    <p className="mt-4">
+                        Users may delete their account directly within the App settings. Upon deletion, all personal data associated with the account will be permanently removed from our active databases, subject to legal retention requirements.
+                    </p>
                     <h4 className="text-white font-bold mt-4 mb-2">How to Delete Your Data</h4>
                     <p>
-                        You may request deletion of your account and all associated personal data by contacting us at <a href={`mailto:${APP_CONFIG.supportEmail}`} className="text-primary hover:underline">{APP_CONFIG.supportEmail}</a> from your registered email address. We will verify your request and delete your data within a reasonable timeframe.
+                        You can initiate account deletion directly within the App by navigating to <strong>Home &gt; Profile &gt; Delete Account</strong>.
                     </p>
                     <p className="mt-2">
-                        We will process and complete all data deletion requests within 30 days of receiving a verified request.
+                        Upon request, your account will be <strong>immediately deactivated</strong> and hidden from other users. You will have a <strong>14-day grace period</strong> to reactivate your account by simply logging back in.
+                    </p>
+                    <p className="mt-2 text-zinc-400">
+                        If you do not log in within these 14 days, your account and all associated personal data will be <strong>permanently deleted</strong> from our servers. This permanent deletion is irreversible.
                     </p>
                     <p className="mt-4">
-                        You may also request access to or correction of your personal data by contacting us.
+                        You may also request access to, correction of, or assistance with deletion of your personal data by contacting us at <a href={`mailto:${APP_CONFIG.supportEmail}`} className="text-primary hover:underline">{APP_CONFIG.supportEmail}</a>.
                     </p>
                 </Section>
 
                 <Section title="5. Security" icon={<Lock className="text-primary" />}>
                     <p>
                         The security of your data is important to us, but remember that no method of transmission over the Internet, or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your Personal Data, we cannot guarantee its absolute security.
+                        We use industry-standard encryption protocols (such as TLS/SSL) to protect your data during transit.
                     </p>
                 </Section>
 
