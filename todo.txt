@@ -19,6 +19,6 @@ Event Map updation
 
 Bottom overflow in create task
 
-generate privacy policy and terms and conditions
+- [done] generate privacy policy and terms and conditions
 
-add a delete button in profile page
+done add a delete button in profile page

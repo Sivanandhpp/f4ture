@@ -14,4 +14,8 @@ class UserProfileController extends GetxController {
     await _authService.clearUser();
     Get.offAllNamed(Routes.AUTHENTICATION);
   }
+
+  void goToAbout() {
+    Get.toNamed(Routes.ABOUT);
+  }
 }

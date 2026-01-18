@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserModel {
   final String id;
   final String name;
@@ -10,6 +12,7 @@ class UserModel {
   final String status;
   final List<String> interests;
   final String? fcmToken;
+  final DateTime? deletedAt;
 
   UserModel({
     required this.id,
@@ -23,6 +26,7 @@ class UserModel {
     required this.status,
     required this.interests,
     this.fcmToken,
+    this.deletedAt,
   });
 
   Map<String, dynamic> toJson() {
@@ -38,6 +42,7 @@ class UserModel {
       'status': status,
       'interests': interests,
       'fcmToken': fcmToken,
+      'deletedAt': deletedAt != null ? Timestamp.fromDate(deletedAt!) : null,
     };
   }
 
@@ -58,6 +63,9 @@ class UserModel {
               .toList() ??
           [],
       fcmToken: json['fcmToken'] as String?,
+      deletedAt: json['deletedAt'] != null
+          ? (json['deletedAt'] as Timestamp).toDate()
+          : null,
     );
   }
 }

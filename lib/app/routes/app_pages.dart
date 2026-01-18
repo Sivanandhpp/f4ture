@@ -1,18 +1,18 @@
 import 'package:get/get.dart';
 
+import '../modules/about/bindings/about_binding.dart';
+import '../modules/about/views/about_view.dart';
 import '../modules/admin_console/bindings/admin_console_binding.dart';
 import '../modules/admin_console/views/admin_console_view.dart';
-import '../modules/navigation/bindings/navigation_binding.dart';
-import '../modules/navigation/views/navigation_view.dart';
 import '../modules/authentication/bindings/authentication_binding.dart';
 import '../modules/authentication/bindings/user_details_binding.dart';
 import '../modules/authentication/views/authentication_view.dart';
+import '../modules/authentication/views/blocked_user_view.dart'; // New Import
+import '../modules/authentication/views/deleted_account_view.dart'; // New Import
 import '../modules/authentication/views/user_details_view.dart';
 import '../modules/chat/bindings/chat_binding.dart';
 import '../modules/chat/bindings/group_details_binding.dart';
 import '../modules/chat/views/chat_view.dart';
-import '../modules/blocked_user/bindings/blocked_user_binding.dart';
-import '../modules/blocked_user/views/blocked_user_view.dart';
 import '../modules/chat/views/group_details_view.dart';
 import '../modules/create_event/bindings/create_event_binding.dart';
 import '../modules/create_event/bindings/manage_events_binding.dart';
@@ -29,6 +29,8 @@ import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/manage_users/bindings/manage_users_binding.dart';
 import '../modules/manage_users/views/manage_users_view.dart';
+import '../modules/navigation/bindings/navigation_binding.dart';
+import '../modules/navigation/views/navigation_view.dart';
 import '../modules/user_profile/bindings/user_profile_binding.dart';
 import '../modules/user_profile/views/user_profile_view.dart';
 
@@ -116,14 +118,19 @@ class AppPages {
       binding: AdminConsoleBinding(),
     ),
     GetPage(
-      name: _Paths.ADMIN_CONSOLE,
-      page: () => const AdminConsoleView(),
-      binding: AdminConsoleBinding(),
-    ),
-    GetPage(
       name: _Paths.BLOCKED,
       page: () => const BlockedUserView(),
-      binding: BlockedUserBinding(),
+      // No binding needed for BlockedUserView as it's stateless and uses arguments
+    ),
+    GetPage(
+      name: _Paths.DELETED_ACCOUNT,
+      page: () => const DeletedAccountView(),
+      binding: AuthenticationBinding(), // Needs AuthenticationController
+    ),
+    GetPage(
+      name: _Paths.ABOUT,
+      page: () => const AboutView(),
+      binding: AboutBinding(),
     ),
   ];
 }

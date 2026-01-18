@@ -20,6 +20,9 @@ export default function Terms() {
                         <p className="text-zinc-400">
                             By accessing or using the Service, you agree to be bound by these Terms. If you disagree with any part of the terms, then you may not access the Service.
                         </p>
+                        <p className="text-zinc-400 mt-4">
+                            You can access these Terms within the app at any time by navigating to <strong>Home -&gt; Profile (top left corner with picture) -&gt; App &amp; Info -&gt; Legal</strong>, or on the login screen.
+                        </p>
                     </section>
 
                     <section>

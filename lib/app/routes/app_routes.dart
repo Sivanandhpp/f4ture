@@ -19,6 +19,8 @@ abstract class Routes {
   static const CREATE_POST = _Paths.CREATE_POST;
   static const ADMIN_CONSOLE = _Paths.ADMIN_CONSOLE;
   static const BLOCKED = _Paths.BLOCKED;
+  static const ABOUT = _Paths.ABOUT;
+  static const DELETED_ACCOUNT = _Paths.DELETED_ACCOUNT;
 }
 
 abstract class _Paths {
@@ -39,4 +41,6 @@ abstract class _Paths {
   static const CREATE_POST = '/create-post';
   static const ADMIN_CONSOLE = '/admin-console';
   static const BLOCKED = '/blocked';
+  static const ABOUT = '/about';
+  static const DELETED_ACCOUNT = '/deleted-account'; // New Path
 }

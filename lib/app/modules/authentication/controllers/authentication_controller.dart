@@ -185,4 +185,35 @@ class AuthenticationController extends GetxController {
       Get.snackbar('Error', e.toString());
     }
   }
+
+  Future<void> reactivateAccount() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Use set with merge true to just update status and remove deletedAt
+        // Actually update is safer to not overwrite other fields unintentionally if doc is missing (it shouldn't be)
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({'status': 'active', 'deletedAt': FieldValue.delete()});
+
+        await _authService.refreshUser(); // Refresh local user model
+        Get.offAllNamed(Routes.NAVIGATION);
+
+        Get.snackbar(
+          'Welcome Back!',
+          'Your account has been reactivated.',
+          backgroundColor: Colors.green.withOpacity(0.1),
+          colorText: Colors.green,
+        );
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to reactivate account: $e');
+    }
+  }
+
+  Future<void> logout() async {
+    await _authService.clearUser();
+    Get.offAllNamed(Routes.AUTHENTICATION);
+  }
 }

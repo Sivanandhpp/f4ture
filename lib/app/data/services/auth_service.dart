@@ -98,12 +98,27 @@ class AuthService extends GetxService {
           return;
         }
 
+        // Deleted Account -> Redirect to Deleted Account Page
+        if (userModel.status == 'deleted') {
+          // Redirect to DeletedAccountView. Do not clear user yet so they can see "Reactivate" option.
+          // Note: If they close the app, they might need to re-login, which brings them back here.
+          Get.offAllNamed(Routes.DELETED_ACCOUNT, arguments: userModel);
+          return;
+        }
+
         await saveUser(userModel);
       } else {
         Get.log('AuthService: User authenticated but no profile found.');
       }
     } catch (e) {
       Get.log('AuthService: Error syncing user profile: $e', isError: true);
+    }
+  }
+
+  Future<void> refreshUser() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      await _syncUserProfile(user.uid);
     }
   }
 

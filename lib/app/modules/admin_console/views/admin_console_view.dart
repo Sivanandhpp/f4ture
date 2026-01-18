@@ -41,23 +41,113 @@ class AdminConsoleView extends GetView<AdminConsoleController> {
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
               Get.dialog(
-                CupertinoAlertDialog(
-                  title: const Text('Logout'),
-                  content: const Text('Are you sure you want to logout?'),
-                  actions: [
-                    CupertinoDialogAction(
-                      child: const Text('No'),
-                      onPressed: () => Get.back(),
+                Dialog(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E1E1E),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.4),
+                          blurRadius: 20,
+                          spreadRadius: 5,
+                        ),
+                      ],
                     ),
-                    CupertinoDialogAction(
-                      isDestructiveAction: true,
-                      onPressed: () {
-                        Get.back(); // Close dialog
-                        controller.logout();
-                      },
-                      child: const Text('Yes'),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.logout_rounded,
+                            color: Colors.red,
+                            size: 32,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Logout?',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Are you sure you want to logout?',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () => Get.back(),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    side: BorderSide(
+                                      color: Colors.white.withOpacity(0.1),
+                                    ),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Get.back(); // Close dialog
+                                  controller.logout();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Logout',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               );
             },
@@ -71,13 +161,54 @@ class AdminConsoleView extends GetView<AdminConsoleController> {
           children: [
             // 1. Profile Section
             _buildProfileSection(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+            InkWell(
+              onTap: () => Get.toNamed(Routes.ABOUT),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.appbarbg,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withOpacity(0.05)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.info_outline,
+                      color: Colors.white70,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Text(
+                        'App & Info',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.white.withOpacity(0.3),
+                      size: 16,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
 
             // 2. Admin Control Section
             _buildSectionHeader('Admin Controls'),
             const SizedBox(height: 12),
             _buildAdminControls(context),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
 
             // 3. My Work Section
             Row(
@@ -119,7 +250,7 @@ class AdminConsoleView extends GetView<AdminConsoleController> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColors.appbarbg,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.2),

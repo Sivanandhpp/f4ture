@@ -13,6 +13,7 @@ export default function PrivacyPolicy() {
                 </p>
                 <p className="text-zinc-400 mb-6 font-medium">
                     This Privacy Policy applies to all users of the {APP_CONFIG.name} mobile application on Android and iOS platforms.
+                    You can also view this policy within the app at any time by navigating to <strong>Home -&gt; Profile (top left corner with picture) -&gt; App &amp; Info -&gt; Legal</strong>, or on the login screen.
                 </p>
 
                 <Section title="1. Information We Collect" icon={<Database className="text-primary" />}>
@@ -67,7 +68,7 @@ export default function PrivacyPolicy() {
                     </p>
                     <h4 className="text-white font-bold mt-4 mb-2">How to Delete Your Data</h4>
                     <p>
-                        You can initiate account deletion directly within the App by navigating to <strong>Home &gt; Profile &gt; Delete Account</strong>.
+                        You can initiate account deletion directly within the App by navigating to <strong>Home -&gt; Profile (top left corner with picture) -&gt; App &amp; Info -&gt; Delete Account</strong>.
                     </p>
                     <p className="mt-2">
                         Upon request, your account will be <strong>immediately deactivated</strong> and hidden from other users. You will have a <strong>14-day grace period</strong> to reactivate your account by simply logging back in.
