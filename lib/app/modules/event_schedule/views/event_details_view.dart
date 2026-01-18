@@ -252,6 +252,15 @@ class EventDetailsView extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20), // Bottom padding
+                    // 4. Map Section (Conditional)
+                    Builder(
+                      builder: (context) {
+                        final mapData = _getMapForVenue(event.venue);
+                        if (mapData == null) return const SizedBox.shrink();
+                        return _buildMapSection(context, mapData);
+                      },
+                    ),
+                    const SizedBox(height: 100), // Bottom padding for FAB
                   ],
                 ),
               ),
@@ -316,6 +325,228 @@ class EventDetailsView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Map<String, dynamic>? _getMapForVenue(String venue) {
+    final v = venue.toLowerCase().replaceAll(' ', '');
+    // Kinfra Venues: keys + likely values
+    if ([
+      'alphahall',
+      'betabay',
+      'expo',
+      'alphahall',
+      'betabay',
+      'kinfraexpocentre',
+    ].contains(v)) {
+      return {
+        'title': 'Kinfra',
+        'image': 'assets/images/kinfra.png',
+        'aspectRatio': 1.0,
+        'mapLink': 'https://maps.app.goo.gl/GMj73tK4M7ZQQrV69',
+        'Address':
+            'KINFRA International Exhibition cum Convention Centre, Infopark, Kakkanad, Kochi',
+        'locationImg': 'assets/images/kinfra_location.png',
+      };
+    }
+    // Campus Venues: keys + likely values
+    if ([
+      'gamma1',
+      'gamma2',
+      'genx',
+      'geny',
+      'jaincampus',
+      'gamma1',
+      'gamma2',
+      'genx',
+      'geny',
+      'jaincampus',
+    ].contains(v)) {
+      return {
+        'title': 'Campus',
+        'image': 'assets/images/campus.png',
+        'aspectRatio': 1.0,
+        'mapLink': 'https://maps.app.goo.gl/3kEkaFTCskauVEit6',
+        'Address':
+            'JAIN (Deemed-to-be University), Knowledge Park, Infopark, Kakkanad, Kochi',
+        'locationImg': 'assets/images/campus_location.png',
+      };
+    }
+    return null;
+  }
+
+  Widget _buildMapSection(BuildContext context, Map<String, dynamic> mapData) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        Text(
+          'Location Map',
+          style: AppFont.heading.copyWith(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Map Viewer
+        AspectRatio(
+          aspectRatio: mapData['aspectRatio'] as double,
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.appbarbg,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.grey.withOpacity(0.2)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Stack(
+                children: [
+                  InteractiveViewer(
+                    minScale: 1.0,
+                    maxScale: 4.0,
+                    child: Image.asset(
+                      mapData['image'] as String,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (context, error, stackTrace) => Center(
+                        child: Icon(
+                          Icons.broken_image_rounded,
+                          color: Colors.white24,
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 12,
+                    right: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: const [
+                          Icon(
+                            Icons.pinch_rounded,
+                            color: Colors.white70,
+                            size: 14,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            'Zoom',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Location Card
+        GestureDetector(
+          onTap: () async {
+            if (mapData['mapLink'] != null) {
+              final Uri url = Uri.parse(mapData['mapLink'] as String);
+              if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                Get.snackbar('Error', 'Could not launch Maps');
+              }
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.appbarbg,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (mapData.containsKey('locationImg'))
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      image: DecorationImage(
+                        image: AssetImage(mapData['locationImg'] as String),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        mapData['title'] as String,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        mapData['Address'] as String,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: 12,
+                          height: 1.4,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.directions,
+                            color: AppColors.primary,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Get Directions',
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

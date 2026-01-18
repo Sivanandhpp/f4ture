@@ -1,6 +1,6 @@
 Event Schefule features 
 - [done] All day events should be added as horizontal list 
-- Show venue map with google map navigation in event details page 
+- [done] Show venue map with google map navigation in event details page 
 - show event speakers with their details if available
 
 Event creation updation

@@ -285,7 +285,7 @@ class _CreateTaskSheetState extends State<CreateTaskSheet> {
 
                   if (!_assignToEveryone)
                     Container(
-                      height: 50,
+                      height: 90,
                       margin: const EdgeInsets.only(top: 8),
                       child: Obx(
                         () => ListView.separated(

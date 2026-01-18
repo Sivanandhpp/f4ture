@@ -123,7 +123,7 @@ class ChatsList extends GetView<ChatListController> {
         }
 
         return ListView.separated(
-          padding: EdgeInsets.zero,
+          padding: const EdgeInsets.only(bottom: 200),
           itemCount: groups.length,
           separatorBuilder: (context, index) =>
               Divider(color: Colors.grey.shade800, height: 1, indent: 82),
@@ -155,7 +155,7 @@ class ChatsList extends GetView<ChatListController> {
       }
 
       return ListView.separated(
-        padding: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.only(top: 10, bottom: 100),
         itemCount: publicGroups.length,
         separatorBuilder: (context, index) =>
             Divider(color: Colors.grey.shade800, height: 1, indent: 82),
