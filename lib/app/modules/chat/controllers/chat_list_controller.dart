@@ -135,8 +135,16 @@ class ChatListController extends GetxController {
               .where((g) => g != null)
               .cast<GroupModel>()
               .toList()
-            // Sort manually by lastMessageAt descending
-            ..sort((a, b) => b.lastMessageAt.compareTo(a.lastMessageAt));
+            // Sort: Channels first, then by lastMessageAt descending
+            ..sort((a, b) {
+              final isChannelA = a.type == 'channel';
+              final isChannelB = b.type == 'channel';
+
+              if (isChannelA && !isChannelB) return -1;
+              if (!isChannelA && isChannelB) return 1;
+
+              return b.lastMessageAt.compareTo(a.lastMessageAt);
+            });
         });
   }
 

@@ -122,15 +122,69 @@ class ChatsList extends GetView<ChatListController> {
           );
         }
 
-        return ListView.separated(
-          padding: const EdgeInsets.only(bottom: 200),
-          itemCount: groups.length,
-          separatorBuilder: (context, index) =>
-              Divider(color: Colors.grey.shade800, height: 1, indent: 82),
-          itemBuilder: (context, index) {
-            final group = groups[index];
-            return _buildGroupTile(group);
-          },
+        final showJoinButton =
+            groups.isNotEmpty && groups.every((g) => g.type == 'channel');
+
+        return Stack(
+          children: [
+            ListView.separated(
+              padding: const EdgeInsets.only(bottom: 200),
+              itemCount: groups.length,
+              separatorBuilder: (context, index) =>
+                  Divider(color: Colors.grey.shade800, height: 1, indent: 82),
+              itemBuilder: (context, index) {
+                final group = groups[index];
+                return _buildGroupTile(group);
+              },
+            ),
+            if (showJoinButton)
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.groups_outlined,
+                      size: 64,
+                      color: Colors.grey.withOpacity(0.3),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Join more communities',
+                      style: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () {
+                        DefaultTabController.of(context).animateTo(1);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        elevation: 10,
+                        shadowColor: AppColors.primary.withOpacity(0.4),
+                      ),
+                      child: const Text(
+                        'Explore Communities',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
         );
       },
     );

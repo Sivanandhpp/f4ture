@@ -559,3 +559,30 @@ exports.checkEmailExists = functions.https.onCall(async (data, context) => {
         );
     }
 });
+/**
+ * Trigger: Firestore Write (Create)
+ * Path: users/{userId}
+ *
+ * Purpose:
+ * Automatically adds new users to the "Future Announcements" group.
+ * Group ID: 6S8S6yBMOzhAI37W19RE
+ */
+exports.onUserCreate = functions.firestore
+    .document("users/{userId}")
+    .onCreate(async (snapshot, context) => {
+        const userId = context.params.userId;
+        const groupID = "6S8S6yBMOzhAI37W19RE";
+
+        // Add user to the group's members collection
+        // This will trigger 'syncGroupToUser' to handle the rest
+        await db
+            .collection("groups")
+            .doc(groupID)
+            .collection("members")
+            .doc(userId)
+            .set({
+                uid: userId,
+                role: "attendee",
+                joinedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+    });

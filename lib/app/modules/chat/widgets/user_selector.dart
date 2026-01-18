@@ -195,7 +195,7 @@ class _UserSelectorState extends State<UserSelector> {
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         subtitle: Text(
-                          user.email ?? user.phone,
+                          _getContactInfo(user),
                           style: TextStyle(color: Colors.grey.shade600),
                         ),
                         trailing: Checkbox(
@@ -238,5 +238,13 @@ class _UserSelectorState extends State<UserSelector> {
         ],
       ),
     );
+  }
+
+  String _getContactInfo(UserModel user) {
+    final currentUserRole = AuthService.to.currentUser.value?.role;
+    if (currentUserRole == 'attendee' || currentUserRole == null) {
+      return 'Contact Hidden';
+    }
+    return user.email ?? user.phone;
   }
 }

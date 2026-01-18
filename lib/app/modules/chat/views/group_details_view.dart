@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/app_image.dart';
+import '../../../data/services/auth_service.dart';
 import '../../chat/widgets/user_selector.dart';
 import '../controllers/group_details_controller.dart';
 
@@ -162,44 +163,61 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
             ),
           ),
 
-          // Add Member Button
-          InkWell(
-            onTap: () {
-              // Open UserSelector
-              Get.bottomSheet(
-                UserSelector(
-                  alreadySelectedIds: controller.members
-                      .map((m) => m.user.id)
-                      .toList(),
-                  onSelectionChanged: (selected) {
-                    if (selected.isNotEmpty) {
-                      controller.addMembers(selected);
-                    }
+          // Add Member Button (Restricted to Admins)
+          Obx(() {
+            final user = AuthService.to.currentUser.value;
+            final isGlobalAdmin = user?.role == 'admin';
+            final isGroupAdmin = controller.isCurrentUserAdmin.value;
+
+            if (!isGlobalAdmin && !isGroupAdmin) {
+              return const SizedBox.shrink();
+            }
+
+            return Column(
+              children: [
+                InkWell(
+                  onTap: () {
+                    // Open UserSelector
+                    Get.bottomSheet(
+                      UserSelector(
+                        alreadySelectedIds: controller.members
+                            .map((m) => m.user.id)
+                            .toList(),
+                        onSelectionChanged: (selected) {
+                          if (selected.isNotEmpty) {
+                            controller.addMembers(selected);
+                          }
+                        },
+                      ),
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                    );
                   },
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundColor: AppColors.primary,
+                          child: Icon(Icons.add, color: Colors.white),
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Add Participants',
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-              );
-            },
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: AppColors.primary,
-                    child: Icon(Icons.add, color: Colors.white),
-                  ),
-                  SizedBox(width: 12),
-                  Text(
-                    'Add Participants',
-                    style: TextStyle(color: AppColors.primary, fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Divider(indent: 70, height: 1, color: Colors.grey.shade800),
+                Divider(indent: 70, height: 1, color: Colors.grey.shade800),
+              ],
+            );
+          }),
 
           // Member List
           ListView.separated(
@@ -221,9 +239,23 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
   Widget _buildMemberTile(GroupMember member) {
     final isAdmin = member.role == 'admin';
     final name = member.user.name;
-    final subText = member.user.phone.isNotEmpty
-        ? member.user.phone
-        : (member.user.email ?? '');
+    final currentUser = AuthService.to.currentUser.value;
+    String subText;
+
+    if (currentUser?.role == 'attendee') {
+      // Privacy Mode
+      if (member.user.phone.isNotEmpty && member.user.phone.length > 4) {
+        subText =
+            '${member.user.phone.substring(0, member.user.phone.length - 4)}****';
+      } else {
+        subText = 'Contact Hidden';
+      }
+    } else {
+      // Full Info
+      subText = member.user.phone.isNotEmpty
+          ? member.user.phone
+          : (member.user.email ?? '');
+    }
 
     return InkWell(
       onLongPress: () {
@@ -401,20 +433,111 @@ class GroupDetailsView extends GetView<GroupDetailsController> {
           style: TextStyle(color: Colors.red, fontSize: 16),
         ),
         onTap: () {
-          Get.defaultDialog(
-            title: 'Exit Group',
-            middleText: 'Are you sure you want to exit this group?',
-            textConfirm: 'Exit',
-            confirmTextColor: Colors.white,
-            onConfirm: () {
-              Get.back();
-              controller.exitGroup();
-            },
-            textCancel: 'Cancel',
-            buttonColor: Colors.red,
-            backgroundColor: AppColors.appbarbg,
-            titleStyle: const TextStyle(color: Colors.white),
-            middleTextStyle: const TextStyle(color: Colors.white),
+          Get.dialog(
+            Dialog(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E1E1E),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.4),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.logout_rounded,
+                        color: Colors.red,
+                        size: 32,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Exit Group?',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Are you sure you want to exit this group?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Get.back(),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: Colors.white.withOpacity(0.1),
+                                ),
+                              ),
+                            ),
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Get.back(); // Close dialog
+                              controller.exitGroup();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              'Exit',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
           );
         },
       ),

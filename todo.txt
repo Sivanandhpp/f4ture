@@ -1,6 +1,4 @@
 Event Schefule features 
-- [done] All day events should be added as horizontal list 
-- [done] Show venue map with google map navigation in event details page 
 - show event speakers with their details if available
 
 Event creation updation
@@ -16,9 +14,3 @@ Future Feed Optimization
 
 Event Map updation
 - Show event table 
-
-Bottom overflow in create task
-
-- [done] generate privacy policy and terms and conditions
-
-done add a delete button in profile page

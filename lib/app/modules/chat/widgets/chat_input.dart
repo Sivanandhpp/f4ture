@@ -1,6 +1,7 @@
 import 'package:f4ture/app/modules/chat/controllers/chat_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:f4ture/app/data/services/auth_service.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../data/models/message_model.dart';
 
@@ -10,6 +11,22 @@ class ChatInput extends GetView<ChatController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      final user = AuthService.to.currentUser.value;
+      if (controller.group.type == 'channel' && user?.role == 'attendee') {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          color: const Color(0xFF1E1E1E),
+          child: SafeArea(
+            child: Text(
+              'Only admins can send messages in this channel',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey.shade500),
+            ),
+          ),
+        );
+      }
+
       if (controller.selectedAttachment.value != null) {
         return _buildAttachmentPreview(context);
       }
