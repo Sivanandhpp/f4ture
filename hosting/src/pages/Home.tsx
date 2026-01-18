@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
-import { Calendar, CheckCircle2, Users, MessageCircle, ShieldCheck, Zap } from 'lucide-react';
+import { Calendar, CheckCircle2, Users, MessageCircle, ShieldCheck, Zap, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { APP_CONFIG } from '../config';
 
 export default function Home() {
     const container = {
@@ -37,13 +38,22 @@ export default function Home() {
                             Thrive Together.
                         </span>
                     </h1>
-                    <p className="text-lg md:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-                        Vishayam is your all-in-one platform for managing campus events, collaborating on tasks, and staying connected with your community groups.
+                    <p className="text-lg md:text-xl text-zinc-400 mb-6 max-w-2xl mx-auto leading-relaxed">
+                        {APP_CONFIG.name} is your all-in-one platform for managing campus events, collaborating on tasks, and staying connected with your community groups.
                     </p>
+
+                    <a
+                        href={APP_CONFIG.futureSummitUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-primary hover:text-cyan-300 font-medium mb-10 hover:underline underline-offset-4 transition-all"
+                    >
+                        Know more about the Summit of Future <ArrowRight size={16} />
+                    </a>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                         <a
-                            href="https://play.google.com/store/apps/details?id=com.siva.vishayam"
+                            href={APP_CONFIG.playStoreUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="px-8 py-4 bg-primary text-black font-bold rounded-full text-lg shadow-[0_0_40px_rgba(0,229,255,0.3)] hover:shadow-[0_0_60px_rgba(0,229,255,0.5)] hover:scale-105 transition-all w-full sm:w-auto"
@@ -109,7 +119,7 @@ export default function Home() {
                         Join thousands of students and organizers transforming how they manage campus life.
                     </p>
                     <a
-                        href="https://play.google.com/store/apps/details?id=com.siva.vishayam"
+                        href={APP_CONFIG.playStoreUrl}
                         className="inline-flex items-center gap-2 text-primary hover:text-cyan-300 font-bold text-lg hover:underline underline-offset-4 transition-all"
                     >
                         Get the App on Play Store →

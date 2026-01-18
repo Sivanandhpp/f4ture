@@ -1,4 +1,5 @@
 import { Mail, HelpCircle, FileQuestion } from 'lucide-react';
+import { APP_CONFIG } from '../config';
 
 export default function Support() {
     return (
@@ -9,7 +10,7 @@ export default function Support() {
             </h1>
 
             <p className="text-xl text-zinc-400 mb-12">
-                Need help with Vishayam? Find answers to common questions or get in touch with our team.
+                Need help with {APP_CONFIG.name}? Find answers to common questions or get in touch with our team.
             </p>
 
             {/* Contact Section */}
@@ -23,10 +24,10 @@ export default function Support() {
                             If you have any issues with your account, reporting content, or feature suggestions, please email us directly. We aim to respond within 24-48 hours.
                         </p>
                         <a
-                            href="mailto:sivanandhpp@gmail.com"
+                            href={`mailto:${APP_CONFIG.supportEmail}`}
                             className="px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-zinc-200 transition-colors inline-block"
                         >
-                            Email sivanandhpp@gmail.com
+                            Email {APP_CONFIG.supportEmail}
                         </a>
                     </div>
                 </div>
@@ -48,8 +49,8 @@ export default function Support() {
                         answer="Tap the three dots (...) on any post or comment and select 'Report'. Our admin team will review the content and take appropriate action against violations of our Terms."
                     />
                     <FAQItem
-                        question="Is Vishayam free to use?"
-                        answer="Yes, Vishayam is free for all students to join and use. Some premium features for large event organizers may be introduced in the future."
+                        question={`Is ${APP_CONFIG.name} free to use?`}
+                        answer={`Yes, ${APP_CONFIG.name} is free for all students to join and use. Some premium features for large event organizers may be introduced in the future.`}
                     />
                     <FAQItem
                         question="Can I create my own community group?"

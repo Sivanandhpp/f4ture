@@ -1,4 +1,5 @@
 import { Shield, Lock, Eye, Database, Server, Trash2, Mail } from 'lucide-react';
+import { APP_CONFIG } from '../config';
 
 export default function PrivacyPolicy() {
     return (
@@ -8,10 +9,10 @@ export default function PrivacyPolicy() {
 
             <div className="prose prose-invert max-w-none text-zinc-300">
                 <p className="lead text-lg text-zinc-400">
-                    Your privacy is important to us. This Privacy Policy explains how Vishayam ("we", "us", or "our") collects, uses, and protects your information when you use our mobile application and related services.
+                    Your privacy is important to us. This Privacy Policy explains how {APP_CONFIG.name} ("we", "us", or "our") collects, uses, and protects your information when you use our mobile application and related services.
                 </p>
                 <p className="text-zinc-400 mb-6 font-medium">
-                    This Privacy Policy applies to all users of the F4ture mobile application on Android and iOS platforms.
+                    This Privacy Policy applies to all users of the {APP_CONFIG.name} mobile application on Android and iOS platforms.
                 </p>
 
                 <Section title="1. Information We Collect" icon={<Database className="text-primary" />}>
@@ -63,12 +64,13 @@ export default function PrivacyPolicy() {
                     </p>
                     <h4 className="text-white font-bold mt-4 mb-2">How to Delete Your Data</h4>
                     <p>
-                        You have the right to delete your account and all associated data at any time.
-                        Open the App, go to <strong>Settings &gt; Profile &gt; Delete Account</strong>.
-                        This action is irreversible and will remove your profile, posts, and task assignments from our servers immediately.
+                        You may request deletion of your account and all associated personal data by contacting us at <a href={`mailto:${APP_CONFIG.supportEmail}`} className="text-primary hover:underline">{APP_CONFIG.supportEmail}</a> from your registered email address. We will verify your request and delete your data within a reasonable timeframe.
+                    </p>
+                    <p className="mt-2">
+                        We will process and complete all data deletion requests within 30 days of receiving a verified request.
                     </p>
                     <p className="mt-4">
-                        You may also request access to, correction of, or deletion of your personal data by contacting us.
+                        You may also request access to or correction of your personal data by contacting us.
                     </p>
                 </Section>
 
@@ -87,7 +89,7 @@ export default function PrivacyPolicy() {
                 <Section title="7. Contact Us" icon={<Mail className="text-primary" />}>
                     <p>If you have any questions about this Privacy Policy, please contact us:</p>
                     <ul className="mt-4">
-                        <li>By email: <a href="mailto:sivanandhpp@gmail.com" className="text-primary hover:underline">sivanandhpp@gmail.com</a></li>
+                        <li>By email: <a href={`mailto:${APP_CONFIG.supportEmail}`} className="text-primary hover:underline">{APP_CONFIG.supportEmail}</a></li>
                     </ul>
                 </Section>
             </div>
