@@ -7,3 +7,5 @@ Event creation updation
 Future Feed Optimization
 - top post creation needs to be fixed
 - post creation needs to shown gallery first then select media to prceed to post creation
+
+better ui ux for app image picker

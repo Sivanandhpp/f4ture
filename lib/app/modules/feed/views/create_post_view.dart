@@ -1,9 +1,15 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:photo_manager/photo_manager.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:video_player/video_player.dart';
+import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
+
 import '../../../core/constants/app_colors.dart';
-import '../controllers/feed_controller.dart';
-import '../widgets/local_video_preview.dart';
+import 'post_caption_view.dart';
 
 class CreatePostView extends StatefulWidget {
   const CreatePostView({super.key});
@@ -13,21 +19,194 @@ class CreatePostView extends StatefulWidget {
 }
 
 class _CreatePostViewState extends State<CreatePostView> {
-  final FeedController controller = Get.find<FeedController>();
-  final TextEditingController textController = TextEditingController();
+  // Gallery State
+  List<AssetPathEntity> albums = [];
+  AssetPathEntity? selectedAlbum;
+  List<AssetEntity> assets = [];
+  AssetEntity? selectedAsset;
+  File? selectedFile;
 
-  // Custom Dark Colors
-  static const Color kBackground = Color(0xFF121212);
+  // Video Player for Preview
+  VideoPlayerController? _videoController;
+  bool isVideo = false;
+
+  // Pagination
+  bool isLoading = false;
+  int currentPage = 0;
+  final ScrollController scrollController = ScrollController();
+
+  // Colors
+  static const Color kBackground = Colors.black;
   static const Color kSurface = Color(0xFF1E1E1E);
-  static const Color kInputBackground = Color(0xFF2C2C2C);
-  static const Color kTextPrimary = Colors.white;
-  static const Color kTextSecondary = Color(0xFFAAAAAA);
-  static const Color kDivider = Color(0xFF333333);
+
+  @override
+  void initState() {
+    super.initState();
+    _requestPermission();
+    scrollController.addListener(_onScroll);
+  }
 
   @override
   void dispose() {
-    textController.dispose();
+    scrollController.dispose();
+    _disposeVideoController();
     super.dispose();
+  }
+
+  void _disposeVideoController() {
+    _videoController?.dispose();
+    _videoController = null;
+  }
+
+  void _onScroll() {
+    if (scrollController.position.pixels /
+            scrollController.position.maxScrollExtent >
+        0.33) {
+      if (!isLoading) {
+        _loadAssets();
+      }
+    }
+  }
+
+  Future<void> _requestPermission() async {
+    final PermissionState ps = await PhotoManager.requestPermissionExtend();
+    if (ps.isAuth) {
+      _loadAlbums();
+    } else {
+      Get.snackbar(
+        'Permission Denied',
+        'Please enable gallery access in settings',
+      );
+      openAppSettings();
+    }
+  }
+
+  Future<void> _loadAlbums() async {
+    setState(() => isLoading = true);
+    // Request type: Common (Video + Image)
+    final List<AssetPathEntity> albumList = await PhotoManager.getAssetPathList(
+      type: RequestType.common,
+      filterOption: FilterOptionGroup(
+        orders: [
+          const OrderOption(type: OrderOptionType.createDate, asc: false),
+        ],
+      ),
+    );
+
+    if (albumList.isNotEmpty) {
+      setState(() {
+        albums = albumList;
+        selectedAlbum = albumList[0];
+      });
+      _loadAssets(refresh: true);
+    } else {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> _loadAssets({bool refresh = false}) async {
+    if (selectedAlbum == null) return;
+    if (refresh) {
+      assets = [];
+      currentPage = 0;
+    }
+
+    final List<AssetEntity> pageAssets = await selectedAlbum!.getAssetListPaged(
+      page: currentPage,
+      size: 60,
+    );
+
+    if (pageAssets.isEmpty) {
+      setState(() => isLoading = false);
+      return;
+    }
+
+    setState(() {
+      assets.addAll(pageAssets);
+      currentPage++;
+      isLoading = false;
+      // Auto select first asset if none selected
+      if (assets.isNotEmpty && selectedAsset == null) {
+        _selectAsset(assets[0]);
+      }
+    });
+  }
+
+  Future<void> _selectAsset(AssetEntity asset) async {
+    if (selectedAsset == asset) return;
+
+    // Cleanup previous video if any
+    if (isVideo) {
+      _disposeVideoController();
+    }
+
+    final file = await asset.file;
+    if (file == null) return;
+
+    setState(() {
+      selectedAsset = asset;
+      selectedFile = file;
+      isVideo = asset.type == AssetType.video;
+    });
+
+    if (isVideo) {
+      _videoController = VideoPlayerController.file(file)
+        ..initialize().then((_) {
+          setState(() {});
+          _videoController?.play();
+          _videoController?.setLooping(true);
+        });
+    }
+  }
+
+  Future<void> _onNext() async {
+    if (selectedFile == null) return;
+
+    File finalFile = selectedFile!;
+
+    // If image, Crop it!
+    if (!isVideo) {
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: finalFile.path,
+        aspectRatio: const CropAspectRatio(ratioX: 4, ratioY: 5),
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Image',
+            toolbarColor: Colors.black,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: true, // Force 4:5
+            hideBottomControls: true,
+          ),
+          IOSUiSettings(
+            title: 'Crop Image',
+            aspectRatioLockEnabled: true,
+            resetAspectRatioEnabled: false,
+          ),
+        ],
+      );
+
+      if (croppedFile != null) {
+        finalFile = File(croppedFile.path);
+      } else {
+        // User cancelled crop
+        return;
+      }
+    }
+
+    // Go to Caption View
+    Get.to(() => PostCaptionView(file: finalFile, isVideo: isVideo));
+  }
+
+  Future<void> _changeAlbum(AssetPathEntity? album) async {
+    if (album == null || album == selectedAlbum) return;
+    setState(() {
+      selectedAlbum = album;
+      selectedAsset = null;
+      selectedFile = null;
+    });
+    _disposeVideoController();
+    _loadAssets(refresh: true);
   }
 
   @override
@@ -35,212 +214,138 @@ class _CreatePostViewState extends State<CreatePostView> {
     return Scaffold(
       backgroundColor: kBackground,
       appBar: AppBar(
-        backgroundColor: kSurface,
-        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: kTextPrimary),
+          icon: const Icon(Icons.close, color: Colors.white),
           onPressed: () => Get.back(),
         ),
+        backgroundColor: kBackground,
+        elevation: 0,
         title: const Text(
-          'Create Post',
-          style: TextStyle(
-            color: kTextPrimary,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
+          'New Post',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        centerTitle: true,
         actions: [
-          Obx(() {
-            final isValid =
-                textController.text.isNotEmpty ||
-                controller.selectedMedia.isNotEmpty;
-            return Padding(
-              padding: const EdgeInsets.only(right: 16.0, top: 10, bottom: 10),
-              child: ElevatedButton(
-                onPressed: controller.isCreatingPost.value
-                    ? null
-                    : (isValid
-                          ? () => controller.createPost(
-                              textController.text.trim(),
-                            )
-                          : null),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  disabledBackgroundColor: AppColors.primary.withOpacity(0.3),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  elevation: 0,
-                ),
-                child: controller.isCreatingPost.value
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text(
-                        'Post',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
+          TextButton(
+            onPressed: selectedFile != null ? _onNext : null,
+            child: const Text(
+              'Next',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
               ),
-            );
-          }),
+            ),
+          ),
         ],
       ),
       body: Column(
         children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Caption Input Area
-                  Container(
-                    color: kSurface,
-                    padding: const EdgeInsets.all(20),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CircleAvatar(
-                          radius: 24,
-                          backgroundColor: Colors.grey[800],
-                          // Placeholder for user avatar
-                          child: const Icon(
-                            Icons.person,
-                            color: Colors.white70,
-                            size: 28,
-                          ),
+          // 1. Preview Area (Half Screen)
+          Container(
+            height: MediaQuery.of(context).size.width * 1.25, // 4:5 Aspectish
+            width: double.infinity,
+            color: kSurface,
+            child: _buildPreview(),
+          ),
+
+          // 2. Toolbar (Album Selector + Camera)
+          Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            color: kBackground,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                DropdownButtonHideUnderline(
+                  child: DropdownButton<AssetPathEntity>(
+                    value: selectedAlbum,
+                    dropdownColor: kSurface,
+                    icon: const Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Colors.white,
+                    ),
+                    items: albums.map((album) {
+                      return DropdownMenuItem(
+                        value: album,
+                        child: Text(
+                          album.name,
+                          style: const TextStyle(color: Colors.white),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: TextField(
-                            controller: textController,
-                            onChanged: (_) => controller.selectedMedia
-                                .refresh(), // Trigger rebuild for button validation
-                            style: const TextStyle(
-                              color: kTextPrimary,
-                              fontSize: 18,
-                              height: 1.4,
-                            ),
-                            decoration: const InputDecoration(
-                              hintText: 'What\'s on your mind?',
-                              hintStyle: TextStyle(
-                                color: kTextSecondary,
-                                fontSize: 18,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                            maxLines: null,
-                            keyboardType: TextInputType.multiline,
-                            autofocus: true,
-                          ),
-                        ),
-                      ],
+                      );
+                    }).toList(),
+                    onChanged: _changeAlbum,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    // TODO: Implement Camera
+                    Get.snackbar('Camera', 'Camera feature coming soon');
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt,
+                      color: Colors.white,
+                      size: 20,
                     ),
                   ),
-
-                  // Media Preview
-                  Obx(() {
-                    if (controller.selectedMedia.isEmpty)
-                      return const SizedBox.shrink();
-
-                    return Container(
-                      height: 320,
-                      margin: const EdgeInsets.only(top: 2),
-                      width: double.infinity,
-                      color: kSurface,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.all(16),
-                        itemCount: controller.selectedMedia.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
-                        itemBuilder: (context, index) {
-                          final file = controller.selectedMedia[index];
-                          return Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: _buildPreview(file),
-                              ),
-                              Positioned(
-                                top: 8,
-                                right: 8,
-                                child: GestureDetector(
-                                  onTap: () => controller.removeMedia(index),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.6),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.close,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    );
-                  }),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
 
-          // Bottom Actions
-          Container(
-            decoration: const BoxDecoration(
-              color: kSurface,
-              border: Border(top: BorderSide(color: kDivider, width: 0.5)),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4, bottom: 12),
-                    child: Text(
-                      "Add to your post",
-                      style: TextStyle(
-                        color: kTextPrimary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                  Row(
+          // 3. Grid View
+          Expanded(
+            child: GridView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.all(2),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: 2,
+                mainAxisSpacing: 2,
+              ),
+              itemCount: assets.length,
+              itemBuilder: (context, index) {
+                final asset = assets[index];
+                return GestureDetector(
+                  onTap: () => _selectAsset(asset),
+                  child: Stack(
+                    fit: StackFit.expand,
                     children: [
-                      _buildActionButton(
-                        icon: Icons.photo_library_rounded,
-                        label: "Gallery",
-                        color: const Color(0xFF4CAF50),
-                        onTap: controller.pickMedia,
+                      // Thumbnail
+                      Image(
+                        image: AssetEntityImageProvider(
+                          asset,
+                          isOriginal: false,
+                          thumbnailSize: const ThumbnailSize.square(200),
+                        ),
+                        fit: BoxFit.cover,
                       ),
-                      const SizedBox(width: 12),
-                      _buildActionButton(
-                        icon: Icons.camera_alt_rounded,
-                        label: "Camera",
-                        color: const Color(0xFF2196F3),
-                        onTap: controller.captureFromCamera,
-                      ),
+
+                      // Video Indicator
+                      if (asset.type == AssetType.video)
+                        const Positioned(
+                          bottom: 4,
+                          right: 4,
+                          child: Icon(
+                            Icons.videocam,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+
+                      // Selected Overlay
+                      if (selectedAsset == asset)
+                        Container(color: Colors.white.withOpacity(0.4)),
                     ],
                   ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ],
@@ -248,59 +353,33 @@ class _CreatePostViewState extends State<CreatePostView> {
     );
   }
 
-  Widget _buildPreview(dynamic file) {
-    // Check extension
-    final path = file.path.toLowerCase();
-    final isVideo = path.endsWith('.mp4') || path.endsWith('.mov');
-
-    if (isVideo) {
-      return SizedBox(
-        height: 288,
-        width: 220,
-        child: LocalVideoPreview(file: File(file.path)),
+  Widget _buildPreview() {
+    if (selectedFile == null) {
+      return const Center(
+        child: Text('Select media', style: TextStyle(color: Colors.grey)),
       );
     }
 
-    return Image.file(
-      File(file.path),
-      height: 288,
-      width: 220,
-      fit: BoxFit.cover,
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: kInputBackground,
-            borderRadius: BorderRadius.circular(12),
+    if (isVideo) {
+      if (_videoController != null && _videoController!.value.isInitialized) {
+        return FittedBox(
+          fit: BoxFit.cover,
+          child: SizedBox(
+            width: _videoController!.value.size.width,
+            height: _videoController!.value.size.height,
+            child: VideoPlayer(_videoController!),
           ),
-          child: Column(
-            children: [
-              Icon(icon, color: color, size: 26),
-              const SizedBox(height: 6),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: kTextSecondary,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+        );
+      } else {
+        return const Center(child: CircularProgressIndicator());
+      }
+    } else {
+      return Image.file(
+        selectedFile!,
+        fit: BoxFit.cover,
+        // Note: Actual cropping happens on "Next".
+        // Displaying "cover" here simulates the 4:5 crop.
+      );
+    }
   }
 }
