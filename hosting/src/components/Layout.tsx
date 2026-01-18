@@ -25,7 +25,7 @@ export default function Layout() {
                         <div className="relative w-10 h-10 overflow-hidden rounded-xl border border-white/10 group-hover:border-primary/50 transition-colors">
                             <img
                                 src="/logo.webp"
-                                alt="Vishayam Logo"
+                                alt="F4ture Logo"
                                 className="w-full h-full object-cover"
                             />
                         </div>
