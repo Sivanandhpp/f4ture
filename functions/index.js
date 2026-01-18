@@ -18,7 +18,7 @@
  * @module functions/index
  */
 
-const functions = require("firebase-functions");
+const functions = require("firebase-functions/v1");
 const admin = require("firebase-admin");
 
 // Initialize Firebase Admin SDK to interact with Firestore and Auth
@@ -41,7 +41,7 @@ const db = admin.firestore();
  *
  * Actions:
  * 1. Updates `membersCount` on the parent Group document.
- * 2. Syncs membership details (Role, Join Date, Type) to User's private `groups`.
+ * 2. Syncs membership details to User's private `groups`.
  * 3. Triggers Role Recalculation for the user.
  */
 exports.syncGroupToUser = functions.firestore
@@ -56,13 +56,11 @@ exports.syncGroupToUser = functions.firestore
         // ----------------------------------------------------------------------
         if (!change.before.exists && change.after.exists) {
             // CASE: New Member Added
-            // Increment the count atomically to prevent race conditions
             batch.update(groupRef, {
                 membersCount: admin.firestore.FieldValue.increment(1),
             });
         } else if (change.before.exists && !change.after.exists) {
             // CASE: Member Removed
-            // Decrement the count
             batch.update(groupRef, {
                 membersCount: admin.firestore.FieldValue.increment(-1),
             });
@@ -79,7 +77,7 @@ exports.syncGroupToUser = functions.firestore
             // CASE: Member Added/Updated -> Sync details to User's profile
             const memberData = change.after.data();
 
-            // Fetch fresh group data to get current 'type' (e.g. committee vs public)
+            // Fetch fresh group data to get current 'type'
             const groupDoc = await groupRef.get();
 
             // Safety check: Ensure group still exists before syncing
@@ -92,7 +90,6 @@ exports.syncGroupToUser = functions.firestore
                     type: groupType, // Important for Role Calculation
                 };
 
-                // Merge prevents overwriting other user-specific fields
                 batch.set(
                     db.doc(`users/${userId}/groups/${groupId}`),
                     userGroupData,
@@ -138,7 +135,9 @@ async function recalculateUserRole(userId) {
     if (currentRole === "core" || currentRole === "admin") return;
 
     // Fetch all groups the user belongs to
-    const userGroupsSnapshot = await db.collection(`users/${userId}/groups`).get();
+    const userGroupsSnapshot = await db
+        .collection(`users/${userId}/groups`)
+        .get();
 
     let highestRoleLevel = 0; // Default to Attendee
 
