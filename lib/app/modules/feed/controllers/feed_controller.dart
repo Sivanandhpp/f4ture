@@ -6,11 +6,15 @@ import 'package:get/get.dart';
 import '../../../data/models/post_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:video_compress/video_compress.dart';
+import 'dart:async'; // For Subscription
 import '../../../data/services/auth_service.dart';
 import '../widgets/comment_sheet.dart';
-import 'package:image_cropper/image_cropper.dart'; // Add this
-import '../views/post_caption_view.dart'; // Add this (create_post_view is already there)
+import 'package:image_cropper/image_cropper.dart';
+import '../views/post_caption_view.dart';
 import '../views/create_post_view.dart';
+import '../../../core/constants/app_colors.dart';
 
 class FeedController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -54,8 +58,16 @@ class FeedController extends GetxController {
     scrollController.addListener(_scrollListener);
   }
 
+  // Compression State
+  final RxDouble compressionProgress = 0.0.obs;
+  final RxString compressionStatus = ''.obs;
+  Subscription? _videoSubscription;
+  bool _isCancelled = false;
+
+  // Clean up subscription
   @override
   void onClose() {
+    _videoSubscription?.unsubscribe();
     scrollController.dispose();
     super.onClose();
   }
@@ -212,6 +224,62 @@ class FeedController extends GetxController {
     );
   }
 
+  Future<File?> compressImage(File file) async {
+    try {
+      final filePath = file.absolute.path;
+      final lastIndex = filePath.lastIndexOf(new RegExp(r'.png|.jp'));
+      final splitted = filePath.substring(0, (lastIndex));
+      final outPath = "${splitted}_out${filePath.substring(lastIndex)}";
+
+      var result = await FlutterImageCompress.compressAndGetFile(
+        file.absolute.path,
+        outPath,
+        quality: 85,
+        minWidth: 1080,
+        minHeight: 1350,
+      );
+
+      return result != null ? File(result.path) : null;
+    } catch (e) {
+      debugPrint("Image Compression Error: $e");
+      return file; // Return original if compression fails
+    }
+  }
+
+  Future<File?> compressVideo(File file) async {
+    try {
+      _videoSubscription?.unsubscribe();
+      _videoSubscription = VideoCompress.compressProgress$.subscribe((
+        progress,
+      ) {
+        compressionProgress.value = progress;
+      });
+
+      final MediaInfo? mediaInfo = await VideoCompress.compressVideo(
+        file.path,
+        quality: VideoQuality.MediumQuality, // 720p as requested
+        deleteOrigin: false,
+        includeAudio: true,
+      );
+
+      if (mediaInfo != null && mediaInfo.file != null) {
+        return mediaInfo.file;
+      }
+      return file;
+    } catch (e) {
+      debugPrint("Video Compression Error: $e");
+      return file;
+    }
+  }
+
+  void cancelPostCreation() {
+    _isCancelled = true;
+    VideoCompress.cancelCompression();
+    if (Get.isDialogOpen ?? false) Get.back();
+    isCreatingPost.value = false;
+    Get.snackbar('Cancelled', 'Post creation cancelled');
+  }
+
   Future<void> createPostFromGallery({
     required String caption,
     required File file,
@@ -228,23 +296,122 @@ class FeedController extends GetxController {
       return;
     }
 
+    _isCancelled = false;
+    isCreatingPost.value = true;
+    compressionProgress.value = 0.0;
+    compressionStatus.value = "Preparing...";
+
+    // Show Progress Dialog
+    Get.dialog(
+      PopScope(
+        canPop: false,
+        child: Obx(
+          () => AlertDialog(
+            backgroundColor: const Color(0xFF1E1E1E),
+            title: Text(
+              isVideo ? 'Processing Video' : 'Uploading Post',
+              style: const TextStyle(color: Colors.white),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LinearProgressIndicator(
+                  value: compressionProgress.value / 100,
+                  backgroundColor: Colors.grey[800],
+                  color: AppColors.primary,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  compressionStatus.value,
+                  style: const TextStyle(color: Colors.white70),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Please do not close the app.',
+                  style: TextStyle(color: Colors.redAccent, fontSize: 12),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: cancelPostCreation,
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+
     try {
-      isCreatingPost.value = true;
-      Get.dialog(
-        const Center(child: CircularProgressIndicator()),
-        barrierDismissible: false,
-      );
+      File fileToUpload = file;
+
+      // 1. Compression Phase
+      if (isVideo) {
+        compressionStatus.value = "Compressing Video...";
+        // VideoCompress emits 0-100 on compressProgress$
+        final compressedFile = await compressVideo(file);
+        if (_isCancelled) return;
+        if (compressedFile != null) {
+          fileToUpload = compressedFile;
+        }
+      } else {
+        compressionStatus.value = "Compressing Image...";
+        // Image compress is fast, simulate status update
+        compressionProgress.value = 10;
+        final compressedFile = await compressImage(file);
+        if (_isCancelled) return;
+        if (compressedFile != null) {
+          fileToUpload = compressedFile;
+        }
+        compressionProgress.value = 30; // Jump to 30 for upload start
+      }
+
+      // 2. Upload Phase
+      if (_isCancelled) return;
+
+      compressionStatus.value = "Uploading...";
+      // We can use PutTask to track upload progress if desired,
+      // but for simplicity let's stick to indefinite or jumpy progress
+      // since we already used the progress bar for compression.
+      // Let's reset progress or continue from 30/100?
+      // Better: Indeterminate for upload or just finish it.
 
       final String postId = _firestore.collection('posts').doc().id;
-      final String fileName = '${DateTime.now().millisecondsSinceEpoch}_post';
+      final String extension = isVideo ? '.mp4' : '.jpg';
+      final String fileName =
+          '${DateTime.now().millisecondsSinceEpoch}_post$extension';
       final ref = FirebaseStorage.instance.ref().child(
         'posts/$postId/$fileName',
       );
 
       final contentType = isVideo ? 'video/mp4' : 'image/jpeg';
-      final bytes = await file.readAsBytes();
 
-      await ref.putData(bytes, SettableMetadata(contentType: contentType));
+      final uploadTask = ref.putFile(
+        fileToUpload,
+        SettableMetadata(contentType: contentType),
+      );
+
+      // Track Upload Progress
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        if (_isCancelled) {
+          uploadTask.cancel();
+          return;
+        }
+        double progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        // Map upload progress to remaining part of bar?
+        // Or just override. Users understand jumping bars.
+        compressionProgress.value = progress;
+      });
+
+      await uploadTask;
+      if (_isCancelled) return;
+
       final url = await ref.getDownloadURL();
 
       final post = PostModel(
@@ -276,6 +443,7 @@ class FeedController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
+      if (_isCancelled) return; // Ignore errors if cancelled
       if (Get.isDialogOpen ?? false) Get.back();
       Get.snackbar(
         'Error',
@@ -285,6 +453,10 @@ class FeedController extends GetxController {
       );
     } finally {
       isCreatingPost.value = false;
+      // Clean up compressed video cache
+      if (isVideo) {
+        VideoCompress.deleteAllCache();
+      }
     }
   }
 

@@ -164,6 +164,11 @@ class _CreatePostViewState extends State<CreatePostView> {
 
     File finalFile = selectedFile!;
 
+    // If video, pause it
+    if (isVideo) {
+      _videoController?.pause();
+    }
+
     // If image, Crop it!
     if (!isVideo) {
       final croppedFile = await ImageCropper().cropImage(
