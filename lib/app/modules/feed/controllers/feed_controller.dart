@@ -8,6 +8,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../data/services/auth_service.dart';
 import '../widgets/comment_sheet.dart';
+import 'package:image_cropper/image_cropper.dart'; // Add this
+import '../views/post_caption_view.dart'; // Add this (create_post_view is already there)
 import '../views/create_post_view.dart';
 
 class FeedController extends GetxController {
@@ -379,27 +381,31 @@ class FeedController extends GetxController {
 
       if (image != null) {
         // Enforce Crop
-        // File finalFile = File(image.path); // Unused, removing.
+        final croppedFile = await ImageCropper().cropImage(
+          sourcePath: image.path,
+          aspectRatio: const CropAspectRatio(ratioX: 4, ratioY: 5),
+          uiSettings: [
+            AndroidUiSettings(
+              toolbarTitle: 'Edit Photo',
+              toolbarColor: Colors.black,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: true,
+              backgroundColor: Colors.black,
+            ),
+            IOSUiSettings(
+              title: 'Edit Photo',
+              aspectRatioLockEnabled: true,
+              resetAspectRatioEnabled: false,
+            ),
+          ],
+        );
 
-        // Use ImageCropper (need to import if not available, but logic is in View usually.
-        // We can duplicate minimal crop logic or move cropping to a service.
-        // For simplicity, let's just go to Caption View directly or Gallery View.
-        // Going to Gallery View is safer to reuse the Crop logic in _onNext?
-        // But _onNext is private in State.
-        // Let's just go to CreatePostView (Gallery) and maybe it updates?
-        // Actually, CreatePostView loads from PhotoManager. The camera image might not be in the album immediately or at top.
-
-        // Better: Go straight to CaptionView (skip crop for Camera? No, user requested 4:5 constraint).
-        // Let's import create_post_view.dart and its dependencies to crop here?
-        // No, controller shouldn't have UI logic like Cropper if possible, but GetX allows it.
-
-        // Simplest valid path matching "production quality":
-        // 1. Take Photo
-        // 2. Open Gallery View (CreatePostView)
-        // 3. (Ideally) it shows the new photo.
-        // 4. User selects it and continues.
-
-        Get.to(() => const CreatePostView());
+        if (croppedFile != null) {
+          Get.to(
+            () => PostCaptionView(file: File(croppedFile.path), isVideo: false),
+          );
+        }
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to capture image: $e');
