@@ -25,14 +25,23 @@ class NotificationService extends GetxService {
       // 2. Setup Local Notifications (for foreground)
       const AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('@mipmap/ic_launcher');
+      const DarwinInitializationSettings initializationSettingsDarwin =
+          DarwinInitializationSettings();
       const InitializationSettings initializationSettings =
-          InitializationSettings(android: initializationSettingsAndroid);
+          InitializationSettings(
+            android: initializationSettingsAndroid,
+            iOS: initializationSettingsDarwin,
+          );
       await _localNotifications.initialize(initializationSettings);
 
       // 3. Get Token and Save
-      String? token = await _messaging.getToken();
-      if (token != null) {
-        _saveTokenToFirestore(token);
+      try {
+        String? token = await _messaging.getToken();
+        if (token != null) {
+          _saveTokenToFirestore(token);
+        }
+      } catch (e) {
+        print('Error getting FCM token: $e');
       }
 
       // 4. Listen for Token Refresh
