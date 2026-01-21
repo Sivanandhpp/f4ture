@@ -4,12 +4,7 @@ import Home from './pages/Home';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
 import Support from './pages/Support';
-
-// Temporary placeholder components until files are created
-// const Home = () => <div className="p-10"><h1>Home Page</h1></div>;
-// const PrivacyPolicy = () => <div className="p-10"><h1>Privacy Policy</h1></div>;
-// const Terms = () => <div className="p-10"><h1>Terms</h1></div>;
-// const Support = () => <div className="p-10"><h1>Support</h1></div>;
+import DeleteAccount from './pages/DeleteAccount';
 
 function App() {
   return (
@@ -20,6 +15,7 @@ function App() {
           <Route path="privacy-policy" element={<PrivacyPolicy />} />
           <Route path="terms-and-conditions" element={<Terms />} />
           <Route path="support" element={<Support />} />
+          <Route path="delete-account" element={<DeleteAccount />} />
 
           {/* Redirects for common typos or old links */}
           <Route path="privacy" element={<Navigate to="/privacy-policy" replace />} />

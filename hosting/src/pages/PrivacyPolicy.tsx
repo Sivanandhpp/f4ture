@@ -36,7 +36,34 @@ export default function PrivacyPolicy() {
                     </ul>
                 </Section>
 
-                <Section title="3. Third-Party Services" icon={<Server className="text-primary" />}>
+                <Section title="3. Mobile App Permissions" icon={<Shield className="text-primary" />}>
+                    <p>To provide accurate features, the F4ture mobile application requests the following permissions on your device:</p>
+                    <div className="grid gap-4 mt-6">
+                        <ServiceCard
+                            name="Camera"
+                            purpose="To capture photos and videos for your feed posts, stories, and profile picture."
+                        />
+                        {/* <ServiceCard
+                            name="Microphone"
+                            purpose="To record audio when capturing videos for posts and stories."
+                        /> */}
+                        <ServiceCard
+                            name="Photo Library & Storage"
+                            purpose="To select photos and videos from your gallery for upload and to save content to your device."
+                        />
+                        {/* <ServiceCard
+                            name="Location"
+                            purpose="To add location tags to your posts and helping you discover events and communities near you."
+                        /> */}
+                        <ServiceCard
+                            name="Notifications"
+                            purpose="To keep you updated on interactions, messages, and important alerts."
+                        />
+                    </div>
+                    <p className="mt-4 text-zinc-400 text-sm">You can manage these permissions anytime in your device settings.</p>
+                </Section>
+
+                <Section title="4. Third-Party Services" icon={<Server className="text-primary" />}>
                     <p>We use trusted third-party services to operate our App. These providers have access to your personal information only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.</p>
                     <div className="grid gap-4 mt-6">
                         <ServiceCard
@@ -59,7 +86,7 @@ export default function PrivacyPolicy() {
                     <p className="mt-6 font-medium text-white/90">We do not sell, rent, or trade your personal information to third parties.</p>
                 </Section>
 
-                <Section title="4. Data Retention & Deletion" icon={<Trash2 className="text-primary" />}>
+                <Section title="5. Data Retention & Deletion" icon={<Trash2 className="text-primary" />}>
                     <p>
                         We retain your personal information only for as long as is necessary for the purposes set out in this Privacy Policy.
                     </p>
@@ -81,20 +108,20 @@ export default function PrivacyPolicy() {
                     </p>
                 </Section>
 
-                <Section title="5. Security" icon={<Lock className="text-primary" />}>
+                <Section title="6. Security" icon={<Lock className="text-primary" />}>
                     <p>
                         The security of your data is important to us, but remember that no method of transmission over the Internet, or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your Personal Data, we cannot guarantee its absolute security.
                         We use industry-standard encryption protocols (such as TLS/SSL) to protect your data during transit.
                     </p>
                 </Section>
 
-                <Section title="6. Children's Privacy" icon={<Shield className="text-primary" />}>
+                <Section title="7. Children's Privacy" icon={<Shield className="text-primary" />}>
                     <p>
                         Our Service does not address anyone under the age of 13. We do not knowingly collect personally identifiable information from anyone under the age of 13.
                     </p>
                 </Section>
 
-                <Section title="7. Contact Us" icon={<Mail className="text-primary" />}>
+                <Section title="8. Contact Us" icon={<Mail className="text-primary" />}>
                     <p>If you have any questions about this Privacy Policy, please contact us:</p>
                     <ul className="mt-4">
                         <li>By email: <a href={`mailto:${APP_CONFIG.supportEmail}`} className="text-primary hover:underline">{APP_CONFIG.supportEmail}</a></li>
