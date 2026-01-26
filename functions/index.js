@@ -572,17 +572,29 @@ exports.onUserCreate = functions.firestore
     .onCreate(async (snapshot, context) => {
         const userId = context.params.userId;
         const groupID = "6S8S6yBMOzhAI37W19RE";
+        const batch = db.batch(); // Create a batch for atomic updates
 
-        // Add user to the group's members collection
-        // This will trigger 'syncGroupToUser' to handle the rest
-        await db
-            .collection("groups")
-            .doc(groupID)
-            .collection("members")
-            .doc(userId)
-            .set({
-                uid: userId,
-                role: "attendee",
-                joinedAt: admin.firestore.FieldValue.serverTimestamp(),
-            });
+        const timestamp = admin.firestore.FieldValue.serverTimestamp();
+
+        // 1. Add user to the group's members collection
+        const groupMemberRef = db.doc(`groups/${groupID}/members/${userId}`);
+
+        batch.set(groupMemberRef, {
+            uid: userId,
+            role: "attendee",
+            joinedAt: timestamp,
+        });
+
+        // 2. Add group to the user's groups subcollection
+        // Requested details: joinedAt, role: "attendee", type: "channel"
+        const userGroupRef = db.doc(`users/${userId}/groups/${groupID}`);
+
+        batch.set(userGroupRef, {
+            joinedAt: timestamp,
+            role: "attendee",
+            type: "channel",
+        });
+
+        // Commit both writes atomically
+        await batch.commit();
     });
