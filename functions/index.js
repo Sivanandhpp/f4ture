@@ -417,7 +417,9 @@ exports.onIssueWrite = functions.firestore
 exports.onMessageCreate = functions.firestore
     .document("groups/{groupId}/messages/{messageId}")
     .onCreate(async (snap, context) => {
-        const { groupId } = context.params;
+        const { groupId, messageId } = context.params;
+        console.log(`[DEBUG] onMessageCreate triggered. Group: ${groupId}, Message: ${messageId}`);
+
         const messageData = snap.data();
         const { text, type, senderId, senderName, createdAt } = messageData;
 
@@ -434,7 +436,11 @@ exports.onMessageCreate = functions.firestore
         // ----------------------------------------------------------------------
         const groupRef = db.collection("groups").doc(groupId);
         const groupDoc = await groupRef.get();
-        const groupName = groupDoc.exists ? groupDoc.data().name : "Group Chat";
+        if (!groupDoc.exists) {
+            console.log(`[DEBUG] Group ${groupId} does not exist.`);
+            return;
+        }
+        const groupName = groupDoc.data().name || "Group Chat";
 
         batch.update(groupRef, {
             lastMessage: displayMessage,
@@ -446,6 +452,7 @@ exports.onMessageCreate = functions.firestore
         // Step 2: Fan-out Updates to Members & Collect Tokens
         // ----------------------------------------------------------------------
         const membersSnap = await groupRef.collection("members").get();
+        console.log(`[DEBUG] Found ${membersSnap.size} members in group ${groupId}`);
         const tokens = [];
 
         // Process each member in parallel for performance
@@ -472,13 +479,19 @@ exports.onMessageCreate = functions.firestore
                     const userData = userDoc.data();
                     if (userData.fcmToken) {
                         tokens.push(userData.fcmToken);
+                    } else {
+                        console.log(`[DEBUG] User ${userId} missing 'fcmToken'`);
                     }
+                } else {
+                    console.log(`[DEBUG] User profile ${userId} not found`);
                 }
             }
         });
 
         await Promise.all(memberPromises);
         await batch.commit();
+
+        console.log(`[DEBUG] Collected ${tokens.length} tokens for notification.`);
 
         // ----------------------------------------------------------------------
         // Step 3: Send FCM Push Notifications (Multicast)
@@ -497,19 +510,32 @@ exports.onMessageCreate = functions.firestore
                 },
             };
 
+            console.log(`[DEBUG] Sending payload:`, JSON.stringify(payload));
+
             try {
                 const response = await admin.messaging().sendEachForMulticast({
                     tokens: tokens,
                     notification: payload.notification,
                     data: payload.data,
                 });
+
                 console.log(
-                    `Notifications sent: ${response.successCount} success, ` +
+                    `Notifications result: ${response.successCount} success, ` +
                     `${response.failureCount} failed.`,
                 );
+
+                if (response.failureCount > 0) {
+                    response.responses.forEach((resp, idx) => {
+                        if (!resp.success) {
+                            console.error(`[ERROR] Failed to send to token ${tokens[idx]}:`, resp.error);
+                        }
+                    });
+                }
             } catch (e) {
-                console.error("Error sending notifications:", e);
+                console.error("[ERROR] Critical error sending notifications:", e);
             }
+        } else {
+            console.log("[DEBUG] No tokens targetable. Skipping send.");
         }
     });
 
